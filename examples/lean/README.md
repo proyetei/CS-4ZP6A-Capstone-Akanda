@@ -1,4 +1,4 @@
-* Some examples of Lean 4
+# Some examples of Lean 4
 
 This directory contains some examples of `lean-4`.
 
