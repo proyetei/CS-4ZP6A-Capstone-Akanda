@@ -15,7 +15,7 @@ import PrintRocq
 test :: Module
 test = Module "LetExample"
     [
-        DefVar "n" (Just $ Con "Int") (Let [DefVar "x1" Nothing $ Int 1] $ Let [DefVar "x2" Nothing $ Var "x1"] $ Let [DefVar "x3" Nothing $ Var "x2"] $ Var "x3")
+        DefVar "n" (Just $ Con "Nat") (Let [DefVar "x1" Nothing $ Int 1] $ Let [DefVar "x2" Nothing $ Var "x1"] $ Let [DefVar "x3" Nothing $ Var "x2"] $ Var "x3")
     ]
 
 main :: IO()
