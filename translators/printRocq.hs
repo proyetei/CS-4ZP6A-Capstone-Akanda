@@ -1,6 +1,7 @@
 module PrintRocq (runRocq) where
 
 import Grammar
+import Data.Char
 
 imports = ""
 
@@ -8,7 +9,7 @@ printRocq :: Module -> String
 printRocq (Module name defs) =
     let
         headers = "Module " ++ name ++ ".\n" ++ imports
-        printType (Con t) = t
+        printType (Con t) = map toLower t
         printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
         printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
         printExpr (Var var) = var
@@ -27,7 +28,7 @@ printRocq (Module name defs) =
         printDef (DefFun var Nothing args expr) = var ++ (foldr (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr 
         printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldr (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ "."
         body = foldr (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
-    in headers ++ "\n" ++ body ++ "End " ++ name ++ "."
+    in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 
 runRocq :: Module -> IO()
 runRocq (Module name d) = do
