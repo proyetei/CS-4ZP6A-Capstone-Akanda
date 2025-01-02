@@ -4,6 +4,7 @@ import Grammar
 
 imports = "open import IO \nopen import Agda.Builtin.Nat\n"
 
+-- Print the Agda module
 printAgda :: Module -> String
 printAgda (Module name defs) =
     let
@@ -15,21 +16,32 @@ printAgda (Module name defs) =
         printExpr (Bool bool) = show bool
         printExpr (String str) = str
         printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
-        printExpr (Bin op e1 e2) = printExpr e1 ++ op ++ printExpr e2
+        printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
         printExpr (Let [] expr) = printExpr expr -- this should never happen
-        printExpr (Let (d:[]) expr) = "let " ++ (printDef d) ++ "\n    in " ++ printExpr expr
-        printExpr (Let (d:ds) expr) = "let \n    " ++ (foldr (\x y -> x ++ "\n    " ++ y) (printDef d) $ map printDef ds) ++ "\n    in \n    " ++ printExpr expr -- probably need to recursively indent blocks to make sure everything stays aligned
+        printExpr (Let (d:[]) expr) = "let\n    " ++ printDef d ++ "\nin\n    " ++ printExpr expr
+        printExpr (Let (d:ds) expr) = "let\n    " ++ printDef d ++ concatMap (\x -> "\n    " ++ printDef x) ds ++ "\n    in " ++ printExpr expr -- Changed foldr to concatMap to preserve order
         printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-        printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ foldr (\x y -> x ++ "\n    " ++ y) "" $ map printDef ds
-        printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr where
-            typeSig = case ty of
-                Just t -> var ++ " : " ++ printType t ++ "\n"
-                Nothing -> ""
-        printDef (DefFun var ty args expr) = typeSig ++ var ++ (foldr (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " = " ++ printExpr expr where
-            typeSig = case ty of
-                Just t -> var ++ " : " ++ printType t ++ "\n"
-                Nothing -> ""
-        body = foldr (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
+        printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concatMap (\x -> "\n    " ++ printDef x) ds
+        printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
+
+        -- Function to print variable definitions
+        printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr
+            where
+                typeSig = case ty of
+                    Just t -> var ++ " : " ++ printType t ++ "\n"
+                    Nothing -> ""
+        
+        -- Function to print function definitions
+        printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ " = " ++ printExpr expr
+            where
+                typeSig = case ty of
+                    Just t -> var ++ " : " ++ printType t ++ "\n    "
+                    Nothing -> ""
+                argsStr = unwords $ map (\(Arg name _) -> name) args  -- Correctly handle argument names
+        
+        -- Concatenate all definitions
+        body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
+
     in headers ++ "\n" ++ body
 
 runAgda :: Module -> IO()
