@@ -2,7 +2,7 @@ module PrintAgda (runAgda) where
 
 import Grammar
 
-imports = "open import IO \nopen import Agda.Builtin.Nat\n"
+imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat\n" --open import IO alone not scoping to stlib 
 
 -- Print the Agda module
 printAgda :: Module -> String

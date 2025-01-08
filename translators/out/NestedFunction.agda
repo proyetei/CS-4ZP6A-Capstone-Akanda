@@ -1,5 +1,5 @@
 module NestedFunction where 
-open import IO 
+open import Agda.Builtin.IO  
 open import Agda.Builtin.Nat
 
 n : Nat

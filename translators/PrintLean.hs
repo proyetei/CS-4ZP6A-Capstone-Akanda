@@ -22,6 +22,7 @@ printLean (Module name defs) =
         printExpr (Let (d:ds) expr) = "let " ++ (foldr (\x y -> x ++ "\nlet " ++ y) (printDef d) $ map printDef ds) ++ "\n" ++ printExpr expr -- probably need to recursively indent blocks to make sure everything stays aligned
         printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then \n\t" ++ printExpr thn ++ "\nelse " ++ printExpr els
         printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n\twhere " $ foldr (\x y -> x ++ "\n\t" ++ y) "" $ map printDef ds
+        printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
         printDef (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr 
         printDef (DefVar var (Just t) expr) = "def " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr
         printDef (DefFun var Nothing args expr) = var ++ (foldr (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr 

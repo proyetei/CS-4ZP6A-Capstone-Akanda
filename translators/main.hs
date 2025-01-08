@@ -29,11 +29,6 @@ test1 :: Module
 test1 = Module "NestedFunction"
     [
         DefVar "n" (Just $ Con "Nat") (Let 
-            -- [
-            --     DefFun "f1" Nothing [Arg "x1" (Con "Nat")] (Bin "+" (Var "x1") (Int 1)),
-            --     DefFun "f2" Nothing [Arg "x1" (Con "Nat"), Arg "x2" (Con "Nat")] (Bin "+" (Bin "+" (Var "x2") (Var "x1")) (Int 1)),
-            --     DefFun "f3" Nothing [Arg "x1" (Con "Nat"), Arg "x2" (Con "Nat"),  Arg "x3" (Con "Nat")] (Bin "+" (Bin "+" (Bin "+" (Var "x3") (Var "x2")) (Var "x1")) (Int 1))
-            -- ]
             [
                 -- Define function f1 with type Nat -> Nat
                 DefFun "f1" (Just $ Arr (Con "Nat") (Con "Nat")) [Arg "x1" (Con "Nat")] (Bin "+" (Var "x1") (Int 1)),
@@ -54,5 +49,5 @@ main :: IO()
 main = do
     runAgda test1
     -- runIdris test
-    -- runLean test
+    runLean test1
     -- runRocq test
