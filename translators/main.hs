@@ -48,6 +48,6 @@ test1 = Module "NestedFunction"
 main :: IO()
 main = do
     runAgda test1
-    -- runIdris test
+    runIdris test1
     runLean test1
     -- runRocq test
