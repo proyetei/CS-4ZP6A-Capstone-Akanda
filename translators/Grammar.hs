@@ -9,6 +9,7 @@ data Module = Module { mod :: Name, defs :: [Definition] } -- is there anything 
 -}
 
 data Definition = DefFun Name (Maybe Type) [Arg] Expr
+                | DefNesFun Name (Maybe Type) [Arg] Expr -- Constructor for nested functions
                 | DefVar Name (Maybe Type) Expr
 
 data Type = Con Name

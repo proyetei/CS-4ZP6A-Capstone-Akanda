@@ -38,7 +38,8 @@ printAgda (Module name defs) =
                     Just t -> var ++ " : " ++ printType t ++ "\n    "
                     Nothing -> ""
                 argsStr = unwords $ map (\(Arg name _) -> name) args  -- Correctly handle argument names
-        
+        printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
+        printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
         -- Concatenate all definitions
         body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
 

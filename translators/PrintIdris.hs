@@ -30,6 +30,8 @@ printIdris (Module name defs) =
             typeSig = case ty of
                 Just t -> var ++ " : " ++ printType t ++ "\n    "
                 Nothing -> ""
+        printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
+        printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
 
