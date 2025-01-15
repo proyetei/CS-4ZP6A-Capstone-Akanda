@@ -13,7 +13,7 @@ _maxsize = 1000000
 chooseTest :: String -> IO Int
 chooseTest str = case readMaybe str :: Maybe Int of
     Just i ->
-        if i >= 0 || i <= length tests then return i else 
+        if i > 0 || i <= length tests then return i else 
             do
                 putStrLn "test choice out of bounds"
                 getLine >>= chooseTest

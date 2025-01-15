@@ -51,3 +51,30 @@ test1 n = Module "LetExample" [DefVar "n" (Just $ Con "Nat") $ lets n]
         lets p = if p==n then xs p
             else
                 Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
+
+
+-- this is equivalent to:
+-- n :: Nat
+-- n = let f1 x1 = x1 + 1
+--         f2 x1 x2 = x1 + x2 + 1
+--         f3 x1 x2 x3 = x1 + x2 + x3 + 1
+--     in f1 2 + f2 2 3 + f3 2 3 4
+
+test2 :: Module
+test2 = Module "NestedFunction"
+    [
+        DefVar "n" (Just $ Con "Nat") (Let 
+            [
+                -- Define function f1 with type Nat -> Nat
+                DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat")) [Arg "x1" (Con "Nat")] (Bin "+" (Var "x1") (Int 1)),
+                
+                -- Define function f2 with type Nat -> Nat -> Nat
+                DefNesFun "f2" (Just $ Arr (Con "Nat") (Arr (Con "Nat") (Con "Nat"))) [Arg "x1" (Con "Nat"), Arg "x2" (Con "Nat")] (Bin "+" (Bin "+" (Var "x2") (Var "x1")) (Int 1)),
+                
+                -- Define function f3 with type Nat -> Nat -> Nat -> Nat
+                DefNesFun "f3" (Just $ Arr (Con "Nat") (Arr (Con "Nat") (Arr (Con "Nat") (Con "Nat")))) [Arg "x1" (Con "Nat"), Arg "x2" (Con "Nat"), Arg "x3" (Con "Nat")] (Bin "+" (Bin "+" (Bin "+" (Var "x3") (Var "x2")) (Var "x1")) (Int 1))
+            ] $ Bin "+" (Bin "+" (FunCall "f1" [Int 2]) (FunCall "f2" [Int 2, Int 3])) (FunCall "f3" [Int 2, Int 3, Int 4]) ) 
+    ] 
+
+-- DefFun "f2" Nothing [Arg "x1" Nothing, Arg "x2" Nothing] (Bin "+" (Bin "+" (Var "x1") (Var "x2") (Int 1)))
+    
