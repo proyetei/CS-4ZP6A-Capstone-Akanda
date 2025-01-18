@@ -1,0 +1,54 @@
+{
+  "graph": [
+    {
+      "testcase_1": {
+        "Idris": {
+          "time": 2,
+          "Space": 100,
+          "size": 5
+        },
+        "Agda": {
+          "time": 4,
+          "Space": 200,
+          "size": 10
+        },
+        "Coq": {
+          "time": 6,
+          "Space": 300,
+          "size": 15
+        },
+        "Lean": {
+          "time": 3,
+          "Space": 120,
+          "size": 6
+        }
+      }
+    },
+    {
+      "testcase_2": {
+        "Idris": {
+          "time": 3,
+          "Space": 150,
+          "size": 7
+        },
+        "Agda": {
+          "time": 5,
+          "Space": 250,
+          "size": 12
+        },
+        "Coq": {
+          "time": 7,
+          "Space": 350,
+          "size": 18
+        },
+        "Lean": {
+          "time": 4,
+          "Space": 180,
+          "size": 9
+        }
+      }
+    }
+  ]
+}
+
+  
