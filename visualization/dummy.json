@@ -1,0 +1,96 @@
+{
+  "testcases": [
+    {
+      "name": "testcase_1", 
+      "description": "test case for appending to a list",
+"languages": [
+        {
+          "name": "Idris",
+          "tests": [
+            { "size": 5, "space": 25, "time": 4 },
+            { "size": 10, "space": 50, "time": 8 },
+            { "size": 15, "space": 75, "time": 12 },
+            { "size": 25, "space": 125, "time": 20 },
+            { "size": 30, "space": 150, "time": 24 }
+          ]
+        },
+        {
+          "name": "Agda",
+          "tests": [
+            { "size": 5, "space": 30, "time": 5 },
+            { "size": 10, "space": 60, "time": 10 },
+            { "size": 15, "space": 90, "time": 15 },
+            { "size": 25, "space": 150, "time": 25 },
+            { "size": 30, "space": 180, "time": 30 }
+          ]
+        },
+        {
+          "name": "Coq",
+          "tests": [
+            { "size": 5, "space": 35, "time": 6 },
+            { "size": 10, "space": 70, "time": 12 },
+            { "size": 15, "space": 105, "time": 18 },
+            { "size": 25, "space": 175, "time": 30 },
+            { "size": 30, "space": 210, "time": 36 }
+          ]
+        },
+        {
+          "name": "Lean",
+          "tests": [
+            { "size": 5, "space": 40, "time": 7 },
+            { "size": 10, "space": 80, "time": 14 },
+            { "size": 15, "space": 120, "time": 21 },
+            { "size": 25, "space": 200, "time": 35 },
+            { "size": 30, "space": 240, "time": 42 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "testcase_2", 
+      "description": "nested list concatenation",
+      "languages": [
+        {
+          "name": "Idris",
+          "tests": [
+            { "size": 5, "space": 26, "time": 5 },
+            { "size": 10, "space": 52, "time": 10 },
+            { "size": 15, "space": 78, "time": 15 },
+            { "size": 25, "space": 130, "time": 25 },
+            { "size": 30, "space": 156, "time": 30 }
+          ]
+        },
+        {
+          "name": "Agda",
+          "tests": [
+            { "size": 5, "space": 31, "time": 6 },
+            { "size": 10, "space": 62, "time": 12 },
+            { "size": 15, "space": 93, "time": 18 },
+            { "size": 25, "space": 155, "time": 30 },
+            { "size": 30, "space": 186, "time": 36 }
+          ]
+        },
+        {
+          "name": "Coq",
+          "tests": [
+            { "size": 5, "space": 36, "time": 7 },
+            { "size": 10, "space": 72, "time": 14 },
+            { "size": 15, "space": 108, "time": 21 },
+            { "size": 25, "space": 180, "time": 35 },
+            { "size": 30, "space": 216, "time": 42 }
+          ]
+        },
+        {
+          "name": "Lean",
+          "tests": [
+            { "size": 5, "space": 41, "time": 8 },
+            { "size": 10, "space": 82, "time": 16 },
+            { "size": 15, "space": 123, "time": 24 },
+            { "size": 25, "space": 205, "time": 40 },
+            { "size": 30, "space": 246, "time": 48 }
+          ]
+        }
+      ]
+    }
+  ]
+}
