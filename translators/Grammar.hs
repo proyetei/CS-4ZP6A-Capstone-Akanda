@@ -3,6 +3,7 @@ module Grammar (Module (..), Definition (..), Type (..), Arg (..), Expr (..)) wh
 -- grammar
 
 data Module = Module { mod :: Name, defs :: [Definition] } -- is there anything like 'module Main where' FEL?
+        | File { fil :: Name, con :: String } -- this option is for empty files and other invalid programs
 
 {- data Import = ImportLib Lib   -- i feel like it doesn't make sense to define a universal import because libraries will be language-specific
             | ImportFun Name Lib
