@@ -8,6 +8,7 @@ import PrintIdris
 import PrintLean
 import PrintRocq
 
+_maxsize :: Int
 _maxsize = 1000000
 
 chooseTest :: String -> IO Int

@@ -1,0 +1,44 @@
+cabal-version:      3.0
+name:               translators
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            MIT
+license-file:       LICENSE
+author:
+    Zainab Abdulsada, Esha Pisharody, Emma Willson, Grace Croome, Marie Hollington, Proyetei Akanda
+
+maintainer:         82549386+Z-Obaid@users.noreply.github.com
+-- copyright:
+category:           Testing
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:  Grammar, PrintAgda, PrintIdris, PrintLean, PrintRocq, Tests
+    -- other-modules:
+    -- other-extensions:
+    build-depends:    base ^>=4.17.2.1
+                   , containers >= 0.6 && < 0.7
+    hs-source-dirs:   .
+    default-language: Haskell2010
+
+executable translators
+    import:           warnings
+    main-is:          main.hs
+    -- other-modules: 
+    other-modules:    Grammar, PrintAgda, PrintIdris, PrintLean, PrintRocq, Tests
+    -- other-extensions:
+    build-depends:
+        base ^>=4.17.2.1,
+        containers >= 0.6 && < 0.7
+
+    hs-source-dirs:
+        .
+
+    default-language: Haskell2010
