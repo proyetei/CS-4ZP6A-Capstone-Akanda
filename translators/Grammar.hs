@@ -12,9 +12,15 @@ data Module = Module { mod :: Name, defs :: [Definition] } -- is there anything 
 data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefNesFun Name (Maybe Type) [Arg] Expr -- Constructor for nested functions
                 | DefVar Name (Maybe Type) Expr
+                | DefDataType Name [(Name,Type)] Type -- usually type is Set
+                | DefPDataType Name [Name] [(Name,Type)] Type
+                | DefRecType (Maybe Name) [(Name,Type)] Type
 
-data Type = Con Name
-        | Arr Type Type
+data Type = Con Name -- type constructor
+        | PCon Name [Type] -- parameterized type constructor
+        | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
+        | Arr Type Type -- function type
+        | TVar Name -- type variable
 
 data Arg = Arg { arg :: Name, ty :: Type }
 
