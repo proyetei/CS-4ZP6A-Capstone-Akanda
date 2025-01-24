@@ -14,7 +14,7 @@ data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefVar Name (Maybe Type) Expr
                 | DefDataType Name [(Name,Type)] Type -- usually type is Set
                 | DefPDataType Name [Name] [(Name,Type)] Type
-                | DefRecType (Maybe Name) [(Name,Type)] Type
+                | DefRecType Name (Maybe Name) [(Name,Type)] Type -- Maybe Name is the type constructor
 
 data Type = Con Name -- type constructor
         | PCon Name [Type] -- parameterized type constructor
