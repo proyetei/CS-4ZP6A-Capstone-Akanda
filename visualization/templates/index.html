@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .graph-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .graph-container img {
+            max-width: 500px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test case results for system benchmarking</h1>
+    
+    <div class="graph-container">
+        {% for image in images %}
+            <img src="{{ url_for('static', filename='graphs/' + image) }}" alt="Graph">
+        {% endfor %}
+    </div>
+</body>
+</html>
