@@ -50,11 +50,16 @@ def plot_size_vs_space_and_time(test_case):
     #Add legend on the lower right for time complexity vs n 
     ax2.legend(loc='lower right')
 
-    # Show grid, layout and plot
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
 
-# Iterate over every test case and plot size n vs time complexity vs space complexity 
+    # Save the plot to the static/graphs directory
+    graph_filename = f"/Users/Proyetei/Desktop/GitHub/CS-4ZP6A-Capstone-Akanda/visualization/static/graphs/{test_case_name}_graph.png"
+    plt.savefig(graph_filename)
+    plt.close()
+
+    return graph_filename
+
+# Generate graphs
 for test_case in data["testcases"]:
     plot_size_vs_space_and_time(test_case)
