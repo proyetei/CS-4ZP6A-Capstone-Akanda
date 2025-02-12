@@ -3,6 +3,7 @@ module PrintIdris (runIdris) where
 import Grammar
 
 imports = ""
+datatype = "Type"
 
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -28,6 +29,7 @@ printDef (DefFun var ty args expr) = typeSig ++ var ++ (foldl (\x y -> x ++ " " 
         Nothing -> ""
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 printIdris :: Module -> String
 printIdris (Module name defs) =
