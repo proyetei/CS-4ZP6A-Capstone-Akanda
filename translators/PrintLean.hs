@@ -29,6 +29,7 @@ printDef (DefNesFun var Nothing args expr) =
     var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) =
     var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
+printDef (DefDataType str args t) = "inductive " ++ str ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
 printLean :: Module -> String
 printLean (Module name defs) =

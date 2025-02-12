@@ -4,6 +4,7 @@ import Grammar
 import Data.Char
 
 imports = ""
+datatype = "Type"
 
 printType (Con t) = map toLower t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -30,6 +31,7 @@ printDef (DefNesFun var Nothing args expr) =
     var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) =
     var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
+printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
 printRocq :: Module -> String
 printRocq (Module name defs) =

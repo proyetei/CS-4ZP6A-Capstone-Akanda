@@ -2,7 +2,8 @@ module PrintAgda (runAgda) where
 
 import Grammar
 
-imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat\n" --open import IO alone not scoping to stlib 
+imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat\n" --open import IO alone not scoping to stlib
+datatype = "Set"
 
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -35,6 +36,9 @@ printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ " = " +
         argsStr = unwords $ map (\(Arg name _) -> name) args  -- Correctly handle argument names
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
+
+-- Function to print datatype definitions
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 -- Print the Agda module
 printAgda :: Module -> String

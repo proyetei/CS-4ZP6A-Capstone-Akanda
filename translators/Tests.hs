@@ -41,7 +41,16 @@ _tests =
         in Module "NestedFunction" 
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
-        ]
+    , \n -> let 
+        genData 1 = [DefDataType "x1" [("y", Con "Bool")] (Con "Set")]
+        genData m = DefDataType ("x" ++ show m) [("y", Con "Bool")] (Con "Set") : genData (m-1)
+        -- in Module "DataSimpleDeclarations" [DefDataType "x" [("y", Con "Bool")] (Con "Set")]
+        in Module "DataSimpleDeclarations" (genData n)
+    , \n -> let
+        genIdentifier 1 = "x"
+        genIdentifier m = 'x' : genIdentifier (m-1)
+        in Module "LongIdentifier" [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]
+    ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
 -- to access the expandable test at index i: tests ! i
