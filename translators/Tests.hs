@@ -1,6 +1,6 @@
 module Tests (tests) where
-
-import Data.IntMap.Strict as Map hiding (foldr, foldl, map)
+import Data.List (intercalate)
+import Data.IntMap.Strict as Map ( fromList, IntMap )
 import Grammar
 
 -- this is our list of expandable tests. each test should take an Int as an argument and return a program written in the internal grammar (see Grammar.hs)
@@ -41,6 +41,32 @@ _tests =
         in Module "NestedFunction" 
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
+    ,\n -> let
+        -- Generate field definitions dynamically
+        genFields 1 = [("f1", Con "Nat")]  -- Base case
+        genFields 2 = genFields 1 ++ [("f2", PCon "Vec" [Con "Nat", TVar "f1"])]
+        genFields p = genFields (p - 1) ++ [("f" ++ show p, PCon "Vec" [Con "Nat", genSize (p - 1)])]
+
+        -- Helper function to correctly reference `suc` or `S`
+        genSize 1 = TVar "f1"
+        genSize p = Suc (genSize (p - 1))
+
+        -- Generate example initialization dynamically
+        genExample 1 = [("f1", Int 1)]  -- Base case
+        genExample 2 = genExample 1 ++ [("f2", VecCons (Int 1) VecEmpty)]
+        genExample p = genExample (p - 1) ++ [("f" ++ show p, buildVecCons (p - 1))]  -- 🔹 Adjusted Here
+
+        -- Function to correctly build `VecCons` with the right number of elements
+        buildVecCons 1 = VecCons (Int 1) VecEmpty
+        buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))  -- 🔹 Adjusted Here
+
+        -- Define the record structure
+        xDef = DefRecType "X" Nothing (genFields n) (Con "Set")
+
+        -- Define the example initialization
+        exampleInit = InitRec "example" "X" (genExample n)
+
+        in Module "DependentRecordModule" [xDef, exampleInit]
         ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index

@@ -15,14 +15,21 @@ data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefDataType Name [(Name,Type)] Type -- usually type is Set
                 | DefPDataType Name [Name] [(Name,Type)] Type
                 | DefRecType Name (Maybe Name) [(Name,Type)] Type -- Maybe Name is the type constructor
+                | InitRec Name Name [(String, Expr)] -- initializing a record, again maybe is for the same constructor above
 
 data Type = Con Name -- type constructor
         | PCon Name [Type] -- parameterized type constructor
         | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
         | Arr Type Type -- function type
         | TVar Name -- type variable
+        | Suc Type
 
 data Arg = Arg { arg :: Name, ty :: Type }
+
+data InitRecord = InitRecord { 
+    recordName :: String, 
+    fieldAssignments :: [(String, Expr)] 
+} 
 
 data Expr = Var Name
         | Int Int 
@@ -34,6 +41,8 @@ data Expr = Var Name
         | If Expr Expr Expr 
         | Where Expr [Definition]
         | FunCall Name [Expr]           --constructor to call function
+        | VecEmpty             -- Represents `[]`
+        | VecCons Expr Expr    -- Represents `_∷_`, e.g., `1 ∷ []`
 
 -- aliases for readability purposes
 type Name = String
