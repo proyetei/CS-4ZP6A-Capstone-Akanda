@@ -53,21 +53,36 @@ printDef (DefNesFun var Nothing args expr) =
 printDef (DefNesFun var (Just t) args expr) =
     var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 
+
 --Function for Records
-printDef (DefRecType name (Just conName) fields _) =
-    "Inductive " ++ name ++ " : Type :=\n  " ++ conName ++ "\n    " ++ 
-    concatMap (\(i, (fname, ftype)) -> "  -> " ++ printType ftype ++ "\n    ") (zip [0..] fields) ++
-    "  -> " ++ name ++ ".\n"
-printDef (DefRecType name Nothing fields _) =
-    "Record " ++ name ++ " : Type := mk" ++ name ++ " {\n" ++
-    concatMap (\(i, (fname, ftype)) -> "  " ++ fname ++ " : " ++ printType ftype ++ ";\n") (zip [0..] fields) ++
+printDef (DefRecType name maybeConName fields _) =
+    "Record " ++ name ++ " : Type := " ++ constructorName ++ " {\n" ++
+    concatMap (\(fname, ftype) -> "  " ++ fname ++ " : " ++ printType ftype ++ ";\n") fields ++
     "}.\n"
+  where
+    constructorName = case maybeConName of
+        Just conName -> conName  -- ✅ Use provided constructor
+        Nothing -> "Const"  -- ✅ Default to `"Const"` if no constructor is provided
+
 printDef (InitRec name recType fields) =
-    "Definition " ++ name ++ " : " ++ recType ++ " :=\n  mk" ++ recType ++ " " ++
+    "Definition " ++ name ++ " : " ++ recType ++ " :=\n  " ++ constructorName ++ " " ++
     concatMap printField fields ++ ".\n"
   where
-    printField (fname, value) = "\n    " ++ printExpr value  -- Correct Coq Vector format
+    printField (fname, value) = "\n    " ++ printExpr value
+    constructorName = case lookupConstructor recType of
+        Just conName -> conName  -- Use provided constructor 
+        Nothing -> "Const"  -- Default to `"Const"` if no constructor
 
+    -- Function to find the constructor from defined records
+    lookupConstructor :: String -> Maybe String
+    lookupConstructor recType =
+        case [c | DefRecType rName (Just c) _ _ <- definedRecords, rName == recType] of
+            (c:_) -> Just c
+            _ -> Nothing
+
+-- Store all defined records to check constructors
+definedRecords :: [Definition]
+definedRecords = []
 
 
 printRocq :: Module -> String
