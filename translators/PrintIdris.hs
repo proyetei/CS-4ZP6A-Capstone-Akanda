@@ -11,7 +11,6 @@ printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
 printType (PCon "Vec" [Con baseType, size]) = "Vect " ++ printType size ++ " " ++ baseType
 printType (PCon name types) = name ++ " " ++ unwords (map printType types)
--- Ensure `suc` is printed with parentheses
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")"
@@ -54,7 +53,7 @@ printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args e
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
--- Function for records
+-- Record Defn
 printDef (DefRecType name maybeParams maybeConName fields _) =
     "record " ++ name ++ paramsStr ++ " where\n    constructor " ++ consName ++ "\n" ++
     unlines (map (\(fname, ftype) -> "    " ++ fname ++ " : " ++ printType ftype) fields)

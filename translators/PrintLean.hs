@@ -45,7 +45,7 @@ printListElements ListEmpty = ""
 printListElements (ListCons expr ListEmpty) = printExpr expr
 printListElements (ListCons expr rest) = printExpr expr ++ ", " ++ printListElements rest
 
--- Function for records remains unchanged.
+-- records Def
 printDef _ (DefRecType name params maybeConName fields _) =
     "structure " ++ name ++ paramsStr ++ " where\n    " ++ consName ++ " ::\n" ++
     concatMap (\(fname, ftype) -> "    " ++ fname ++ " : " ++ printType ftype ++ "\n") fields
@@ -57,8 +57,9 @@ printDef _ (DefRecType name params maybeConName fields _) =
             Just args -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") args)
             Nothing -> ""
 
--- modified InitRec printer.
--- It takes a list of record definitions (recs) and uses it to build an open line.
+
+-- OpenLine: It takes a list of record definitions (recs) and uses it to build an open line.
+-- Exclusive lean syntax needed for simplicity
 printDef recs (InitRec name recType maybeConsName fields) =
     openLine ++
     name ++ " : " ++ recType ++ " := " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields

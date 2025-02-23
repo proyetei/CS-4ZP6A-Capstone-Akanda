@@ -21,7 +21,7 @@ _tests =
             else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
     in Module "LetAddExample" [DefVar "n" (Just $ Con "Nat") $ lets 1]
     , \n -> let --3
-            -- Generate function definitions dynamically based on arity (1 to n)
+            -- Generate function definitions dynamically based on (1 to n)
             genFunc 1 = [DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat"))
                             [Arg "x1" (Con "Nat")] 
                             (Bin "+" (Var "x1") (Int 1))]
@@ -52,7 +52,7 @@ _tests =
         in Module "LongIdentifier" [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]
     ,\n -> let --6
         -- Generate field definitions dynamically
-        genFields 1 = [("f1", Con "Nat")]  -- Base case
+        genFields 1 = [("f1", Con "Nat")]
         genFields 2 = genFields 1 ++ [("f2", PCon "Vec" [Con "Nat", TVar "f1"])]
         genFields p = genFields (p - 1) ++ [("f" ++ show p, PCon "Vec" [Con "Nat", genSize (p - 1)])]
 
@@ -61,13 +61,13 @@ _tests =
         genSize p = Suc (genSize (p - 1))
 
         -- Generate example initialization dynamically
-        genExample 1 = [("f1", Int 1)]  -- Base case
+        genExample 1 = [("f1", Int 1)]
         genExample 2 = genExample 1 ++ [("f2", VecCons (Int 1) VecEmpty)]
-        genExample p = genExample (p - 1) ++ [("f" ++ show p, buildVecCons (p - 1))]  -- 🔹 Adjusted Here
+        genExample p = genExample (p - 1) ++ [("f" ++ show p, buildVecCons (p - 1))] 
 
-        -- Function to correctly build `VecCons` with the right number of elements
+        -- Function to correctly build `VecCons`
         buildVecCons 1 = VecCons (Int 1) VecEmpty
-        buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))  -- 🔹 Adjusted Here
+        buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))
 
         -- Define the record structure
         xDef = DefRecType "X" Nothing Nothing (genFields n) (Con "Set")
