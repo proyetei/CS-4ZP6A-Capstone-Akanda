@@ -3,7 +3,7 @@ module PrintAgda (runAgda) where
 
 import Grammar
 
-imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat \nopen import Data.Vec\n" --open import IO alone not scoping to stlib
+imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat \nopen import Data.Vec \nopen import Agda.Builtin.List \n" --open import IO alone not scoping to stlib
 datatype = "Set"
 
 -- Print types
@@ -20,6 +20,7 @@ printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
 printExpr (String str) = str
+printExpr (Paren e) = "(" ++ printExpr e ++ ") "
 printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
 printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
@@ -28,11 +29,14 @@ printExpr (Let (d:ds) expr) = "let\n    " ++ printDef d ++ concatMap (\x -> "\n 
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concatMap (\x -> "\n    " ++ printDef x) ds
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
-
--- For vectors
-printExpr (VecEmpty) = "[]"
-printExpr (VecCons expr rest) = printExpr expr ++ " ∷ " ++ printExpr rest
-
+printExpr (VecEmpty) = "([])" -- For vectors
+printExpr (VecCons expr xs) = "(" ++ printVecElements (VecCons expr xs) ++ ")"
+printExpr (ListEmpty) = "([])"
+printExpr (ListCons expr xs) = "(" ++ printListElements (ListCons expr xs) ++ ")"
+printVecElements VecEmpty = "[]"
+printVecElements (VecCons x xs) = printExpr x ++ " ∷ " ++ printVecElements xs
+printListElements  ListEmpty = "[]"
+printListElements  (ListCons x xs) = printExpr x ++ " ∷ " ++ printListElements  xs
 
 -- Function to print variable definitions
 printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr
@@ -58,27 +62,34 @@ printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " 
 
 
 -- Function for records
-printDef (DefRecType name maybeConName fields _) =
-    "record " ++ name ++ " : Set where\n    constructor " ++ consName ++ "\n    field\n" ++
+printDef (DefRecType name params maybeConName fields _) =
+    "record " ++ name ++ paramsStr ++ " : Set where\n    constructor " ++ consName ++ "\n    field\n" ++
     concatMap (\(fname, ftype) -> "        " ++ fname ++ " : " ++ printType ftype ++ "\n") fields
-  where
-    consName = case maybeConName of
-        Just conName -> conName
-        Nothing -> "Const"  -- Default constructor name if not provided
+    where
+        consName = case maybeConName of
+            Just c  -> c
+            Nothing -> "Const"
+        paramsStr = case params of
+            Just args -> " " ++ unwords (map (\(Arg name ty) -> "(" ++ name ++ " : " ++ printType ty ++ ")") args)
+            Nothing   -> ""
 
-printDef (InitRec name recType fields) =
+
+printDef (InitRec name recType maybeConsName fields) =
     "\n" ++ name ++ " : " ++ recType ++ "\n" ++ 
-    name ++ " = " ++ consName ++ concatMap (\(_, value) -> " (" ++ printExpr value ++ ")") fields
-  where
-    consName = case lookupConstructor recType of
-        Just conName -> conName  -- Constructor Provided
-        Nothing -> "Const"  -- Default to `Const` if no constructor is provided
+    name ++ " = " ++ consName ++ " "++ concatMap (\(_, value) ->  printExpr value ) fields
+    where
+        consName = case maybeConsName of
+            Just c -> c
+            Nothing -> case
+                lookupConstructor recType of
+                    Just conName -> conName  -- Constructor Provided
+                    Nothing -> "Const"  -- Default to `Const` if no constructor is provided
 
-    lookupConstructor :: String -> Maybe String
-    lookupConstructor recType =
-        case [c | DefRecType rName (Just c) _ _ <- definedRecords, rName == recType] of
-            (c:_) -> Just c
-            _ -> Nothing
+        lookupConstructor :: String -> Maybe String
+        lookupConstructor recType =
+            case [c | DefRecType rName _ (Just c) _ _ <- definedRecords, rName == recType] of
+                (c:_) -> Just c
+                _ -> Nothing
 
 -- Store all defined records to check constructors
 definedRecords :: [Definition]

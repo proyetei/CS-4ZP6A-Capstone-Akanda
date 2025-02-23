@@ -6,21 +6,21 @@ import Grammar
 -- this is our list of expandable tests. each test should take an Int as an argument and return a program written in the internal grammar (see Grammar.hs)
 _tests :: [Int -> Module] -- todo: add commented Haskell representation for each test
 _tests = 
-    [ \n -> let
+    [ \n -> let --1
             xs 0 = Int 1
             xs m = Var $ "x" ++ show m
             lets p = 
                 if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ xs p 
                 else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
         in Module "LetExample" [DefVar "n" (Just $ Con "Nat") $ lets 1]
-    , \n -> let
+    , \n -> let --2
         xs 0 = Int 1
         xs m = Bin " + " (Var $ "x" ++ show m) (Var $ "x" ++ show m)
         lets p = 
             if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ Var $ "x" ++ show p
             else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
     in Module "LetAddExample" [DefVar "n" (Just $ Con "Nat") $ lets 1]
-    , \n -> let
+    , \n -> let --3
             -- Generate function definitions dynamically based on arity (1 to n)
             genFunc 1 = [DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat"))
                             [Arg "x1" (Con "Nat")] 
@@ -41,16 +41,16 @@ _tests =
         in Module "NestedFunction" 
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
-    , \n -> let 
+    , \n -> let --4
         genData 1 = [DefDataType "x1" [("y", Con "Bool")] (Con "Set")]
         genData m = DefDataType ("x" ++ show m) [("y", Con "Bool")] (Con "Set") : genData (m-1)
         -- in Module "DataSimpleDeclarations" [DefDataType "x" [("y", Con "Bool")] (Con "Set")]
         in Module "DataSimpleDeclarations" (genData n)
-    , \n -> let
+    , \n -> let --5
         genIdentifier 1 = "x"
         genIdentifier m = 'x' : genIdentifier (m-1)
         in Module "LongIdentifier" [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]
-    ,\n -> let
+    ,\n -> let --6
         -- Generate field definitions dynamically
         genFields 1 = [("f1", Con "Nat")]  -- Base case
         genFields 2 = genFields 1 ++ [("f2", PCon "Vec" [Con "Nat", TVar "f1"])]
@@ -70,12 +70,62 @@ _tests =
         buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))  -- 🔹 Adjusted Here
 
         -- Define the record structure
-        xDef = DefRecType "X" Nothing (genFields n) (Con "Set")
+        xDef = DefRecType "X" Nothing Nothing (genFields n) (Con "Set")
 
         -- Define the example initialization
-        exampleInit = InitRec "example" "X" (genExample n)
+        exampleInit = InitRec "example" "X" Nothing (genExample n)
 
-        in Module "DependentRecordModule" [xDef, exampleInit]
+        in Module "Fields_DependentRecordModule" [xDef, exampleInit]
+    , \n -> let --7
+        -- Generate Record Definitions
+        genRecords 1 = [DefRecType "Record1" Nothing (Just "Const1") [("f1", Con "Nat")] (Con "Set")]
+        genRecords level =
+            let prev = "Record" ++ show (level - 1)
+                curr = "Record" ++ show level
+                constructor = "Const" ++ show level 
+                field = "f" ++ show level
+            in genRecords (level - 1) ++ [DefRecType curr Nothing (Just constructor) [(field, Con prev)] (Con "Set")]
+
+        -- Generate Example Init
+        genExample 1 = FunCall "Const1" [Int 10] 
+        genExample level =
+            let prevExample = genExample (level - 1)
+                constructor = "Const" ++ show level 
+            in FunCall constructor [Paren prevExample] 
+
+        --just "" to prevent inheretence of DefRecType
+        exampleInit = InitRec "example" ("Record" ++ show n) (Just ("")) [("example", genExample n)]
+        
+        in Module "ChainDef_DependentRecordModule" (genRecords n ++ [exampleInit])
+    , \n -> let --8
+         -- Helper to build the sum expression: 1 + 2 + ... + n
+         buildSum 1 = Int 1
+         buildSum m = Bin "+" (buildSum (m-1)) (Int m)
+         sumExpr = buildSum n
+
+         -- Helper to build the list expression: [1, 2, …, n]
+         buildList i = if i > n then ListEmpty else ListCons (Int i) (buildList (i+1))
+         listExpr = buildList 1
+
+         -- Create parameters as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
+         params = Just $ map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
+
+         -- Define the record X with parameters, a constructor "Const",
+         -- two fields "sums" and "values", and overall type Set.
+         recDef = DefRecType "X" params (Just "Const")
+                  [("sums", Con "Nat"), ("values", PCon "List" [Con "Nat"])]
+                  (Con "Set")
+
+         -- Build the record type application as a string: "X 1 2 ... n"
+         recTypeInstance = "X " ++ unwords (map show [1..n])
+
+         -- Define the record instance "example" with computed field values:
+         -- sums   = 1 + 2 + ... + n
+         -- values = [1, 2, …, n]
+         exampleInit = InitRec "example" recTypeInstance (Just "Const")
+                        [("sums", Paren sumExpr), ("values", listExpr)]
+       in Module "Parameters_DependentRecordModule" [recDef, exampleInit]
+
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
