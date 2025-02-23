@@ -45,16 +45,6 @@ printListElements ListEmpty = ""
 printListElements (ListCons expr ListEmpty) = printExpr expr
 printListElements (ListCons expr rest) = printExpr expr ++ ", " ++ printListElements rest
 
--- For non-record definitions we provide a version that ignores recs.
-printDef :: [Definition] -> Definition -> String
-printDef _ (DefVar var Nothing expr) = var ++ " := \n" ++ printExpr expr 
-printDef _ (DefVar var (Just t) expr) = "def " ++ var ++ " : " ++ printType t ++ " := \n" ++ printExpr expr
-printDef _ (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr 
-printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr
-printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg args) ++ " := " ++ printExpr expr
-printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
-printDef _ (DefDataType str args t) = "inductive " ++ str ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
-
 -- Function for records remains unchanged.
 printDef _ (DefRecType name params maybeConName fields _) =
     "structure " ++ name ++ paramsStr ++ " where\n    " ++ consName ++ " ::\n" ++
@@ -67,7 +57,7 @@ printDef _ (DefRecType name params maybeConName fields _) =
             Just args -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") args)
             Nothing -> ""
 
--- Now, here is our modified InitRec printer.
+-- modified InitRec printer.
 -- It takes a list of record definitions (recs) and uses it to build an open line.
 printDef recs (InitRec name recType maybeConsName fields) =
     openLine ++
@@ -87,9 +77,6 @@ printDef recs (InitRec name recType maybeConsName fields) =
             (c:_) -> Just c
             _     -> Nothing
 
--- Global definedRecords is no longer used:
--- definedRecords :: [Definition]
--- definedRecords = []
 
 printLean :: Module -> String
 printLean (Module name defs) =

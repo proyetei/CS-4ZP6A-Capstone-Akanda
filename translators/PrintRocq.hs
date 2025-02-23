@@ -51,18 +51,6 @@ printListElements ListEmpty = ""
 printListElements (ListCons x ListEmpty) = printExpr x
 printListElements (ListCons x xs) = printExpr x ++ "; " ++ printListElements xs
 
-
-printDef (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr
-printDef (DefVar var (Just t) expr) = "Definition " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ ". \nCompute " ++ var ++ "."
-printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
-printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ "."
-printDef (DefNesFun var Nothing args expr) =
-    var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
-printDef (DefNesFun var (Just t) args expr) =
-    var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
-printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
-
-
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =
     "Record " ++ name ++ paramsStr ++ " : Type := " ++ consName ++ " {\n" ++

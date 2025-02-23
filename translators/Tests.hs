@@ -98,19 +98,19 @@ _tests =
         
         in Module "ChainDef_DependentRecordModule" (genRecords n ++ [exampleInit])
     , \n -> let --8
-         -- Helper to build the sum expression: 1 + 2 + ... + n
+         -- Helper to build the sum exp 1 + 2 + ... + n
          buildSum 1 = Int 1
          buildSum m = Bin "+" (buildSum (m-1)) (Int m)
          sumExpr = buildSum n
 
-         -- Helper to build the list expression: [1, 2, …, n]
+         -- Helper to build the list exp: [1, 2, …, n]
          buildList i = if i > n then ListEmpty else ListCons (Int i) (buildList (i+1))
          listExpr = buildList 1
 
-         -- Create parameters as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
+         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
          params = Just $ map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
 
-         -- Define the record X with parameters, a constructor "Const",
+         -- Define the record X with param, a constructor "Const",
          -- two fields "sums" and "values", and overall type Set.
          recDef = DefRecType "X" params (Just "Const")
                   [("sums", Con "Nat"), ("values", PCon "List" [Con "Nat"])]
@@ -120,12 +120,9 @@ _tests =
          recTypeInstance = "X " ++ unwords (map show [1..n])
 
          -- Define the record instance "example" with computed field values:
-         -- sums   = 1 + 2 + ... + n
-         -- values = [1, 2, …, n]
          exampleInit = InitRec "example" recTypeInstance (Just "Const")
                         [("sums", Paren sumExpr), ("values", listExpr)]
        in Module "Parameters_DependentRecordModule" [recDef, exampleInit]
-
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
