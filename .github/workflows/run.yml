@@ -1,0 +1,17 @@
+name: CI
+on:
+  push:
+
+jobs:
+  container-test-job:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
+      credentials:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check files
+        run: ls 
