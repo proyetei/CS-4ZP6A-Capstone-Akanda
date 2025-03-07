@@ -123,6 +123,10 @@ _tests =
          exampleInit = InitRec "example" recTypeInstance (Just "Const")
                         [("sums", Paren sumExpr), ("values", listExpr)]
        in Module "Parameters_DependentRecordModule" [recDef, exampleInit]
+    , \n -> let -- 9
+    -- Generate a file with 10,000 newlines
+    newlines = replicate 10000 '\n'
+    in File "NewlineFile" newlines -- Use the file constructor defined in Grammar.hs
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
