@@ -15,10 +15,6 @@ jobs:
         with:
           ghc-version: '9.6.6'
 
-      - name: Remove main file if it already exists
-        working-directory: ./translators
-        run: rm main
-
       - name: Build the translator executable
         working-directory: ./translators
         run: ghc -o main main.hs
