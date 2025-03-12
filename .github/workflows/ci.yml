@@ -4,9 +4,74 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker:
+  build_translator:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Set up Haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.6.6'
+
+      - name: Remove main file if it already exists
+        working-directory: ./translators
+        run: rm main
+
+      - name: Build the translator executable
+        working-directory: ./translators
+        run: ghc -o main main.hs
+
+      - name: Store translator as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: translator-folder
+          path: ./translators/main
+          retention-days: 2
+  build_cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go environment
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.23.6'
+
+      - name: Build go cli tool
+        working-directory: ./cli
+        run: go build -o mhpgeez
+
+      - name: Store cli tool as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mhpgeez
+          path: ./cli/mhpgeez
+          retention-days: 2
+  build_docker:
+    runs-on: ubuntu-latest
+    needs: [build_translator, build_cli]
+    steps:
+      - 
+        name: Checkout code
+        uses: actions/checkout@v2
+      - 
+        name: Download recently built cli
+        uses: actions/download-artifact@v4
+        with:
+          name: mhpgeez
+          path: ./mhpgeez
+      - 
+        name: Download recently built translator
+        uses: actions/download-artifact@v4
+        with:
+          name: translator-folder
+          path: ./translator-folder
+      - 
+        name: Check files
+        run: ls -l
       -
         name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -24,5 +89,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
+          context: .
           tags: ${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
           file: Dockerfile

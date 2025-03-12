@@ -4,7 +4,7 @@ import os
 app = Flask(__name__)
 
 # Path to the directory where images are stored
-GRAPH_DIR = os.path.join(os.getcwd(), 'visualization/static/graphs')
+GRAPH_DIR = os.path.join(os.getcwd(), 'static/graphs')
 
 # Route to serve the images
 @app.route('/')
@@ -16,4 +16,4 @@ def index():
     return render_template('index.html', images=image_files)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

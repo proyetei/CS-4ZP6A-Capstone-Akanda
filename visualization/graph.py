@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import os
 
 # Construct the path dynamically
-json_path = os.path.join('visualization', 'dummyNew.json')
+cwd = os.getcwd()
+json_path = os.path.join(cwd, 'data.json')
 
 # Load the JSON file
 with open(json_path, 'r') as f:
@@ -38,7 +39,7 @@ def plot_size_vs_real_time(test_case):
     plt.tight_layout()
 
     # Save the plot to the static/graphs directory
-    graph_filename = f"/Users/Proyetei/Desktop/CS-4ZP6A-Capstone-Akanda/visualization/static/graphs/{test_case_name}_real_time_graph.png"
+    graph_filename = os.path.join(cwd, f"static/graphs/{test_case_name}_real_time_graph.png")
     plt.savefig(graph_filename)
     plt.close()
 
@@ -72,7 +73,7 @@ def plot_size_vs_user_time(test_case):
     plt.tight_layout()
 
     # Save the plot to the static/graphs directory
-    graph_filename = f"/Users/Proyetei/Desktop/CS-4ZP6A-Capstone-Akanda/visualization/static/graphs/{test_case_name}_user_time_graph.png"
+    graph_filename = os.path.join(cwd, f"static/graphs/{test_case_name}_user_time_graph.png")
     plt.savefig(graph_filename)
     plt.close()
 
@@ -106,7 +107,7 @@ def plot_size_vs_system_time(test_case):
     plt.tight_layout()
 
     # Save the plot to the static/graphs directory
-    graph_filename = f"/Users/Proyetei/Desktop/CS-4ZP6A-Capstone-Akanda/visualization/static/graphs/{test_case_name}_system_time_graph.png"
+    graph_filename = os.path.join(cwd, f"static/graphs/{test_case_name}_system_time_graph.png")
     plt.savefig(graph_filename)
     plt.close()
 
@@ -140,7 +141,7 @@ def plot_size_vs_memory(test_case):
     plt.tight_layout()
 
     # Save the plot to the static/graphs directory
-    graph_filename = f"/Users/Proyetei/Desktop/CS-4ZP6A-Capstone-Akanda/visualization/static/graphs/{test_case_name}_memory_graph.png"
+    graph_filename = os.path.join(cwd, f"static/graphs/{test_case_name}_memory_graph.png")
     plt.savefig(graph_filename)
     plt.close()
 

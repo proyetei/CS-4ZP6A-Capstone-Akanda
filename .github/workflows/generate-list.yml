@@ -1,0 +1,39 @@
+name: Generate-List Testcases
+
+on:
+  workflow_dispatch:
+    inputs:
+      testcase:
+        type: choice
+        required: true
+        description: select the testcase you would like to generate
+        options: 
+        - 1 [LetExample]
+        - 2 [LetAddExample]
+      datapoints:
+        description: must be a list of integer values following the format '1,5,7'
+        required: true
+      
+
+jobs:
+  generate-list:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
+      credentials:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Run Test
+        run: |
+          cd /code
+          touch data.json
+          testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
+          echo testcase
+          ./mhpgeez generate-list -w=false -t $testcase -d ${{ github.event.inputs.datapoints }}
+      - name: Store JSON file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: data.json
+          path: /code/data.json
+          retention-days: 2

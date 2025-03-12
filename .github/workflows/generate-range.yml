@@ -1,0 +1,45 @@
+name: Generate-Range Testcases
+
+on:
+  workflow_dispatch:
+    inputs:
+      testcase:
+        type: choice
+        required: true
+        description: select the testcase you would like to generate
+        options: 
+        - 1 [LetExample]
+        - 2 [LetAddExample]
+      lower_bound:
+        description: must be an integer value
+        required: true
+      upper_bound:
+        description: must be an integer value
+        required: true
+      interval: 
+        description: must be an integer value
+        required: true
+      
+
+jobs:
+  generate-range:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
+      credentials:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Run Test
+        run: |
+          cd /code
+          touch data.json
+          testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
+          echo testcase
+          ./mhpgeez generate-range -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }}
+      - name: Store JSON file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: data.json
+          path: /code/data.json
+          retention-days: 2
