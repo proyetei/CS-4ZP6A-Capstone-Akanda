@@ -1,35 +1,36 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var caseID int
 var maxID int = 2
 var datapoints []int
 var output_folder = "out"
+var webpage bool
 
 var rootCmd = &cobra.Command{
 	Use:   "cli",
 	Short: "translate + run test cases + generate graphs",
-	Long: `allow the user to select a test case and a range to control the number of operations.....`,
+	Long:  `allow the user to select a test case and a range to control the number of operations.....`,
 	Run: func(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 
 	},
-   }
+}
+
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-	  fmt.Println(err)
-	  os.Exit(1)
+		fmt.Println(err)
+		os.Exit(1)
 	}
-  }
-	
+}
+
 func init() {
 	//rootCmd.PersistentFlags().StringVar(&testcase, "testcase", "LetExample", "Select a test case to translate")
 
-
-
-  }
+}
