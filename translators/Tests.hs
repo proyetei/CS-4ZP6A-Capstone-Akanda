@@ -124,8 +124,8 @@ _tests =
                         [("sums", Paren sumExpr), ("values", listExpr)]
        in Module "Parameters_DependentRecordModule" [recDef, exampleInit]
     , \n -> let -- 9
-    -- Generate a file with 10,000 newlines
-    newlines = replicate 10000 '\n'
+    -- Generate a file with n newlines where n = user input
+    newlines = replicate n '\n'
     in File "NewlineFile" newlines -- Use the file constructor defined in Grammar.hs
     , \n -> let -- 10
         -- Generate field definitions dynamically
