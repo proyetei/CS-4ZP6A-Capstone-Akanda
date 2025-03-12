@@ -76,7 +76,7 @@ printDef (DefRecType name params maybeConName fields _) =
 
 printDef (InitRec name recType maybeConsName fields) =
     "\n" ++ name ++ " : " ++ recType ++ "\n" ++ 
-    name ++ " = " ++ consName ++ " "++ concatMap (\(_, value) ->  printExpr value ) fields
+    name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields
     where
         consName = case maybeConsName of
             Just c -> c

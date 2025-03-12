@@ -127,6 +127,25 @@ _tests =
     -- Generate a file with 10,000 newlines
     newlines = replicate 10000 '\n'
     in File "NewlineFile" newlines -- Use the file constructor defined in Grammar.hs
+    , \n -> let -- 10
+        -- Generate field definitions dynamically
+        genFields 1 = [("f1", Con "Nat")]
+        genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
+        -- Define the record structure
+        xDef = DefRecType "X" Nothing Nothing (genFields n) (Con "Set")
+        -- Generate example initialization dynamically
+        genExample 1 = [("f1", Int 1)]
+        genExample p = genExample (p - 1) ++ [("f" ++ show p, Int 1)] 
+        -- Define the example initialization
+        exampleInit = InitRec "example" "X" Nothing (genExample n)
+    in Module "Fields_NonDependentRecordModule" [xDef,exampleInit]
+    , \n -> let -- 11
+        -- Generate Record Definitions
+        genRecords 1 = [DefRecType "Record1" Nothing (Just "Const1") [("f1", Con "Nat")] (Con "Set")]
+        genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) Nothing (Just $ "Const" ++ show p) [("f" ++ show p, Con "Nat")] (Con "Set")]
+        --just "" to prevent inheretence of DefRecType
+        exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
+    in Module "ChainDefFields_NonDependentRecordModule" (genRecords n ++ [exampleInit])
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
