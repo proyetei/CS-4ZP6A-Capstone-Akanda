@@ -178,14 +178,6 @@ func generateGraphs() {
 		os.Exit(1)
 	}
 
-	python_str := "python3.12 graph.py"
-	python_cmd := exec.Command("bash", "-c", python_str)
-	err = python_cmd.Run()
-	if err != nil {
-		fmt.Println("Could not create the graphs", err)
-		os.Exit(1)
-	}
-
 	app_str := "python3.12 app.py"
 	app_cmd := exec.Command("bash", "-c", app_str)
 	go func() {
@@ -201,7 +193,7 @@ func generateGraphs() {
 			fmt.Println("Error waiting for Python script:", err)
 		}
 	}()
-	err = exec.Command("xdg-open", "http://127.0.0.1:5000").Start()
+	err = exec.Command("xdg-open", "http://127.0.0.1:5001").Start()
 	if err != nil {
 		fmt.Println("Error opening browser:", err)
 	}
