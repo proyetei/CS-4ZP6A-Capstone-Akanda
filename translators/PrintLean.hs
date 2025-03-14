@@ -12,6 +12,7 @@ printType (PCon "Vec" args) = "Vector " ++ unwords (map printType args)
 printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(Nat.succ " ++ printType t ++ ")"  -- Use `Nat.succ` explicitly
+printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 
 printReturnType (Con t) = t
 printReturnType (Arr _ t) = printReturnType t
@@ -51,7 +52,7 @@ printDef _ (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y
 printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr
 printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg args) ++ " := " ++ printExpr expr
 printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
-printDef _ (DefDataType str args t) = "inductive " ++ str ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
+printDef _ (DefDataType str args t) = "inductive " ++ str ++ " : " ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
 
 -- records Def
 printDef _ (DefRecType name params maybeConName fields _) =

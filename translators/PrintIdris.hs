@@ -14,6 +14,7 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")"
+printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
@@ -51,7 +52,7 @@ printDef (DefFun var ty args expr) = typeSig ++ var ++ (foldl (\x y -> x ++ " " 
         Nothing -> ""
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
-printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 -- Record Defn
 printDef (DefRecType name maybeParams maybeConName fields _) =

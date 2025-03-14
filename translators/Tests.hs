@@ -42,9 +42,8 @@ _tests =
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
     , \n -> let --4
-        genData 1 = [DefDataType "x1" [("y", Con "Bool")] (Con "Set")]
-        genData m = DefDataType ("x" ++ show m) [("y", Con "Bool")] (Con "Set") : genData (m-1)
-        -- in Module "DataSimpleDeclarations" [DefDataType "x" [("y", Con "Bool")] (Con "Set")]
+        genData 1 = [DefDataType "x1" [("y", Con "Bool")] (Con "Type")]
+        genData m = DefDataType ("x" ++ show m) [("y", Con "Bool")] (Con "Type") : genData (m-1)
         in Module "DataSimpleDeclarations" (genData n)
     , \n -> let --5
         genIdentifier 1 = "x"
@@ -146,7 +145,16 @@ _tests =
         --just "" to prevent inheretence of DefRecType
         exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
     in Module "ChainDefFields_NonDependentRecordModule" (genRecords n ++ [exampleInit])
-    ]
+    , \n -> let -- 12
+        genType 1 = Con "Nat"
+        genType m = Arr (genType (m-1)) (Con "Nat")
+
+        genIndexName i = 'x' : show i
+        
+        genIndex 1 = [genIndexName 1]
+        genIndex m = genIndexName m : genIndex (m-1)
+       in Module "DataImplicitIndices" [DefDataType "d" [("c1", Arr (Index (genIndex n) (Con "Nat")) (Con "d"))] (Arr (genType n) (Con "Type"))]
+       ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
 -- to access the expandable test at index i: tests ! i

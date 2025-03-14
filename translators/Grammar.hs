@@ -23,6 +23,7 @@ data Type = Con Name -- type constructor
         | Arr Type Type -- function type
         | TVar Name -- type variable
         | Suc Type
+        | Index [Name] Type
 
 data Arg = Arg { arg :: Name, ty :: Type }
 
