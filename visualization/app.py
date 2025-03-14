@@ -1,22 +1,4 @@
-# from flask import Flask, render_template
-# import os
 
-# app = Flask(__name__)
-
-# # Path to the directory where images are stored
-# GRAPH_DIR = os.path.join(os.getcwd(), 'static/graphs')
-
-# # Route to serve the images
-# @app.route('/')
-# def index():
-#     # Get all image files in the directory
-#     image_files = [f for f in os.listdir(GRAPH_DIR) if f.endswith('.png') or f.endswith('.jpg')]
-
-#     # Return a simple HTML page to display the images
-#     return render_template('index.html', images=image_files)
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000, debug=True)
 from flask import Flask, render_template
 import os
 import json
@@ -27,13 +9,14 @@ import matplotlib.pyplot as plt
 app = Flask(__name__)
 
 # Path to the directory where images are stored
-GRAPH_DIR = os.path.join(os.getcwd(), 'static/graphs')
+# GRAPH_DIR = os.path.join(os.getcwd(), 'static/graphs')
 
 # Ensure the graph directory exists
-os.makedirs(GRAPH_DIR, exist_ok=True)
+# os.makedirs(GRAPH_DIR, exist_ok=True)
 
 # Construct the path to dummyNew.json
 script_dir = os.path.dirname(__file__)
+GRAPH_DIR = os.path.join(script_dir, 'static/graphs' )
 json_path = os.path.join(script_dir, 'dummyNew.json')
 
 # Load the JSON file into a variable called `data` to be used later
