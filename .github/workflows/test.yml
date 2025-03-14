@@ -27,7 +27,7 @@ on:
       
 
 jobs:
-  generate-list:
+  generate-test:
     runs-on: ubuntu-latest
     container:
       image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
@@ -38,9 +38,11 @@ jobs:
       - name: Run Test
         run: |
           cd /code
+          mkdir out
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
+          echo ${{ github.event.inputs.datapoints }} 
           printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }}
-          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }} | ./main
+          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.datapoints }} | ./main
           cd out
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
           agda "$file_name.agda"
