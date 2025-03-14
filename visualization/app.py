@@ -12,7 +12,7 @@ curr_directory = os.path.dirname(__file__)
 # Path to the directory where images are stored
 GRAPH_DIR = os.path.join(curr_directory, 'static/graphs' )
 # Path to the directory where JSON file is stored
-json_path = os.path.join(curr_directory, 'dummyNew.json')
+json_path = os.path.join(curr_directory, 'data.json')
 
 # Load the JSON file into a variable called `data` to be used later
 try:

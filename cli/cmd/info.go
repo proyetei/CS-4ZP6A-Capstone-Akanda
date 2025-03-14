@@ -62,7 +62,7 @@ var Language_list = []Language{
 	{
 		"Agda",
 		".agda",
-		"agda --compile",
+		"agda",
 	},
 	{
 		"Idris",
