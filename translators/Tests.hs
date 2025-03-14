@@ -146,6 +146,12 @@ _tests =
         --just "" to prevent inheretence of DefRecType
         exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
     in Module "ChainDefFields_NonDependentRecordModule" (genRecords n ++ [exampleInit])
+    , \n -> --12
+        Module "Constructors_Datatypes"
+        [DefDataType "d" (map (\ i -> ("c" ++ show i, Con "d")) [1 .. n]) (Con "Type")]
+    , \n ->  --13
+        Module "Parameters_Datatypes"
+        [DefPDataType "d" (map (\i -> ("p" ++ show i)) [1 .. n]) [("c", PCon "d" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index

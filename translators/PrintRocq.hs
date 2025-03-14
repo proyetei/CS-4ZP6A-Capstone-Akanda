@@ -2,7 +2,7 @@ module PrintRocq (runRocq) where
 
 import Grammar
     ( Arg(arg, ty, Arg),
-      Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType),
+      Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType),
       Expr(FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
       Type(Arr, Con, TVar, PCon, DCon, Suc) )
@@ -58,6 +58,7 @@ printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y 
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
+printDef (DefPDataType name params args ty) = "Inductive " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =

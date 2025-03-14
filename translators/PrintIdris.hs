@@ -52,6 +52,7 @@ printDef (DefFun var ty args expr) = typeSig ++ var ++ (foldl (\x y -> x ++ " " 
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\x y -> x ++ " -> " ++ y) datatype params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 -- Record Defn
 printDef (DefRecType name maybeParams maybeConName fields _) =
