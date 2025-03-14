@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template
 import os
 import json
@@ -8,16 +7,12 @@ import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
+# Returns the current directory
+curr_directory = os.path.dirname(__file__)
 # Path to the directory where images are stored
-# GRAPH_DIR = os.path.join(os.getcwd(), 'static/graphs')
-
-# Ensure the graph directory exists
-# os.makedirs(GRAPH_DIR, exist_ok=True)
-
-# Construct the path to dummyNew.json
-script_dir = os.path.dirname(__file__)
-GRAPH_DIR = os.path.join(script_dir, 'static/graphs' )
-json_path = os.path.join(script_dir, 'dummyNew.json')
+GRAPH_DIR = os.path.join(curr_directory, 'static/graphs' )
+# Path to the directory where JSON file is stored
+json_path = os.path.join(curr_directory, 'dummyNew.json')
 
 # Load the JSON file into a variable called `data` to be used later
 try:
@@ -27,7 +22,6 @@ try:
 except FileNotFoundError:
     print(f"Error: The file {json_path} does not exist. Please ensure 'dummyNew.json' is in the correct location.")
     exit(1)
-
 
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
