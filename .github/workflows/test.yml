@@ -39,8 +39,8 @@ jobs:
         run: |
           cd /code
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
-          echo '%s\n%s\n' "$testcase" ${{ github.event.inputs.datapoints }}
-          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.datapoints }} | ./main
+          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }}
+          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }} | ./main
           cd out
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
           agda "$file_name.agda"
