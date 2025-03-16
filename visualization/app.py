@@ -4,15 +4,17 @@ import json
 import matplotlib
 matplotlib.use('Agg')  # Set the backend to 'Agg' to avoid GUI issues
 import matplotlib.pyplot as plt
+import io
+import base64
 
 app = Flask(__name__)
 
 # Returns the current directory
 curr_directory = os.path.dirname(__file__)
 # Path to the directory where images are stored
-GRAPH_DIR = os.path.join(curr_directory, 'static/graphs' )
+# GRAPH_DIR = os.path.join(curr_directory, 'static/graphs' )
 # Path to the directory where JSON file is stored
-json_path = os.path.join(curr_directory, 'data.json')
+json_path = os.path.join(curr_directory, 'dummyNew.json')
 
 # Load the JSON file into a variable called `data` to be used later
 try:
@@ -50,12 +52,17 @@ def plot_size_vs_real_time(test_case):
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the plot to the static/graphs directory
-    graph_filename = os.path.join(GRAPH_DIR, f"{test_case_name}_real_time_graph.png")
-    plt.savefig(graph_filename)
+    # Save the plot to a BytesIO object
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
     plt.close()
+    buf.seek(0)
 
-    return graph_filename
+    # Encode the image as base64
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    return image_base64
 
 # Function to plot size vs user time
 def plot_size_vs_user_time(test_case):
@@ -84,12 +91,17 @@ def plot_size_vs_user_time(test_case):
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the plot to the static/graphs directory
-    graph_filename = os.path.join(GRAPH_DIR, f"{test_case_name}_user_time_graph.png")
-    plt.savefig(graph_filename)
+    # Save the plot to a BytesIO object
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
     plt.close()
+    buf.seek(0)
 
-    return graph_filename
+    # Encode the image as base64
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    return image_base64
 
 # Function to plot size vs system time
 def plot_size_vs_system_time(test_case):
@@ -118,12 +130,17 @@ def plot_size_vs_system_time(test_case):
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the plot to the static/graphs directory
-    graph_filename = os.path.join(GRAPH_DIR, f"{test_case_name}_system_time_graph.png")
-    plt.savefig(graph_filename)
+    # Save the plot to a BytesIO object
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
     plt.close()
+    buf.seek(0)
 
-    return graph_filename
+    # Encode the image as base64
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    return image_base64
 
 # Function to plot size vs memory
 def plot_size_vs_memory(test_case):
@@ -152,35 +169,37 @@ def plot_size_vs_memory(test_case):
     plt.grid(True)
     plt.tight_layout()
 
-    # Save the plot to the static/graphs directory
-    graph_filename = os.path.join(GRAPH_DIR, f"{test_case_name}_memory_graph.png")
-    plt.savefig(graph_filename)
+    # Save the plot to a BytesIO object
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
     plt.close()
+    buf.seek(0)
 
-    return graph_filename
+    # Encode the image as base64
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
 
-# Generate graphs from the JSON data
+    return image_base64
+
+# Generate graphs from the JSON data and return base64 images
 def generate_graphs(data):
+    graphs = []
     for test_case in data["testcases"]:
-        plot_size_vs_real_time(test_case)
-        plot_size_vs_user_time(test_case)
-        plot_size_vs_system_time(test_case)
-        plot_size_vs_memory(test_case)
+        real_time_graph = plot_size_vs_real_time(test_case)
+        user_time_graph = plot_size_vs_user_time(test_case)
+        system_time_graph = plot_size_vs_system_time(test_case)
+        memory_graph = plot_size_vs_memory(test_case)
+        graphs.extend([real_time_graph, user_time_graph, system_time_graph, memory_graph])
+    return graphs
 
 # Route to serve the images
 @app.route('/')
 def index():
     # Generate graphs before displaying the page
-    generate_graphs(data)
-
-    # Get all image files in the directory
-    image_files = [f for f in os.listdir(GRAPH_DIR) if f.endswith('.png') or f.endswith('.jpg')]
+    graphs = generate_graphs(data)
 
     # Return a simple HTML page to display the images
-    return render_template('index.html', images=image_files)
+    return render_template('index.html', graphs=graphs)
 
 if __name__ == '__main__':
-    # Check that the graph directory exists
-    if not os.path.exists(GRAPH_DIR):
-        os.makedirs(GRAPH_DIR)
     app.run(host='0.0.0.0', port=5001, debug=True)
