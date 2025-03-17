@@ -24,7 +24,7 @@ try:
         data = json.load(f)
 # file error exception message
 except FileNotFoundError:
-    print(f"Error: The file {json_path} does not exist. Please ensure 'dummyNew.json' is in the correct location.")
+    print(f"Error: The file {json_path} does not exist. Please ensure 'data.json' is in the correct location.")
     exit(1)
 
 # Function to plot size vs real time
