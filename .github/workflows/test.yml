@@ -42,9 +42,20 @@ jobs:
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./main
           cd out
-          pwd
+          export AGDA_DIR="/root/.agda" 
+          GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
+          echo "${GREEN} Coq $file_name Output:"
           coqc "$file_name.v"
+          echo "${GREEN} Lean $file_name Output:"
           lean "$file_name.lean" 
+          echo "${GREEN} Idris $file_name Output:"
           idris2 --check "$file_name.idr"
+          echo "${GREEN} Agda $file_name Output:"
           agda "./$file_name.agda"
+      - name: Store generated files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: /code/out
+          retention-days: 1

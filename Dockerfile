@@ -31,6 +31,7 @@ RUN nix-env -iA nixpkgs.coq nixpkgs.idris2 nixpkgs.haskellPackages.Agda nixpkgs.
 
 USER root
 ENV USER=root
+ENV AGDA_DIR="/root/.agda" 
 
 WORKDIR /code
 COPY mhpgeez .
