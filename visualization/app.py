@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 # Returns the current directory
 curr_directory = os.path.dirname(__file__)
-json_path = os.path.join(curr_directory, 'dummyNew.json')
+json_path = os.path.join(curr_directory, 'data.json')
 
 # Load the JSON file into a variable called `data` to be used later
 try:
