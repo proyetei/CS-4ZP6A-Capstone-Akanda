@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "app.py",
+      "src": "visualization/app.py",
       "use": "@vercel/python",
       "config": {
         "pythonVersion": "3.9"
@@ -15,7 +15,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "visualization/app.py"
     }
   ]
 }
