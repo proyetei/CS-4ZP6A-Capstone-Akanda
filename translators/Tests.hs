@@ -20,7 +20,9 @@ _tests =
             if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ Var $ "x" ++ show p
             else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
     in Module "LetAddExample" [DefVar "n" (Just $ Con "Nat") $ lets 1]
-    , \n -> let --3
+    
+    , -- 3 Description: Generate Nested Functions 
+    \n -> let --3
             -- Generate function definitions dynamically based on (1 to n)
             genFunc 1 = [DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat"))
                             [Arg "x1" (Con "Nat")] 
@@ -50,6 +52,8 @@ _tests =
         genIdentifier 1 = "x"
         genIdentifier m = 'x' : genIdentifier (m-1)
         in Module "LongIdentifier" [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]
+    
+    -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
         -- Generate field definitions dynamically
         genFields 1 = [("f1", Con "Nat")]
@@ -76,7 +80,9 @@ _tests =
         exampleInit = InitRec "example" "X" Nothing (genExample n)
 
         in Module "Fields_DependentRecordModule" [xDef, exampleInit]
-    , \n -> let --7
+
+    , --7 Description: Generate a very long chain (N) of dependent record definitions 
+    \n -> let 
         -- Generate Record Definitions
         genRecords 1 = [DefRecType "Record1" Nothing (Just "Const1") [("f1", Con "Nat")] (Con "Set")]
         genRecords level =
@@ -97,7 +103,9 @@ _tests =
         exampleInit = InitRec "example" ("Record" ++ show n) (Just ("")) [("example", genExample n)]
         
         in Module "ChainDef_DependentRecordModule" (genRecords n ++ [exampleInit])
-    , \n -> let --8
+    
+    , -- 8 Description: Generate record with N parameters 
+    \n -> let 
          -- Helper to build the sum exp 1 + 2 + ... + n
          buildSum 1 = Int 1
          buildSum m = Bin "+" (buildSum (m-1)) (Int m)
@@ -152,6 +160,46 @@ _tests =
     , \n ->  --13
         Module "Parameters_Datatypes"
         [DefPDataType "d" (map (\i -> ("p" ++ show i)) [1 .. n]) [("c", PCon "d" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
+    
+    , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
+     \n ->
+    let
+        -- Generate variable names: x1, x2, ..., xn
+        varNames = map (\i -> "x" ++ show i) [1..n]
+
+        -- Generate definitions: x1 = 1, x2 = 2, ..., xn = n
+        varDefs = zipWith (\name val -> DefVar name (Just $ Con "Nat") (Int val)) varNames [1..n]
+
+        -- result = x1 + xn
+        finalExpr = Bin "+" (Var "x1") (Var ("x" ++ show n))
+        resultDef = DefVar "result" (Just $ Con "Nat") finalExpr
+
+    in Module "FirstLast_VariableModule" (varDefs ++ [resultDef])
+    , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
+    \n -> let
+    varsPerLevel = 10  -- Number of variables per level
+
+    -- Generate variable names format x$level$ L $index$
+    varName :: Int -> Int -> String
+    varName level idx = "x" ++ show level ++ "L" ++ show idx
+
+    -- Define expressions for each variable
+    genExpr :: Int -> Int -> Expr
+    genExpr 1 idx = Int idx  
+    genExpr level idx = Bin "+" (Var $ varName (level - 1) idx) (Int idx) 
+
+    -- Generate DefVar for each level
+    genLevelDefs :: Int -> [Definition]
+    genLevelDefs 1 = [DefVar (varName 1 idx) (Just $ Con "Nat") (genExpr 1 idx) | idx <- [1..varsPerLevel]]
+    genLevelDefs level = genLevelDefs (level - 1) ++
+        [DefVar (varName level idx) (Just $ Con "Nat") (genExpr level idx) | idx <- [1..varsPerLevel]]
+
+    --  sum of all xN_1 .. xN_10 + 100
+    sumVars = foldl (\acc idx -> Bin "+" acc (Var $ varName n idx)) (Int 100) [1..varsPerLevel]
+
+    resultDef = DefVar "result" (Just $ Con "Nat") sumVars
+
+    in Module "DeepDependency_VariableModule" (genLevelDefs n ++ [resultDef])
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
