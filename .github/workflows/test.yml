@@ -42,7 +42,6 @@ jobs:
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./main
           cd out
-          export AGDA_DIR="/root/.agda" 
           GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
           echo "${GREEN} Coq $file_name Output:"
