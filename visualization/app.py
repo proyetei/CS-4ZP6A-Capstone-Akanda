@@ -7,13 +7,15 @@ import matplotlib.pyplot as plt
 import io
 import base64
 
+
+# LOGIC: To avoid issues with static images not appearing on Vercel hosted website
+# the code below encodes the processed graphs from JSON file and 
+# encodes the matplotlib graph as base64 object and then saves the image to a BytesIO object
+
 app = Flask(__name__)
 
 # Returns the current directory
 curr_directory = os.path.dirname(__file__)
-# Path to the directory where images are stored
-# GRAPH_DIR = os.path.join(curr_directory, 'static/graphs' )
-# Path to the directory where JSON file is stored
 json_path = os.path.join(curr_directory, 'dummyNew.json')
 
 # Load the JSON file into a variable called `data` to be used later
