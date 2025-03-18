@@ -2,7 +2,7 @@
     "testcases": [
       {
         "name": "testcase_1",
-        "description": "test case for appending to a list",
+        "description": "test case for let example",
         "languages": [
           {
             "name": "Idris",

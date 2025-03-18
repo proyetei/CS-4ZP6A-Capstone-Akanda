@@ -53,6 +53,8 @@ printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ (foldl (\x y -> x 
 printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg args) ++ " := " ++ printExpr expr
 printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 printDef _ (DefDataType str args t) = "inductive " ++ str ++ " : " ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
+printDef _ (DefPDataType str params args t) =
+   "inductive " ++ str ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
 -- records Def
 printDef _ (DefRecType name params maybeConName fields _) =

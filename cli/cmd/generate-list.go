@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -143,28 +144,60 @@ func translateTest(test Testcase, operations int) {
 }
 
 func run_test(test Testcase, dataMap map[string][]Data, operations int) map[string][]Data {
+	originalDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error getting current directory:", err)
+		os.Exit(1)
+	}
+	err = os.Chdir(output_folder)
+	if err != nil {
+		fmt.Println("Error changing directory:", err)
+		os.Exit(1)
+	}
+
+	agda_str := Language_list[1].cmd + " ./" + test.file_name + Language_list[1].file_extension
+	agda_cmd := exec.Command("bash", "-c", agda_str)
+	_ = agda_cmd.Run()
+	pattern := `(?s)"real_time": ([0-9]*\.[0-9]+), "user_time": ([0-9]*\.[0-9]+), "system_time": ([0-9]*\.[0-9]+), "memory": ([0-9]+)}`
+	re := regexp.MustCompile(pattern)
+
 	for i := 0; i < len(Language_list); i++ {
 		time_str := `/usr/bin/time --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
-		cmd_str := time_str + Language_list[i].cmd + " ./" + output_folder + "/" + test.file_name + Language_list[i].file_extension
+		cmd_str := time_str + Language_list[i].cmd + " ./" + test.file_name + Language_list[i].file_extension
 		cmd := exec.Command("bash", "-c", cmd_str)
 		var outb, errb bytes.Buffer
 		cmd.Stdout = &outb
 		cmd.Stderr = &errb
-		err := cmd.Run()
+		err = cmd.Run()
 		var test_data Data
+		fmt.Println(errb.String())
 		if err != nil {
 			fmt.Println(Language_list[i].name, "file has an error")
+			fmt.Println(errb.String(), outb.String())
 		} else {
-			jsonstr := fmt.Sprintf(`{"size": %d, `, operations) + errb.String()
+			matches := re.FindStringSubmatch(errb.String())
+			if matches == nil {
+				fmt.Println("could not record the time")
+				os.Exit(1)
+			}
+			jsonstr := fmt.Sprintf(`{"size": %d, `, operations) + matches[0]
 			err = json.Unmarshal([]byte(jsonstr), &test_data)
 			if err != nil {
+				fmt.Println(Language_list[i].name, errb.String())
 				fmt.Println("Could not unmarshal test data", err)
 			} else {
 				dataMap[Language_list[i].name] = append(dataMap[Language_list[i].name], test_data)
 			}
 
 		}
+
 	}
+	err = os.Chdir(originalDir)
+	if err != nil {
+		fmt.Println("Error changing directory:", err)
+		os.Exit(1)
+	}
+
 	return dataMap
 
 }
@@ -175,14 +208,6 @@ func generateGraphs() {
 	err := setup_cmd.Run()
 	if err != nil {
 		fmt.Println("Error executing the setup commands for the graph folder", err)
-		os.Exit(1)
-	}
-
-	python_str := "python3.12 graph.py"
-	python_cmd := exec.Command("bash", "-c", python_str)
-	err = python_cmd.Run()
-	if err != nil {
-		fmt.Println("Could not create the graphs", err)
 		os.Exit(1)
 	}
 
@@ -201,7 +226,7 @@ func generateGraphs() {
 			fmt.Println("Error waiting for Python script:", err)
 		}
 	}()
-	err = exec.Command("xdg-open", "http://127.0.0.1:5000").Start()
+	err = exec.Command("xdg-open", "http://127.0.0.1:5001").Start()
 	if err != nil {
 		fmt.Println("Error opening browser:", err)
 	}

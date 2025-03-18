@@ -1,0 +1,2 @@
+Flask==2.3.2
+matplotlib==3.7.2

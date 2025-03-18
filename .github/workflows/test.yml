@@ -1,0 +1,49 @@
+name: Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      testcase:
+        type: choice
+        required: true
+        description: select the testcase you would like to generate
+        options: 
+        - 1 [LetExample]
+        - 2 [LetAddExample]
+        - 3 [NestedFunction]
+        - 4 [DataSimpleDeclarations]
+        - 5 [LongIdentifier]
+        - 6 [Fields_DependentRecordModule]
+        - 7 [ChainDef_DependentRecordModule]
+        - 8 [Parameters_DependentRecordModule]
+        - 9 [NewlineFile]
+        - 10 [Fields_NonDependentRecordModule]
+        - 11 [ChainDefFields_NonDependentRecordModule]
+        - 12 [Constructors_Datatypes]
+        - 13 [Parameters_Datatypes]
+      size:
+        description: must be an integer value
+        required: true
+      
+
+jobs:
+  generate-list:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
+      credentials:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Run Test
+        run: |
+          cd /code
+          testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
+          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }}
+          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }} | ./main
+          cd out
+          file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
+          agda "$file_name.agda"
+          coqc "$file_name.v"
+          lean "$file_name.lean" 
+          idris2 --check "$file_name.idr"

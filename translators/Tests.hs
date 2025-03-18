@@ -41,11 +41,11 @@ _tests =
         in Module "NestedFunction" 
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
-    , \n -> let --4
+    , \n -> let --4 A specified number of simple datatype declarations.
         genData 1 = [DefDataType "x1" [("y", Con "Bool")] (Con "Type")]
         genData m = DefDataType ("x" ++ show m) [("y", Con "Bool")] (Con "Type") : genData (m-1)
         in Module "DataSimpleDeclarations" (genData n)
-    , \n -> let --5
+    , \n -> let --5 Variable declaration with an identifier of a specified length.
         genIdentifier 1 = "x"
         genIdentifier m = 'x' : genIdentifier (m-1)
         in Module "LongIdentifier" [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]
@@ -145,7 +145,13 @@ _tests =
         --just "" to prevent inheretence of DefRecType
         exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
     in Module "ChainDefFields_NonDependentRecordModule" (genRecords n ++ [exampleInit])
-    , \n -> let -- 12
+    , \n -> --12
+        Module "Constructors_Datatypes"
+        [DefDataType "d" (map (\ i -> ("c" ++ show i, Con "d")) [1 .. n]) (Con "Type")]
+    , \n ->  --13
+        Module "Parameters_Datatypes"
+        [DefPDataType "d" (map (\i -> ("p" ++ show i)) [1 .. n]) [("c", PCon "d" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
+    , \n -> let -- 12 - Simple datatype declaration with a specified number of indices, defined implicitly.
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -153,8 +159,8 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
-       in Module "DataImplicitIndices" [DefDataType "d" [("c1", Arr (Index (genIndex n) (Con "Nat")) (Con "d"))] (Arr (genType n) (Con "Type"))]
-       ]
+       in Module "DataImplicitIndices" [DefDataType "D" [("C1", Arr (Index (genIndex n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex n))))] (Arr (genType n) (Con "Type"))]
+    ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
 -- to access the expandable test at index i: tests ! i
