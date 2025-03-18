@@ -151,7 +151,7 @@ _tests =
     , \n ->  --13
         Module "Parameters_Datatypes"
         [DefPDataType "d" (map (\i -> ("p" ++ show i)) [1 .. n]) [("c", PCon "d" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
-    , \n -> let -- 12 - Simple datatype declaration with a specified number of indices, defined implicitly.
+    , \n -> let -- 14 - Simple datatype declaration with a specified number of indices, defined implicitly.
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
