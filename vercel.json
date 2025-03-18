@@ -1,14 +1,21 @@
 {
-    "builds": [
-      {
-        "src": "visualization/app.py",
-        "use": "@vercel/python"
+  "builds": [
+    {
+      "src": "visualization/app.py",
+      "use": "@vercel/python",
+      "config": {
+        "pythonVersion": "3.9"
       }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "visualization/app.py"
-      }
-    ]
-  }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "visualization/app.py"
+    }
+  ]
+}

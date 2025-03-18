@@ -88,3 +88,5 @@ jobs:
           context: .
           tags: ${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
           file: Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

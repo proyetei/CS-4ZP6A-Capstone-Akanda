@@ -41,7 +41,7 @@ printListElements  ListEmpty = "[]"
 printListElements  (ListCons x xs) = printExpr x ++ " ∷ " ++ printListElements  xs
 
 -- Function to print variable definitions
-printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr
+printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n"
     where
         typeSig = case ty of
             Just t -> var ++ " : " ++ printType t ++ "\n"

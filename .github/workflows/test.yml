@@ -22,12 +22,12 @@ on:
         - 12 [Constructors_Datatypes]
         - 13 [Parameters_Datatypes]
       size:
-        description: must be an integer value
+        description: select the size of the testcase (must be an integer value)
         required: true
       
 
 jobs:
-  generate-list:
+  generate-test:
     runs-on: ubuntu-latest
     container:
       image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
@@ -35,15 +35,32 @@ jobs:
         username: ${{ vars.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2 
       - name: Run Test
         run: |
-          cd /code
+          echo "${{ github.ref }}"
+          echo "${{ github.ref.name }}"
+          cd translators
+          ghc -o main main.hs
+          chmod +x main
+          mkdir out
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
-          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }}
-          printf '%s\n%d\n' "$testcase" ${{ github.event.inputs.datapoints }} | ./main
-          cd out
+          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./main
+          cd out 
+          GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
-          agda "$file_name.agda"
+          echo "${GREEN} Coq $file_name Output:"
           coqc "$file_name.v"
+          echo "${GREEN} Lean $file_name Output:"
           lean "$file_name.lean" 
+          echo "${GREEN} Idris $file_name Output:"
           idris2 --check "$file_name.idr"
+          echo "${GREEN} Agda $file_name Output:"
+          agda "./$file_name.agda"
+      - name: Store generated files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: ./translators/out
+          retention-days: 1
