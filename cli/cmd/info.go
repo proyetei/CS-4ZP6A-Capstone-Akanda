@@ -23,13 +23,11 @@ type Test struct {
 	Languages   []LanguageJSON `json:"languages"`
 }
 
-// Language represents a programming language structure
 type LanguageJSON struct {
 	Name  string `json:"name"`
 	Tests []Data `json:"tests"`
 }
 
-// Test represents a test case for a specific language
 type Data struct {
 	Size        int     `json:"size"`
 	Memory      int     `json:"memory"`
@@ -41,15 +39,81 @@ type Data struct {
 var Case_list = map[int]Testcase{
 	1: {
 		1,
-		"Function with nested Let statements",
+		"<TODO>",
 		"LetExample",
-		10000,
+		5000,
 	},
 	2: {
 		2,
-		"Function with nested statements",
+		"<TODO>",
 		"LetAddExample",
-		20000,
+		5000,
+	},
+	3: {
+		3,
+		"<TODO>",
+		"NestedFunction",
+		5000,
+	},
+	4: {
+		4,
+		"<TODO>",
+		"DataSimpleDeclarations",
+		5000,
+	},
+	5: {
+		5,
+		"<TODO>",
+		"LongIdentifier",
+		5000,
+	},
+	6: {
+		6,
+		"<TODO>",
+		"Fields_DependentRecordModule",
+		5000,
+	},
+	7: {
+		7,
+		"<TODO>",
+		"ChainDef_DependentRecordModule",
+		5000,
+	},
+	8: {
+		8,
+		"<TODO>",
+		"Parameters_DependentRecordModule",
+		5000,
+	},
+	9: {
+		9,
+		"<TODO>",
+		"NewlineFile",
+		5000,
+	},
+	10: {
+		10,
+		"<TODO>",
+		"Fields_NonDependentRecordModule",
+		5000,
+	},
+	11: {
+		11,
+		"<TODO>",
+		"ChainDefFields_NonDependentRecordModule",
+		5000,
+	},
+	12: {
+		12,
+		"<TODO>",
+		"Constructors_Datatypes",
+		5000,
+	},
+	13: {
+		13,
+		"<TODO>",
+		"Parameters_Datatypes",
+		5000,
 	},
 }
 
@@ -75,3 +139,5 @@ var Language_list = []Language{
 		"lean",
 	},
 }
+
+var StdMsg = "command could not complete successfully, check logs for more details"

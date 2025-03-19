@@ -7,11 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var maxPoint int = 150
 var caseID int
-var maxID int = 2
-var datapoints []int
-var output_folder = "out"
+var maxID int = 13
+var output_folder string = "out"
 var webpage bool
+var verbose bool
 
 var rootCmd = &cobra.Command{
 	Use:   "cli",
