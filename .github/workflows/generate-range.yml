@@ -8,8 +8,19 @@ on:
         required: true
         description: select the testcase you would like to generate
         options: 
-        - 1 [LetExample]
-        - 2 [LetAddExample]
+          - 1 [LetExample]
+          - 2 [LetAddExample]
+          - 3 [NestedFunction]
+          - 4 [DataSimpleDeclarations]
+          - 5 [LongIdentifier]
+          - 6 [Fields_DependentRecordModule]
+          - 7 [ChainDef_DependentRecordModule]
+          - 8 [Parameters_DependentRecordModule]
+          - 9 [NewlineFile]
+          - 10 [Fields_NonDependentRecordModule]
+          - 11 [ChainDefFields_NonDependentRecordModule]
+          - 12 [Constructors_Datatypes]
+          - 13 [Parameters_Datatypes]
       lower_bound:
         description: must be an integer value
         required: true
@@ -36,7 +47,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-range -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }}
+          ./mhpgeez generate-range -v -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }}
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:

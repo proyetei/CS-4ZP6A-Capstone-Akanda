@@ -8,8 +8,19 @@ on:
         required: true
         description: select the testcase you would like to generate
         options: 
-        - 1 [LetExample]
-        - 2 [LetAddExample]
+          - 1 [LetExample]
+          - 2 [LetAddExample]
+          - 3 [NestedFunction]
+          - 4 [DataSimpleDeclarations]
+          - 5 [LongIdentifier]
+          - 6 [Fields_DependentRecordModule]
+          - 7 [ChainDef_DependentRecordModule]
+          - 8 [Parameters_DependentRecordModule]
+          - 9 [NewlineFile]
+          - 10 [Fields_NonDependentRecordModule]
+          - 11 [ChainDefFields_NonDependentRecordModule]
+          - 12 [Constructors_Datatypes]
+          - 13 [Parameters_Datatypes]
       datapoints:
         description: must be a list of integer values following the format '1,5,7'
         required: true
@@ -30,7 +41,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-list -w=false -t $testcase -d ${{ github.event.inputs.datapoints }}
+          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }}
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:
