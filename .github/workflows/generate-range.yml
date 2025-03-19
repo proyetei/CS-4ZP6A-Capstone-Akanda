@@ -6,7 +6,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: select the testcase you would like to generate
+        description: Select the testcase you would like to generate
         options: 
           - 1 [LetExample]
           - 2 [LetAddExample]
@@ -22,14 +22,23 @@ on:
           - 12 [Constructors_Datatypes]
           - 13 [Parameters_Datatypes]
       lower_bound:
-        description: must be an integer value
+        description: Enter an integer value between 1 and upper_bound
         required: true
       upper_bound:
-        description: must be an integer value
+        description: Enter an integer value greater than 1
         required: true
       interval: 
-        description: must be an integer value
+        type: choice
+        description: Select the graph interval format
         required: true
+        options: 
+          - linear
+          - log
+          - quadratic
+      datapoints: 
+        description: Enter the number of data points for the graph (integer value between 1 and 150)
+        required: true
+
       
 
 jobs:
@@ -47,7 +56,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-range -v -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }}
+          ./mhpgeez generate-range -v -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }} -d ${{ github.event.inputs.datapoints }}
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:
