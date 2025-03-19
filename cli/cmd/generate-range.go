@@ -34,8 +34,16 @@ var generateRangeCmd = &cobra.Command{
 			"Idris": {},
 			"Lean":  {},
 		}
-		i, point := lowerBound, 1
-		linear_inc := int(math.Floor(float64(upperBound) / float64(num_points)))
+		exit_status := map[string]string{
+			"Coq":   "OK",
+			"Agda":  "OK",
+			"Idris": "OK",
+			"Lean":  "OK",
+		}
+		i, point, linear_inc := lowerBound, 1, 1
+		if num_points != 1 {
+			linear_inc = int(math.Floor((float64(upperBound) - float64(lowerBound)) / float64(num_points-1)))
+		}
 		if linear_inc == 0 {
 			linear_inc = 1
 		}
@@ -49,16 +57,16 @@ var generateRangeCmd = &cobra.Command{
 			if point == 1 {
 				loadAgdalib(testcase)
 			}
-			dataMap = run_test(testcase, dataMap, i)
+			dataMap, exit_status = run_test(testcase, dataMap, exit_status, i)
 
 			if interval == "linear" {
 				i += linear_inc
 			}
 			if interval == "log" {
-				i += int(math.Pow(2, float64(point)))
+				i = lowerBound + int(math.Pow(2, float64(point)))
 			}
 			if interval == "quadratic" {
-				i += point * point
+				i = lowerBound + point*point
 			}
 			point += 1
 
@@ -66,6 +74,7 @@ var generateRangeCmd = &cobra.Command{
 
 		for j := 0; j < len(data.Testcases[0].Languages); j++ {
 			data.Testcases[0].Languages[j].Tests = append(data.Testcases[0].Languages[j].Tests, dataMap[data.Testcases[0].Languages[j].Name]...)
+			data.Testcases[0].Languages[j].Exit_status = exit_status[data.Testcases[0].Languages[j].Name]
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,9 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"slices"
+	"syscall"
+	"time"
 
 	"github.com/savioxavier/termlink"
 	"github.com/spf13/cobra"
@@ -32,16 +36,25 @@ var generateListCmd = &cobra.Command{
 			"Idris": {},
 			"Lean":  {},
 		}
+		exit_status := map[string]string{
+			"Coq":   "OK",
+			"Agda":  "OK",
+			"Idris": "OK",
+			"Lean":  "OK",
+		}
+
+		slices.Sort(datapoints)
 		for i := 0; i < len(datapoints); i++ {
 			log.Printf("datapoint %d out of %d\n", i+1, len(datapoints))
 			translateTest(testcase, datapoints[i])
 			if i == 0 {
 				loadAgdalib(testcase)
 			}
-			dataMap = run_test(testcase, dataMap, datapoints[i])
+			dataMap, exit_status = run_test(testcase, dataMap, exit_status, datapoints[i])
 		}
 		for j := 0; j < len(data.Testcases[0].Languages); j++ {
 			data.Testcases[0].Languages[j].Tests = append(data.Testcases[0].Languages[j].Tests, dataMap[data.Testcases[0].Languages[j].Name]...)
+			data.Testcases[0].Languages[j].Exit_status = exit_status[data.Testcases[0].Languages[j].Name]
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
@@ -111,20 +124,24 @@ func dataTemplate(test Testcase) Overview {
 				Description: test.desc,
 				Languages: []LanguageJSON{
 					{
-						Name:  "Coq",
-						Tests: []Data{},
+						Name:        "Coq",
+						Tests:       []Data{},
+						Exit_status: "OK",
 					},
 					{
-						Name:  "Agda",
-						Tests: []Data{},
+						Name:        "Agda",
+						Tests:       []Data{},
+						Exit_status: "OK",
 					},
 					{
-						Name:  "Idris",
-						Tests: []Data{},
+						Name:        "Idris",
+						Tests:       []Data{},
+						Exit_status: "OK",
 					},
 					{
-						Name:  "Lean",
-						Tests: []Data{},
+						Name:        "Lean",
+						Tests:       []Data{},
+						Exit_status: "OK",
 					},
 				},
 			},
@@ -166,7 +183,7 @@ func translateTest(test Testcase, operations int) {
 
 }
 
-func run_test(test Testcase, dataMap map[string][]Data, operations int) map[string][]Data {
+func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, operations int) (map[string][]Data, map[string]string) {
 	originalDir, err := os.Getwd()
 	if err != nil {
 		fmt.Println(StdMsg)
@@ -182,19 +199,40 @@ func run_test(test Testcase, dataMap map[string][]Data, operations int) map[stri
 	re := regexp.MustCompile(pattern)
 
 	for i := 0; i < len(Language_list); i++ {
+		var test_data Data
+		if exit_status[Language_list[i].name] != "OK" {
+			continue
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
 		time_str := `/usr/bin/time --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
 		cmd_str := time_str + Language_list[i].cmd + " ./" + test.file_name + Language_list[i].file_extension
-		cmd := exec.Command("bash", "-c", cmd_str)
+		cmd := exec.CommandContext(ctx, "bash", "-c", cmd_str)
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		go func() {
+			<-ctx.Done()
+			if ctx.Err() == context.DeadlineExceeded && cmd.Process != nil {
+				syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+			}
+		}()
+		// Could cause memory issues if output size is large
 		var outb, errb bytes.Buffer
 		cmd.Stdout = &outb
 		cmd.Stderr = &errb
 		err = cmd.Run()
-		var test_data Data
 
 		if err != nil {
 			log.Printf("Type-checking failed for %s file\n", Language_list[i].name)
-			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", errb.String(), outb.String())
+			if ctx.Err() == context.DeadlineExceeded {
+				log.Println("Context Deadline Exceeded")
+				exit_status[Language_list[i].name] = "time"
+
+			} else {
+				log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", errb.String(), outb.String())
+				exit_status[Language_list[i].name] = "memory"
+			}
 		} else {
 			matches := re.FindStringSubmatch(errb.String())
 			if matches == nil {
@@ -218,7 +256,7 @@ func run_test(test Testcase, dataMap map[string][]Data, operations int) map[stri
 
 	}
 
-	return dataMap
+	return dataMap, exit_status
 
 }
 
@@ -234,9 +272,9 @@ func loadAgdalib(test Testcase) {
 		fmt.Println(StdMsg)
 		log.Fatalln("Error changing directory:", err)
 	}
-
 	agda_str := Language_list[1].cmd + " ./" + test.file_name + Language_list[1].file_extension
 	agda_cmd := exec.Command("bash", "-c", agda_str)
+
 	_ = agda_cmd.Run()
 
 	err = os.Chdir(originalDir)

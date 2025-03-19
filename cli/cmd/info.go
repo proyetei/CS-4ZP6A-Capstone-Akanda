@@ -24,8 +24,9 @@ type Test struct {
 }
 
 type LanguageJSON struct {
-	Name  string `json:"name"`
-	Tests []Data `json:"tests"`
+	Name        string `json:"name"`
+	Tests       []Data `json:"tests"`
+	Exit_status string `json:"exit_status"`
 }
 
 type Data struct {
@@ -89,7 +90,7 @@ var Case_list = map[int]Testcase{
 		9,
 		"<TODO>",
 		"NewlineFile",
-		5000,
+		100000,
 	},
 	10: {
 		10,
