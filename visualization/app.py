@@ -8,9 +8,9 @@ import io
 import base64
 
 
-# LOGIC: To avoid issues with static images not appearing on Vercel hosted website
-# the code below encodes the processed graphs from JSON file and 
-# encodes the matplotlib graph as base64 object and then saves the image to a BytesIO object
+# LOGIC: Since Vercel is a serverless platform, it doesn't support saving static files
+# To avoid issues with static images not appearing on Vercel hosted website
+# The graphs are first saved to a BytesIO object instead of a file, and then converted to base64
 
 app = Flask(__name__)
 
@@ -31,10 +31,11 @@ except FileNotFoundError:
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
+    # use name filed
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"Real Time Complexity for {description}")
     plt.xlabel("Size")
     plt.ylabel("Real Time (s)")
@@ -73,7 +74,7 @@ def plot_size_vs_user_time(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"User Time Complexity for {description} ")
     plt.xlabel("Size")
     plt.ylabel("User Time (s)")
@@ -112,7 +113,7 @@ def plot_size_vs_system_time(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"System Time Complexity for {description}")
     plt.xlabel("Size")
     plt.ylabel("System Time (s)")
@@ -151,10 +152,10 @@ def plot_size_vs_memory(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"Memory Usage for {description}")
     plt.xlabel("Size")
-    plt.ylabel("Memory (MB)")
+    plt.ylabel("Memory (KB)")
 
     # Plot each language's data for memory usage vs size
     for language_data in languages:
@@ -200,8 +201,12 @@ def index():
     # Generate graphs before displaying the page
     graphs = generate_graphs(data)
 
+    # Get test case
+    test_case = data["testcases"][0]
+
     # Return a simple HTML page to display the images
-    return render_template('index.html', graphs=graphs)
+    return render_template('index.html',  test_case_name=test_case["name"], 
+                           test_case_desc=test_case["description"], graphs=graphs)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
