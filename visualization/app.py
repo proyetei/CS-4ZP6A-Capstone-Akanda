@@ -202,7 +202,8 @@ def index():
     graphs = generate_graphs(data)
 
     # Return a simple HTML page to display the images
-    return render_template('index.html', graphs=graphs)
+    return render_template('index.html',  test_case_name=test_case["name"], 
+                           test_case_desc=test_case["description"], graphs=graphs)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
