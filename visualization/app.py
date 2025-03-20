@@ -201,6 +201,9 @@ def index():
     # Generate graphs before displaying the page
     graphs = generate_graphs(data)
 
+    # Get test case
+    test_case = data["testcases"][0]
+
     # Return a simple HTML page to display the images
     return render_template('index.html',  test_case_name=test_case["name"], 
                            test_case_desc=test_case["description"], graphs=graphs)
