@@ -48,7 +48,7 @@ type cmdResult struct {
 var Case_list = map[int]Testcase{
 	1: {
 		1,
-		"<TODO>",
+		"Generate Nested Let Statements",
 		"LetExample",
 		5000,
 	},
@@ -60,7 +60,7 @@ var Case_list = map[int]Testcase{
 	},
 	3: {
 		3,
-		"<TODO>",
+		"Generate Nested Functions",
 		"NestedFunction",
 		5000,
 	},
@@ -78,19 +78,19 @@ var Case_list = map[int]Testcase{
 	},
 	6: {
 		6,
-		"<TODO>",
+		"A record declaration with N dependent fields",
 		"Fields_DependentRecordModule",
 		5000,
 	},
 	7: {
 		7,
-		"<TODO>",
+		"Generate a very long chain (N) of dependent record definitions ",
 		"ChainDef_DependentRecordModule",
 		5000,
 	},
 	8: {
 		8,
-		"<TODO>",
+		"Generate record with N parameters ",
 		"Parameters_DependentRecordModule",
 		5000,
 	},
@@ -122,6 +122,18 @@ var Case_list = map[int]Testcase{
 		13,
 		"<TODO>",
 		"Parameters_Datatypes",
+		5000,
+	},
+	14: {
+		14,
+		"Defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration",
+		"FirstLast_VariableModule",
+		5000,
+	},
+	15: {
+		15,
+		"Defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration",
+		"DeepDependency_VariableModule",
 		5000,
 	},
 }

@@ -21,6 +21,8 @@ on:
         - 11 [ChainDefFields_NonDependentRecordModule]
         - 12 [Constructors_Datatypes]
         - 13 [Parameters_Datatypes]
+        - 14 [FirstLast_VariableModule]
+        - 15 [DeepDependency_VariableModule]
       size:
         description: Select the size of the testcase (must be an integer value)
         required: true
