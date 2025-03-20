@@ -5,22 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Results</title>
     <style>
+        /* General body styling */
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
+
+        /* Container for the heading and description */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        /* Text styling */
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        /* Graph container styling */
         .graph-container {
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px; /* Space between graphs */
+            max-width: 1200px; /* Limit container width for better readability */
+            width: 100%;
         }
+
+        /* Individual graph styling */
         .graph-container img {
-            max-width: 500px;
-            margin: 10px;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out; /* Add animation styling ease in out */
+        }
+
+        .graph-container img:hover {
+            transform: scale(1.02); /* Add animation: slight zoom on hover */
+        }
+
+        /* Responsive layout */
+        @media (min-width: 768px) {
+            /* Desktop: Two graphs per row */
+            .graph-container img {
+                width: calc(50% - 10px); /* Two graphs with gap */
+                max-width: 45%;
+            }
+        }
+
+        @media (max-width: 767px) {
+            /* Mobile: One graph per row */
+            .graph-container img {
+                width: 100%; /* Full width on mobile */
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Test case results for system benchmarking</h1>
-    <h3> Results for {{ test_case_name }} - {{ test_case_desc }} </h3>
+    <div class="header">
+        <h1>Test Case Results for System Benchmarking</h1>
+        <h3>Results for {{ test_case_name }} - {{ test_case_desc }}</h3>
+    </div>
     <div class="graph-container">
         {% for graph in graphs %}
             <img src="data:image/png;base64,{{ graph }}" alt="Graph">
