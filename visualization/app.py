@@ -35,7 +35,7 @@ def plot_size_vs_real_time(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"Real Time Complexity for {description}")
     plt.xlabel("Size")
     plt.ylabel("Real Time (s)")
@@ -74,7 +74,7 @@ def plot_size_vs_user_time(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"User Time Complexity for {description} ")
     plt.xlabel("Size")
     plt.ylabel("User Time (s)")
@@ -113,7 +113,7 @@ def plot_size_vs_system_time(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"System Time Complexity for {description}")
     plt.xlabel("Size")
     plt.ylabel("System Time (s)")
@@ -152,7 +152,7 @@ def plot_size_vs_memory(test_case):
     description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(7, 5))
     plt.title(f"Memory Usage for {description}")
     plt.xlabel("Size")
     plt.ylabel("Memory (KB)")
