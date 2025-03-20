@@ -31,6 +31,7 @@ except FileNotFoundError:
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
+    # use name filed
     description = test_case["description"]
 
     # Create a new figure
@@ -154,7 +155,7 @@ def plot_size_vs_memory(test_case):
     plt.figure(figsize=(8, 6))
     plt.title(f"Memory Usage for {description}")
     plt.xlabel("Size")
-    plt.ylabel("Memory (MB)")
+    plt.ylabel("Memory (KB)")
 
     # Plot each language's data for memory usage vs size
     for language_data in languages:
@@ -201,7 +202,8 @@ def index():
     graphs = generate_graphs(data)
 
     # Return a simple HTML page to display the images
-    return render_template('index.html', graphs=graphs)
+    return render_template('index.html',  test_case_name=test_case["name"], 
+                           test_case_desc=test_case["description"], graphs=graphs)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

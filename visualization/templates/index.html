@@ -20,7 +20,7 @@
 </head>
 <body>
     <h1>Test case results for system benchmarking</h1>
-    <h3> Results for each test case</h3>
+    <h3> Results for Test case {{number}} - {{desc}} </h3> <!-- put the desc for the json file + name -->
     <div class="graph-container">
         {% for graph in graphs %}
             <img src="data:image/png;base64,{{ graph }}" alt="Graph">
