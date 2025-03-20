@@ -1,5 +1,7 @@
 package cmd
 
+import "bytes"
+
 type Overview struct {
 	Testcases []Test `json:"testcases"`
 }
@@ -30,11 +32,17 @@ type LanguageJSON struct {
 }
 
 type Data struct {
-	Size        int     `json:"size"`
-	Memory      int     `json:"memory"`
+	Size        float64 `json:"size"`
+	Memory      float64 `json:"memory"`
 	Real_time   float64 `json:"real_time"`
 	User_time   float64 `json:"user_time"`
 	System_time float64 `json:"system_time"`
+}
+
+type cmdResult struct {
+	outb bytes.Buffer
+	errb bytes.Buffer
+	err  error
 }
 
 var Case_list = map[int]Testcase{
@@ -42,7 +50,7 @@ var Case_list = map[int]Testcase{
 		1,
 		"<TODO>",
 		"LetExample",
-		5000,
+		50000000,
 	},
 	2: {
 		2,

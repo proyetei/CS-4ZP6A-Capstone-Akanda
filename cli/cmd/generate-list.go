@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"regexp"
@@ -163,22 +163,34 @@ func translateTest(test Testcase, operations int) {
 	}
 
 	translate_cmd := exec.Command("bash", "-c", "./main")
-	stdin, err := translate_cmd.StdinPipe()
-	if err != nil {
-		fmt.Println(StdMsg)
-		log.Fatalln("Could not create Stdin pipe", err)
-	}
-	stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
+	translate_cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	cmdDone := make(chan error, 1)
 	go func() {
-		defer stdin.Close()
+		stdin, err := translate_cmd.StdinPipe()
+		if err != nil {
+			fmt.Println(StdMsg)
+			log.Fatalln("Could not create Stdin pipe", err)
+		}
+		stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
 		io.WriteString(stdin, stdin_string)
+		stdin.Close()
+		log.Printf("translating test case %d into the 4 proof assistant languages", test.id)
+		_, err = translate_cmd.CombinedOutput()
+		cmdDone <- err
+		close(cmdDone)
 	}()
 
-	log.Printf("translating test case %d into the 4 proof assistant languages", test.id)
-	_, err = translate_cmd.CombinedOutput()
-	if err != nil {
+	select {
+	case <-time.After(20 * time.Second):
+		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
 		fmt.Println(StdMsg)
-		log.Fatalln("Could not translate the testcase", err)
+		log.Fatalln("Process killed, context deadline exceeded")
+	case result := <-cmdDone:
+		if result != nil {
+			fmt.Println(StdMsg)
+			log.Fatalln("Could not translate the testcase", result)
+		}
 	}
 
 }
@@ -200,41 +212,45 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 
 	for i := 0; i < len(Language_list); i++ {
 		var test_data Data
+		var final_result cmdResult
 		if exit_status[Language_list[i].name] != "OK" {
 			continue
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
 
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
 		time_str := `/usr/bin/time --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
 		cmd_str := time_str + Language_list[i].cmd + " ./" + test.file_name + Language_list[i].file_extension
-		cmd := exec.CommandContext(ctx, "bash", "-c", cmd_str)
+		cmd := exec.Command("bash", "-c", cmd_str)
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+		cmdDone := make(chan cmdResult, 1)
 		go func() {
-			<-ctx.Done()
-			if ctx.Err() == context.DeadlineExceeded && cmd.Process != nil {
-				syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-			}
+			// Could cause memory issues if output size is large
+			var outb, errb bytes.Buffer
+			cmd.Stdout = &outb
+			cmd.Stderr = &errb
+			err = cmd.Run()
+			cmdDone <- cmdResult{outb, errb, err}
+			close(cmdDone)
 		}()
-		// Could cause memory issues if output size is large
-		var outb, errb bytes.Buffer
-		cmd.Stdout = &outb
-		cmd.Stderr = &errb
-		err = cmd.Run()
 
-		if err != nil {
-			log.Printf("Type-checking failed for %s file\n", Language_list[i].name)
-			if ctx.Err() == context.DeadlineExceeded {
-				log.Println("Context Deadline Exceeded")
-				exit_status[Language_list[i].name] = "time"
+		select {
+		case <-time.After(30 * time.Second):
+			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+			log.Println("Process killed, context deadline exceeded")
+			exit_status[Language_list[i].name] = "time"
+			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
+		case result := <-cmdDone:
+			final_result = result
+		}
 
-			} else {
-				log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", errb.String(), outb.String())
-				exit_status[Language_list[i].name] = "memory"
-			}
-		} else {
-			matches := re.FindStringSubmatch(errb.String())
+		if final_result.err != nil {
+			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
+			exit_status[Language_list[i].name] = "memory"
+
+		}
+		if exit_status[Language_list[i].name] == "OK" {
+			matches := re.FindStringSubmatch(final_result.errb.String())
 			if matches == nil {
 				log.Println("Could not record the space and time data")
 			}
@@ -243,9 +259,16 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			if err != nil {
 				log.Println("Could not unmarshal test data", err)
 			} else {
+				if interval == "log" {
+					test_data.Memory = safe_log(test_data.Memory)
+					test_data.Real_time = safe_log(test_data.Real_time)
+					test_data.System_time = safe_log(test_data.System_time)
+					test_data.User_time = safe_log(test_data.User_time)
+					test_data.Size = safe_log(test_data.Size)
+
+				}
 				dataMap[Language_list[i].name] = append(dataMap[Language_list[i].name], test_data)
 			}
-
 		}
 
 	}
@@ -274,8 +297,27 @@ func loadAgdalib(test Testcase) {
 	}
 	agda_str := Language_list[1].cmd + " ./" + test.file_name + Language_list[1].file_extension
 	agda_cmd := exec.Command("bash", "-c", agda_str)
+	agda_cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-	_ = agda_cmd.Run()
+	cmdDone := make(chan cmdResult, 1)
+	go func() {
+		// Could cause memory issues if output size is large
+		var outb, errb bytes.Buffer
+		agda_cmd.Stdout = &outb
+		agda_cmd.Stderr = &errb
+		err = agda_cmd.Run()
+		cmdDone <- cmdResult{outb, errb, err}
+		close(cmdDone)
+	}()
+
+	select {
+	case <-time.After(30 * time.Second):
+		syscall.Kill(-agda_cmd.Process.Pid, syscall.SIGKILL)
+		log.Println("Process killed, context deadline exceeded")
+	case <-cmdDone:
+		log.Printf("Agda stdlib Loaded\n")
+
+	}
 
 	err = os.Chdir(originalDir)
 	if err != nil {
@@ -283,6 +325,15 @@ func loadAgdalib(test Testcase) {
 		log.Fatalln("Error changing directory:", err)
 
 	}
+}
+
+func safe_log(value float64) float64 {
+	if value <= 0 {
+		return 0
+	} else {
+		return math.Log2(value)
+	}
+
 }
 
 func generateGraphs() {
