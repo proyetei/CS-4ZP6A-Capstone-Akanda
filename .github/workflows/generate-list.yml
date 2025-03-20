@@ -21,6 +21,8 @@ on:
           - 11 [ChainDefFields_NonDependentRecordModule]
           - 12 [Constructors_Datatypes]
           - 13 [Parameters_Datatypes]
+          - 14 [FirstLast_VariableModule]
+          - 15 [DeepDependency_VariableModule]
       datapoints:
         description: Enter a list of integer values following the format '1,5,7'
         required: true

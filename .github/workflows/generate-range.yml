@@ -20,7 +20,8 @@ on:
           - 10 [Fields_NonDependentRecordModule]
           - 11 [ChainDefFields_NonDependentRecordModule]
           - 12 [Constructors_Datatypes]
-          - 13 [Parameters_Datatypes]
+          - 14 [FirstLast_VariableModule]
+          - 15 [DeepDependency_VariableModule]
       lower_bound:
         description: Enter an integer value between 1 and upper_bound
         required: true
