@@ -8,9 +8,9 @@ import io
 import base64
 
 
-# LOGIC: To avoid issues with static images not appearing on Vercel hosted website
-# the code below encodes the processed graphs from JSON file and 
-# encodes the matplotlib graph as base64 object and then saves the image to a BytesIO object
+# LOGIC: Since Vercel is a serverless platform, it doesn't support saving static files
+# To avoid issues with static images not appearing on Vercel hosted website
+# The graphs are first saved to a BytesIO object instead of a file, and then converted to base64
 
 app = Flask(__name__)
 
