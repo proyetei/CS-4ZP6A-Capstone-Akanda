@@ -50,7 +50,7 @@ var Case_list = map[int]Testcase{
 		1,
 		"<TODO>",
 		"LetExample",
-		50000000,
+		5000,
 	},
 	2: {
 		2,
