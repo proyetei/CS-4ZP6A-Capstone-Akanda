@@ -1,0 +1,5 @@
+# Ignore everything (folders and files) on root except...
+/*
+!visualization
+!vercel.json
+!requirements.txt
