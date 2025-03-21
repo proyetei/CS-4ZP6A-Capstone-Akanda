@@ -14,7 +14,7 @@ The project will also include a command line interface enabling users to view th
 
 ## Demo
 This is an example output for one of the test cases, please run GitHub Actions to run your own tests!
-[https://capstone-zeta-eight.vercel.app/](https://capstone-proyeteis-projects.vercel.app/)
+https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Technology Stack
 - Haskell for building the translators, grammars, and the automated code generator creating test cases for each of the 4 proof assistants (Idris, Agda, Lean, Coq)
