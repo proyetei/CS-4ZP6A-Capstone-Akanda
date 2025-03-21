@@ -50,3 +50,55 @@ jobs:
           name: data.json
           path: /code/data.json
           retention-days: 2
+  deploy-preview:
+    needs: [generate-list]
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Remove dummy data.json
+          run: rm -f ./visualization/data.json
+
+        - name: Remove dummy graphs
+          run: rm -f ./visualization/tmp/static/graphs/*.png
+
+        - name: Download data.json
+          uses: actions/download-artifact@v4
+          with:
+            name: data.json
+            path: visualization/
+        
+        - name: Check files
+          run: ls -la ./visualization
+
+        - name: setup python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.9
+
+        - name: Install dependencies
+          run: |
+              python -m pip install --upgrade pip
+              pip install requests
+
+        - name: Checking a secret
+          run: python vercel.py --token=${{ secrets.VERCEL_TOKEN }}
+        
+        - name: Install Vercel CLI
+          run: npm install --global vercel
+
+        - name: Pull Vercel Environment Information
+          run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+        - name: Build Project Artifacts
+          run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+        - name: Deploy Project Artifacts
+          run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --archive=tgz >deployment-url.txt 2>error.txt
+
+        - name: Adding URL to job summary
+          run: |
+            URL=$(cat deployment-url.txt)
+            echo "Deployment: " >> $GITHUB_STEP_SUMMARY
+            echo "${URL}" >> $GITHUB_STEP_SUMMARY
