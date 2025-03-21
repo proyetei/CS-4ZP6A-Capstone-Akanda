@@ -199,7 +199,7 @@ _tests =
     resultDef = DefVar "result" (Just $ Con "Nat") sumVars
 
     in Module "DeepDependency_VariableModule" (genLevelDefs n ++ [resultDef])
-    , \n -> let -- 16 - Simple datatype declaration with a specified number of indices, defined implicitly.
+    , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -208,6 +208,9 @@ _tests =
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
        in Module "DataImplicitIndices" [DefDataType "D" [("C1", Arr (Index (genIndex n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex n))))] (Arr (genType n) (Con "Type"))]
+    , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
+        singleLine = replicate n 'x'
+    in File "SingleLongLine" singleLine
     ]
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
