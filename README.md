@@ -12,6 +12,10 @@ The goal of this capstone project is to design and build an automated code gener
 interactive proof assistants including Lean, Idris, Agda, and Coq. Testing will first be performed on these assistants as ‘language’, then we will move forth with proof testing.
 The project will also include a command line interface enabling users to view the time and memory complexity and provide a link redirecting them to local webpages presenting visualizations of the measured data.
 
+## Demo
+This is an example output for one of the test cases, please run GitHub Actions to run your own tests!
+https://capstone-zeta-eight.vercel.app/
+
 ## Sources
 https://www.youtube.com/watch?v=U7TY_qUD8yA
 https://github.com/marketplace/actions/build-and-push-docker-images
