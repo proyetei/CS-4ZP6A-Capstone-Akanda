@@ -27,6 +27,16 @@ except FileNotFoundError:
     print(f"Error: The file {json_path} does not exist. Please ensure 'data.json' is in the correct location.")
     exit(1)
 
+
+# LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
+
+def checkExitStatus(plt, language_data, x_values, y_values):
+    if language_data["exit_status"] != "OK":
+        max_size = max(x_values)
+        index = x_values.index(max_size)
+        y_value = y_values[index]
+        plt.plot(max_size, y_value, marker='x', markersize=12, color='red', markeredgewidth=2)
+
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
@@ -49,6 +59,9 @@ def plot_size_vs_real_time(test_case):
         
         # Plot real time complexity marked by solid line and o
         plt.plot(x_values, real_time_values, marker='o', label=f'{language} - Real Time')
+
+        # Call exit status marker
+        checkExitStatus(plt, language_data, x_values, real_time_values)
     
     # Add legend
     plt.legend(loc='upper left')
@@ -88,6 +101,8 @@ def plot_size_vs_user_time(test_case):
         
         # Plot user time complexity marked by dotted line and x
         plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time')
+        # Check exit status and plot marker if not OK
+        checkExitStatus(plt, language_data, x_values, user_time_values)
         
     # Add legend
     plt.legend(loc='upper left')
@@ -127,6 +142,9 @@ def plot_size_vs_system_time(test_case):
         
         # Plot system time complexity marked by dotted line and x
         plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time')
+
+        # Check exit status and plot marker if not OK
+        checkExitStatus(plt, language_data, x_values, system_time_values)
         
     # Add legend
     plt.legend(loc='upper left')
@@ -167,6 +185,8 @@ def plot_size_vs_memory(test_case):
         # Plot memory usage marked by dotted line and x
         plt.plot(x_values, memory_values, marker='x', linestyle='--', label=f'{language} - Memory')
         
+        # Check exit status and plot marker if not OK
+        checkExitStatus(plt, language_data, x_values, memory_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
