@@ -72,6 +72,19 @@ jobs:
         - name: Check files
           run: ls -la ./visualization
 
+        - name: setup python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.9
+
+        - name: Install dependencies
+          run: |
+              python -m pip install --upgrade pip
+              pip install requests
+
+        - name: Checking a secret
+          run: python vercel.py --token=${{ secrets.VERCEL_TOKEN }}
+        
         - name: Install Vercel CLI
           run: npm install --global vercel
 
@@ -82,4 +95,10 @@ jobs:
           run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
         - name: Deploy Project Artifacts
-          run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --archive=tgz
+          run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --archive=tgz >deployment-url.txt 2>error.txt
+
+        - name: Adding URL to job summary
+          run: |
+            URL=$(cat deployment-url.txt)
+            echo "Deployment: " >> $GITHUB_STEP_SUMMARY
+            echo "${URL}" >> $GITHUB_STEP_SUMMARY
