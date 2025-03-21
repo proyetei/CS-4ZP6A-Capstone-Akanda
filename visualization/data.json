@@ -2,7 +2,7 @@
   "testcases": [
     {
       "name": "LetExample",
-      "description": "Test case 1 for let example",
+      "description": "Generates N nested let bindings",
       "languages": [
         {
           "name": "Coq",
