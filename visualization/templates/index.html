@@ -85,7 +85,8 @@
     <div class="header">
         <h1>Test Case Results for System Benchmarking</h1>
         <h3>Results for {{ test_case_name }} - {{ test_case_desc }}</h3>
-        <h4> Note, a red 'X' marker indicates that the test case exceeded memory or time limits for the corresponding language. </h6>  
+        <h4> Note, for each proof assistants, a red 'X' marker indicates that the test case exceeded memory, the blue 'X' marker indicates time limit exceeded. </h4>
+
     </div>
     <div class="graph-container">
         {% for graph in graphs %}

@@ -35,18 +35,22 @@ def checkExitStatus(plt, language_data, x_values, y_values):
         max_size = max(x_values)
         index = x_values.index(max_size)
         y_value = y_values[index]
-        plt.plot(max_size, y_value, marker='x', markersize=12, color='red', markeredgewidth=2)
+        if language_data["exit_status"] == "memory":
+            plt.plot(max_size, y_value, marker='x', markersize=12, color='red', markeredgewidth=2)
+        else:
+            plt.plot(max_size, y_value, marker='x', markersize=12, color='blue', markeredgewidth=2)
+
 
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    # use name filed
-    description = test_case["description"]
+    # use name file
+    # file_name = test_case[""]
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
-    plt.title(f"Real Time Complexity for {description}")
+    plt.title(f"Real Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("Real Time (s)")
 
@@ -84,11 +88,11 @@ def plot_size_vs_real_time(test_case):
 def plot_size_vs_user_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # description = test_case["description"]
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
-    plt.title(f"User Time Complexity for {description} ")
+    plt.title(f"User Time Complexity for {test_case_name} ")
     plt.xlabel("Size")
     plt.ylabel("User Time (s)")
 
@@ -125,11 +129,11 @@ def plot_size_vs_user_time(test_case):
 def plot_size_vs_system_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # description = test_case["description"]
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
-    plt.title(f"System Time Complexity for {description}")
+    plt.title(f"System Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("System Time (s)")
 
@@ -167,11 +171,11 @@ def plot_size_vs_system_time(test_case):
 def plot_size_vs_memory(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # description = test_case["description"]
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
-    plt.title(f"Memory Usage for {description}")
+    plt.title(f"Memory Usage for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("Memory (KB)")
 
