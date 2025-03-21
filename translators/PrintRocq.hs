@@ -5,7 +5,7 @@ import Grammar
       Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType),
       Expr(FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
-      Type(Arr, Con, TVar, PCon, DCon, Suc) )
+      Type(Arr, Con, TVar, PCon, DCon, Suc, Index) )
 import Data.Char
 import Data.List (isPrefixOf)
 
@@ -22,6 +22,7 @@ printType (PCon "Vec" args) = "t " ++ unwords (map printType args)
 printType (PCon name types) = (map toLower name) ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")" --
+printType (Index names ty) = "forall {" ++ unwords names ++ " : " ++ printType ty ++ "}"
 printReturnType (Con t) = map toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
 printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
@@ -57,7 +58,7 @@ printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) 
 printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ "."
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
-printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
+printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 printDef (DefPDataType name params args ty) = "Inductive " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
 --Function for Records

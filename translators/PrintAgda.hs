@@ -7,6 +7,7 @@ imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat \nopen im
 datatype = "Set"
 
 -- Print types
+printType (Con "Type") = "Set"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
@@ -15,6 +16,7 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(suc " ++ printType t ++ ")"
+printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 -- Print expressions
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -57,7 +59,7 @@ printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args e
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 
 -- Function to print datatype definitions
-printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 
