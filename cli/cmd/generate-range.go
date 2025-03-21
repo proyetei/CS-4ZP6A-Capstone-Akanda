@@ -47,6 +47,12 @@ var generateRangeCmd = &cobra.Command{
 		if linear_inc == 0 {
 			linear_inc = 1
 		}
+		if interval == "log" {
+			i = int(math.Pow(2, math.Ceil(math.Log2(float64(i)))))
+		}
+		if interval == "quadratic" {
+			i = int(math.Pow(math.Ceil(math.Sqrt(float64(i))), 2))
+		}
 
 		for i <= upperBound {
 			if point > num_points {
@@ -63,10 +69,10 @@ var generateRangeCmd = &cobra.Command{
 				i += linear_inc
 			}
 			if interval == "log" {
-				i = lowerBound + int(math.Pow(2, float64(point)))
+				i *= 2
 			}
 			if interval == "quadratic" {
-				i = lowerBound + point*point
+				i = int(math.Pow(math.Sqrt(float64(i))+1, 2))
 			}
 			point += 1
 
