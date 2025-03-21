@@ -1,24 +1,49 @@
 name: Generate-Range Testcases
 
+env:
+    VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    
 on:
   workflow_dispatch:
     inputs:
       testcase:
         type: choice
         required: true
-        description: select the testcase you would like to generate
+        description: Select the testcase you would like to generate
         options: 
-        - 1 [LetExample]
-        - 2 [LetAddExample]
+          - 1 [LetExample]
+          - 2 [LetAddExample]
+          - 3 [NestedFunction]
+          - 4 [DataSimpleDeclarations]
+          - 5 [LongIdentifier]
+          - 6 [Fields_DependentRecordModule]
+          - 7 [ChainDef_DependentRecordModule]
+          - 8 [Parameters_DependentRecordModule]
+          - 9 [NewlineFile]
+          - 10 [Fields_NonDependentRecordModule]
+          - 11 [ChainDefFields_NonDependentRecordModule]
+          - 12 [Constructors_Datatypes]
+          - 14 [FirstLast_VariableModule]
+          - 15 [DeepDependency_VariableModule]
       lower_bound:
-        description: must be an integer value
+        description: Enter an integer value between 1 and upper_bound
         required: true
       upper_bound:
-        description: must be an integer value
+        description: Enter an integer value greater than 1
         required: true
       interval: 
-        description: must be an integer value
+        type: choice
+        description: Select the graph interval format
         required: true
+        options: 
+          - linear
+          - log
+          - quadratic
+      datapoints: 
+        description: Enter the number of data points for the graph (integer value between 1 and 150)
+        required: true
+
       
 
 jobs:
@@ -36,10 +61,62 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-range -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }}
+          ./mhpgeez generate-range -v -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }} -d ${{ github.event.inputs.datapoints }}
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:
           name: data.json
           path: /code/data.json
           retention-days: 2
+  deploy-preview:
+    needs: [generate-range]
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Remove dummy data.json
+          run: rm -f ./visualization/data.json
+
+        - name: Remove dummy graphs
+          run: rm -f ./visualization/tmp/static/graphs/*.png
+
+        - name: Download data.json
+          uses: actions/download-artifact@v4
+          with:
+            name: data.json
+            path: visualization/
+        
+        - name: Check files
+          run: ls -la ./visualization
+
+        - name: setup python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.9
+
+        - name: Install dependencies
+          run: |
+              python -m pip install --upgrade pip
+              pip install requests
+
+        - name: Checking a secret
+          run: python vercel.py --token=${{ secrets.VERCEL_TOKEN }}
+        
+        - name: Install Vercel CLI
+          run: npm install --global vercel
+
+        - name: Pull Vercel Environment Information
+          run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+        - name: Build Project Artifacts
+          run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+        - name: Deploy Project Artifacts
+          run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --archive=tgz >deployment-url.txt 2>error.txt
+
+        - name: Adding URL to job summary
+          run: |
+            URL=$(cat deployment-url.txt)
+            echo "Deployment: " >> $GITHUB_STEP_SUMMARY
+            echo "${URL}" >> $GITHUB_STEP_SUMMARY

@@ -6,7 +6,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: select the testcase you would like to generate
+        description: Select the testcase you would like to generate
         options: 
         - 1 [LetExample]
         - 2 [LetAddExample]
@@ -21,8 +21,10 @@ on:
         - 11 [ChainDefFields_NonDependentRecordModule]
         - 12 [Constructors_Datatypes]
         - 13 [Parameters_Datatypes]
+        - 14 [FirstLast_VariableModule]
+        - 15 [DeepDependency_VariableModule]
       size:
-        description: select the size of the testcase (must be an integer value)
+        description: Select the size of the testcase (must be an integer value)
         required: true
       
 

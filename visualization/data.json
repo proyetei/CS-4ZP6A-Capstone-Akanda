@@ -1,171 +1,148 @@
 {
-    "testcases": [
-      {
-        "name": "testcase_1",
-        "description": "test case for let example",
-        "languages": [
-          {
-            "name": "Idris",
-            "tests": [
-              {
-                "size": 20,
-                "real_time": 0.56,
-                "user_time": 0.45,
-                "system_time": 0.11,
-                "memory": 0
-              },
-              {
-                "size": 40,
-                "real_time": 0.63,
-                "user_time": 0.50,
-                "system_time": 0.13,
-                "memory": 0
-              },
-              {
-                "size": 60,
-                "real_time": 0.72,
-                "user_time": 0.57,
-                "system_time": 0.14,
-                "memory": 0
-              },
-              {
-                "size": 80,
-                "real_time": 0.69,
-                "user_time": 0.57,
-                "system_time": 0.11,
-                "memory": 0
-              },
-              {
-                "size": 100,
-                "real_time": 0.72,
-                "user_time": 0.60,
-                "system_time": 0.12,
-                "memory": 0
-              }
-            ]
-          },
-          {
-            "name": "Agda",
-            "tests": [
-              {
-                "size": 20,
-                "real_time": 0.01,
-                "user_time": 0.00,
-                "system_time": 0.00,
-                "memory": 0
-              },
-              {
-                "size": 40,
-                "real_time": 0.01,
-                "user_time": 0.00,
-                "system_time": 0.00,
-                "memory": 0
-              },
-              {
-                "size": 60,
-                "real_time": 0.01,
-                "user_time": 0.00,
-                "system_time": 0.00,
-                "memory": 0
-              },
-              {
-                "size": 80,
-                "real_time": 0.01,
-                "user_time": 0.00,
-                "system_time": 0.00,
-                "memory": 0
-              },
-              {
-                "size": 100,
-                "real_time": 0.01,
-                "user_time": 0.00,
-                "system_time": 0.00,
-                "memory": 0
-              }
-            ]
-          },
-          {
-            "name": "Coq",
-            "tests": [
-              {
-                "size": 20,
-                "real_time": 0.06,
-                "user_time": 0.02,
-                "system_time": 0.04,
-                "memory": 0
-              },
-              {
-                "size": 40,
-                "real_time": 0.06,
-                "user_time": 0.02,
-                "system_time": 0.04,
-                "memory": 0
-              },
-              {
-                "size": 60,
-                "real_time": 0.06,
-                "user_time": 0.02,
-                "system_time": 0.04,
-                "memory": 0
-              },
-              {
-                "size": 80,
-                "real_time": 0.06,
-                "user_time": 0.02,
-                "system_time": 0.04,
-                "memory": 0
-              },
-              {
-                "size": 100,
-                "real_time": 0.06,
-                "user_time": 0.02,
-                "system_time": 0.04,
-                "memory": 0
-              }
-            ]
-          },
-          {
-            "name": "Lean",
-            "tests": [
-              {
-                "size": 20,
-                "real_time": 0.09,
-                "user_time": 0.06,
-                "system_time": 0.03,
-                "memory": 0
-              },
-              {
-                "size": 40,
-                "real_time": 0.10,
-                "user_time": 0.06,
-                "system_time": 0.03,
-                "memory": 0
-              },
-              {
-                "size": 60,
-                "real_time": 0.09,
-                "user_time": 0.06,
-                "system_time": 0.03,
-                "memory": 0
-              },
-              {
-                "size": 80,
-                "real_time": 0.09,
-                "user_time": 0.07,
-                "system_time": 0.02,
-                "memory": 0
-              },
-              {
-                "size": 100,
-                "real_time": 0.10,
-                "user_time": 0.06,
-                "system_time": 0.03,
-                "memory": 0
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+  "testcases": [
+    {
+      "name": "LetExample",
+      "description": "Generates N nested let bindings",
+      "languages": [
+        {
+          "name": "Coq",
+          "tests": [
+            {
+              "size": 3,
+              "memory": 124320,
+              "real_time": 0.13,
+              "user_time": 0.06,
+              "system_time": 0.06
+            },
+            {
+              "size": 10,
+              "memory": 125708,
+              "real_time": 0.11,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 24,
+              "memory": 125600,
+              "real_time": 0.11,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 45,
+              "memory": 127208,
+              "real_time": 0.11,
+              "user_time": 0.07,
+              "system_time": 0.04
+            }
+          ],
+          "exit_status": "OK"
+        },
+        {
+          "name": "Agda",
+          "tests": [
+            {
+              "size": 3,
+              "memory": 176048,
+              "real_time": 1.15,
+              "user_time": 0.97,
+              "system_time": 0.17
+            },
+            {
+              "size": 10,
+              "memory": 176408,
+              "real_time": 1.15,
+              "user_time": 0.96,
+              "system_time": 0.18
+            },
+            {
+              "size": 24,
+              "memory": 185884,
+              "real_time": 1.17,
+              "user_time": 0.98,
+              "system_time": 0.18
+            },
+            {
+              "size": 45,
+              "memory": 181916,
+              "real_time": 1.18,
+              "user_time": 1.02,
+              "system_time": 0.16
+            }
+          ],
+          "exit_status": "time"
+        },
+        {
+          "name": "Idris",
+          "tests": [
+            {
+              "size": 3,
+              "memory": 246148,
+              "real_time": 0.72,
+              "user_time": 0.6,
+              "system_time": 0.11
+            },
+            {
+              "size": 10,
+              "memory": 242880,
+              "real_time": 0.72,
+              "user_time": 0.58,
+              "system_time": 0.13
+            },
+            {
+              "size": 24,
+              "memory": 242608,
+              "real_time": 0.72,
+              "user_time": 0.59,
+              "system_time": 0.13
+            },
+            {
+              "size": 45,
+              "memory": 247352,
+              "real_time": 0.73,
+              "user_time": 0.6,
+              "system_time": 0.12
+            }
+          ],
+          "exit_status": "memory"
+        },
+        {
+          "name": "Lean",
+          "tests": [
+            {
+              "size": 3,
+              "memory": 246872,
+              "real_time": 0.1,
+              "user_time": 0.06,
+              "system_time": 0.03
+            },
+            {
+              "size": 10,
+              "memory": 253592,
+              "real_time": 0.09,
+              "user_time": 0.06,
+              "system_time": 0.03
+            },
+            {
+              "size": 24,
+              "memory": 251620,
+              "real_time": 0.09,
+              "user_time": 0.06,
+              "system_time": 0.03
+            },
+            {
+              "size": 45,
+              "memory": 251928,
+              "real_time": 0.1,
+              "user_time": 0.06,
+              "system_time": 0.03
+            }
+          ],
+          "exit_status": "OK"
+        }
+      ]
+    }
+  ]
+}
+ 
   
