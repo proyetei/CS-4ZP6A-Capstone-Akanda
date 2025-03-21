@@ -17,9 +17,10 @@ This is an example output for one of the test cases, please run GitHub Actions t
 [https://capstone-zeta-eight.vercel.app/](https://capstone-proyeteis-projects.vercel.app/)
 
 ## Technology Stack
-- Haskell for creating test cases for each of the 4 proof assistants (Idris, Agda, Lean, Coq)
-- Go + Docker for running the tests and generating JSON file with the benchmarking results
+- Haskell for building the translators, grammars, and the automated code generator creating test cases for each of the 4 proof assistants (Idris, Agda, Lean, Coq)
+- Includes a CI/CD pipeline in GitHub Actions to run the tests using Go + Docker and generating JSON file with the benchmarking results
 - Flask + Python for the backend
+- HTML/CSS/JavaScript for frontend
 - Vercel for deployment
 ## Sources
 https://www.youtube.com/watch?v=U7TY_qUD8yA
