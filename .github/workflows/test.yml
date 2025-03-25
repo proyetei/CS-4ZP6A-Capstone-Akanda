@@ -23,6 +23,8 @@ on:
         - 13 [Parameters_Datatypes]
         - 14 [FirstLast_VariableModule]
         - 15 [DeepDependency_VariableModule]
+        - 16 [DataImplicitIndices]
+        - 17 [SingleLongLine]
       size:
         description: Select the size of the testcase (must be an integer value)
         required: true

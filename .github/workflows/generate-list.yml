@@ -27,6 +27,8 @@ on:
           - 13 [Parameters_Datatypes]
           - 14 [FirstLast_VariableModule]
           - 15 [DeepDependency_VariableModule]
+          - 16 [DataImplicitIndices]
+          - 17 [SingleLongLine]
       datapoints:
         description: Enter a list of integer values following the format '1,5,7'
         required: true
