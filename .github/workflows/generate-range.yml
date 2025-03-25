@@ -26,6 +26,8 @@ on:
           - 12 [Constructors_Datatypes]
           - 14 [FirstLast_VariableModule]
           - 15 [DeepDependency_VariableModule]
+          - 16 [DataImplicitIndices]
+          - 17 [SingleLongLine]
       lower_bound:
         description: Select a lower bound (integer value between 1 and upper_bound)
         required: true
