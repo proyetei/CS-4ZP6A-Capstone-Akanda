@@ -11,11 +11,13 @@ data Module = Module { mod :: Name, defs :: [Definition] } -- is there anything 
 
 data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefNesFun Name (Maybe Type) [Arg] Expr -- Constructor for nested functions
+                | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)] --function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
                 | DefVar Name (Maybe Type) Expr
                 | DefDataType Name [(Name,Type)] Type -- usually type is Set
                 | DefPDataType Name [Name] [(Name,Type)] Type
                 | DefRecType Name (Maybe [Arg]) (Maybe Name) [(Name,Type)] Type -- (Maybe Arg) for parameters, (Maybe Name) is the type constructor
                 | InitRec Name Name (Maybe Name)[(String, Expr)] -- record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
+                | OpenName Name --just for Lean, to refer to user-defined datatypes directly
 
 data Type = Con Name -- type constructor
         | PCon Name [Type] -- parameterized type constructor
@@ -23,6 +25,7 @@ data Type = Con Name -- type constructor
         | Arr Type Type -- function type
         | TVar Name -- type variable
         | Suc Type
+        | Index [Name] Type
 
 data Arg = Arg { arg :: Name, ty :: Type }
 

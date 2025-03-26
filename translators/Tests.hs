@@ -156,10 +156,10 @@ _tests =
     in Module "ChainDefFields_NonDependentRecordModule" (genRecords n ++ [exampleInit])
     , \n -> --12
         Module "Constructors_Datatypes"
-        [DefDataType "d" (map (\ i -> ("c" ++ show i, Con "d")) [1 .. n]) (Con "Type")]
+        [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
     , \n ->  --13
         Module "Parameters_Datatypes"
-        [DefPDataType "d" (map (\i -> ("p" ++ show i)) [1 .. n]) [("c", PCon "d" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
+        [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("P" ++ show i) ) [1 .. n]))] (Con "Type")]
     
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
@@ -200,7 +200,42 @@ _tests =
     resultDef = DefVar "result" (Just $ Con "Nat") sumVars
 
     in Module "DeepDependency_VariableModule" (genLevelDefs n ++ [resultDef])
-    ]
+    , \n ->  --16 A single datatype where 'n' represents the number of 'Type' parameters, all needed for a 'n' constructors
+        Module "ConstructorsParameters_Datatypes"
+        [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("P" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
+    , \n -> let -- 17
+        genType 1 = Con "Nat"
+        genType m = Arr (genType (m-1)) (Con "Nat")
+
+        genIndexName i = 'X' : show i
+        
+        genIndex 1 = [genIndexName 1]
+        genIndex m = genIndexName m : genIndex (m-1)
+       in Module "IndicesConstructors_Datatypes" [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (Con "D"))) [1 .. n]) (Arr (genType n) (Con "Type"))]
+    , \n -> let -- 18
+        genType 1 = Con "Nat"
+        genType m = Arr (genType (m-1)) (Con "Nat")
+
+        genIndexName i = 'X' : show i
+        
+        genIndex 1 = [genIndexName 1]
+        genIndex m = genIndexName m : genIndex (m-1)
+       in Module "IndicesParameters_Datatypes" [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("P" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
+    ,  \n -> --19
+    --Name [(Name,Type)] Type Name [([Arg], Expr)]
+    let 
+        genCall 1 = FunCall "F" [Var "C1"]
+        genCall p = Bin "+" (FunCall "F" [Var ("C" ++ show p)]) (genCall (p-1))
+    in
+       Module "Pattern_Matching_Datatypes"
+       [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
+        OpenName "D",
+        DefVar "N" (Just $ Con "Nat")
+       (Let [DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n])] (genCall n))--pattern matching function
+       ]
+     ]
+    
+
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
 -- to access the expandable test at index i: tests ! i

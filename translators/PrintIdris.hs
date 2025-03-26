@@ -14,6 +14,7 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")"
+printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
@@ -51,6 +52,8 @@ printDef (DefFun var ty args expr) = typeSig ++ var ++ (foldl (\x y -> x ++ " " 
         Nothing -> ""
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
+printDef (DefPatt var params ty _ cons) =
+    var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n\t" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e ) cons)
 printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\x y -> x ++ " -> " ++ y) datatype params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
@@ -83,7 +86,7 @@ printDef (InitRec name recType maybeConsName fields) =
         case [c | DefRecType rName _ (Just c) _ _ <- definedRecords, rName == recType] of
             (c:_) -> Just c
             _ -> Nothing
-
+printDef (OpenName _) = ""
 -- Catch-all to prevent non-exhaustive errors
 printDef _ = error "Unhandled case in printDef"
 

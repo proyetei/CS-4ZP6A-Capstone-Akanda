@@ -15,6 +15,7 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(suc " ++ printType t ++ ")"
+printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 -- Print expressions
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -55,7 +56,9 @@ printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ " = " +
 
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
-
+--Name [(Name,Type)] Type [([Arg], Expr)]
+printDef (DefPatt var params ty _ cons) =
+    var ++ ": " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n\t" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e) cons)
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
@@ -90,6 +93,7 @@ printDef (InitRec name recType maybeConsName fields) =
             case [c | DefRecType rName _ (Just c) _ _ <- definedRecords, rName == recType] of
                 (c:_) -> Just c
                 _ -> Nothing
+printDef (OpenName _) = ""
 
 -- Store all defined records to check constructors
 definedRecords :: [Definition]
