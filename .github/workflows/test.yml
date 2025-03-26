@@ -26,7 +26,7 @@ on:
         - 16 [DataImplicitIndices]
         - 17 [SingleLongLine]
       size:
-        description: Select the size of the testcase (must be an integer value)
+        description: Select the size of the testcase (must be an integer value between 1 and 20)
         required: true
       
 
@@ -45,6 +45,7 @@ jobs:
         run: |
           echo "${{ github.ref }}"
           echo "${{ github.ref.name }}"
+          if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
           cd translators
           ghc -o main main.hs
           chmod +x main
@@ -62,6 +63,7 @@ jobs:
           idris2 --check "$file_name.idr"
           echo "${GREEN} Agda $file_name Output:"
           agda "./$file_name.agda"
+        shell: bash
       - name: Store generated files as artifacts
         uses: actions/upload-artifact@v4
         with:
