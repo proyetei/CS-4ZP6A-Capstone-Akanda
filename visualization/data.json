@@ -1,37 +1,359 @@
 {
   "testcases": [
     {
-      "name": "LetExample",
-      "description": "Generates N nested let bindings",
+      "name": "LetAddExample",
+      "description": "A series of N nested let statements that define and use sequential variables based on previous definitions",
       "languages": [
         {
           "name": "Coq",
           "tests": [
             {
-              "size": 3,
-              "memory": 124320,
+              "size": 1,
+              "memory": 133924,
               "real_time": 0.13,
+              "user_time": 0.07,
+              "system_time": 0.06
+            },
+            {
+              "size": 3,
+              "memory": 133932,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 5,
+              "memory": 134028,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 7,
+              "memory": 134152,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 9,
+              "memory": 134156,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 11,
+              "memory": 134156,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 13,
+              "memory": 134156,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 15,
+              "memory": 134152,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 17,
+              "memory": 134284,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 19,
+              "memory": 136208,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 21,
+              "memory": 136212,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 23,
+              "memory": 136216,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 25,
+              "memory": 136092,
+              "real_time": 0.14,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 27,
+              "memory": 136224,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 29,
+              "memory": 136228,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 31,
+              "memory": 136232,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 33,
+              "memory": 136108,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 35,
+              "memory": 136116,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 37,
+              "memory": 136116,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 39,
+              "memory": 136248,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 41,
+              "memory": 136248,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 43,
+              "memory": 136120,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 45,
+              "memory": 136256,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 47,
+              "memory": 136128,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 49,
+              "memory": 136260,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.05
+            },
+            {
+              "size": 51,
+              "memory": 136136,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 53,
+              "memory": 136140,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 55,
+              "memory": 136272,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 57,
+              "memory": 136276,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 59,
+              "memory": 138328,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 61,
+              "memory": 138336,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 63,
+              "memory": 138344,
+              "real_time": 0.12,
               "user_time": 0.06,
               "system_time": 0.06
             },
             {
-              "size": 10,
-              "memory": 125708,
-              "real_time": 0.11,
+              "size": 65,
+              "memory": 138344,
+              "real_time": 0.12,
+              "user_time": 0.06,
+              "system_time": 0.06
+            },
+            {
+              "size": 67,
+              "memory": 138348,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 69,
+              "memory": 138352,
+              "real_time": 0.12,
               "user_time": 0.06,
               "system_time": 0.05
             },
             {
-              "size": 24,
-              "memory": 125600,
-              "real_time": 0.11,
-              "user_time": 0.06,
+              "size": 71,
+              "memory": 138352,
+              "real_time": 0.12,
+              "user_time": 0.07,
               "system_time": 0.05
             },
             {
-              "size": 45,
-              "memory": 127208,
-              "real_time": 0.11,
+              "size": 73,
+              "memory": 138228,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 75,
+              "memory": 138232,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 77,
+              "memory": 138360,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 79,
+              "memory": 138236,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 81,
+              "memory": 138368,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 83,
+              "memory": 138376,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 85,
+              "memory": 138248,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 87,
+              "memory": 138256,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 89,
+              "memory": 138388,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.05
+            },
+            {
+              "size": 91,
+              "memory": 138264,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 93,
+              "memory": 138268,
+              "real_time": 0.12,
+              "user_time": 0.08,
+              "system_time": 0.04
+            },
+            {
+              "size": 95,
+              "memory": 138264,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 97,
+              "memory": 138400,
+              "real_time": 0.12,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 99,
+              "memory": 140452,
+              "real_time": 0.12,
               "user_time": 0.07,
               "system_time": 0.04
             }
@@ -42,32 +364,81 @@
           "name": "Agda",
           "tests": [
             {
+              "size": 1,
+              "memory": 180640,
+              "real_time": 1.45,
+              "user_time": 1.26,
+              "system_time": 0.18
+            },
+            {
               "size": 3,
-              "memory": 176048,
-              "real_time": 1.15,
-              "user_time": 0.97,
+              "memory": 183116,
+              "real_time": 1.42,
+              "user_time": 1.22,
+              "system_time": 0.19
+            },
+            {
+              "size": 5,
+              "memory": 194008,
+              "real_time": 1.41,
+              "user_time": 1.19,
+              "system_time": 0.21
+            },
+            {
+              "size": 7,
+              "memory": 180524,
+              "real_time": 1.39,
+              "user_time": 1.2,
+              "system_time": 0.18
+            },
+            {
+              "size": 9,
+              "memory": 180924,
+              "real_time": 1.38,
+              "user_time": 1.18,
+              "system_time": 0.19
+            },
+            {
+              "size": 11,
+              "memory": 183056,
+              "real_time": 1.38,
+              "user_time": 1.19,
               "system_time": 0.17
             },
             {
-              "size": 10,
-              "memory": 176408,
-              "real_time": 1.15,
-              "user_time": 0.96,
-              "system_time": 0.18
+              "size": 13,
+              "memory": 190148,
+              "real_time": 1.41,
+              "user_time": 1.21,
+              "system_time": 0.19
             },
             {
-              "size": 24,
-              "memory": 185884,
-              "real_time": 1.17,
-              "user_time": 0.98,
-              "system_time": 0.18
+              "size": 15,
+              "memory": 213776,
+              "real_time": 1.53,
+              "user_time": 1.32,
+              "system_time": 0.2
             },
             {
-              "size": 45,
-              "memory": 181916,
-              "real_time": 1.18,
-              "user_time": 1.02,
-              "system_time": 0.16
+              "size": 17,
+              "memory": 335024,
+              "real_time": 2.1,
+              "user_time": 1.83,
+              "system_time": 0.25
+            },
+            {
+              "size": 19,
+              "memory": 634720,
+              "real_time": 4.23,
+              "user_time": 3.81,
+              "system_time": 0.41
+            },
+            {
+              "size": 21,
+              "memory": 2542368,
+              "real_time": 14.2,
+              "user_time": 12.83,
+              "system_time": 1.32
             }
           ],
           "exit_status": "time"
@@ -76,66 +447,437 @@
           "name": "Idris",
           "tests": [
             {
+              "size": 1,
+              "memory": 247296,
+              "real_time": 0.68,
+              "user_time": 0.63,
+              "system_time": 0.05
+            },
+            {
               "size": 3,
-              "memory": 246148,
-              "real_time": 0.72,
-              "user_time": 0.6,
-              "system_time": 0.11
+              "memory": 249480,
+              "real_time": 0.66,
+              "user_time": 0.63,
+              "system_time": 0.03
             },
             {
-              "size": 10,
-              "memory": 242880,
-              "real_time": 0.72,
-              "user_time": 0.58,
-              "system_time": 0.13
+              "size": 5,
+              "memory": 246804,
+              "real_time": 0.67,
+              "user_time": 0.61,
+              "system_time": 0.06
             },
             {
-              "size": 24,
-              "memory": 242608,
-              "real_time": 0.72,
+              "size": 7,
+              "memory": 248260,
+              "real_time": 0.66,
               "user_time": 0.59,
-              "system_time": 0.13
+              "system_time": 0.07
             },
             {
-              "size": 45,
-              "memory": 247352,
-              "real_time": 0.73,
-              "user_time": 0.6,
-              "system_time": 0.12
+              "size": 9,
+              "memory": 249476,
+              "real_time": 0.66,
+              "user_time": 0.59,
+              "system_time": 0.06
+            },
+            {
+              "size": 11,
+              "memory": 248584,
+              "real_time": 0.66,
+              "user_time": 0.61,
+              "system_time": 0.04
+            },
+            {
+              "size": 13,
+              "memory": 248504,
+              "real_time": 0.68,
+              "user_time": 0.63,
+              "system_time": 0.05
+            },
+            {
+              "size": 15,
+              "memory": 249592,
+              "real_time": 0.78,
+              "user_time": 0.71,
+              "system_time": 0.06
+            },
+            {
+              "size": 17,
+              "memory": 249560,
+              "real_time": 1.26,
+              "user_time": 1.21,
+              "system_time": 0.05
+            },
+            {
+              "size": 19,
+              "memory": 485476,
+              "real_time": 3.03,
+              "user_time": 2.93,
+              "system_time": 0.1
+            },
+            {
+              "size": 21,
+              "memory": 1277996,
+              "real_time": 9.53,
+              "user_time": 9.37,
+              "system_time": 0.15
             }
           ],
-          "exit_status": "memory"
+          "exit_status": "time"
         },
         {
           "name": "Lean",
           "tests": [
             {
-              "size": 3,
-              "memory": 246872,
+              "size": 1,
+              "memory": 261780,
               "real_time": 0.1,
-              "user_time": 0.06,
+              "user_time": 0.07,
               "system_time": 0.03
             },
             {
-              "size": 10,
-              "memory": 253592,
-              "real_time": 0.09,
-              "user_time": 0.06,
+              "size": 3,
+              "memory": 262936,
+              "real_time": 0.11,
+              "user_time": 0.07,
               "system_time": 0.03
             },
             {
-              "size": 24,
-              "memory": 251620,
-              "real_time": 0.09,
-              "user_time": 0.06,
+              "size": 5,
+              "memory": 263884,
+              "real_time": 0.11,
+              "user_time": 0.07,
+              "system_time": 0.04
+            },
+            {
+              "size": 7,
+              "memory": 264324,
+              "real_time": 0.11,
+              "user_time": 0.08,
               "system_time": 0.03
+            },
+            {
+              "size": 9,
+              "memory": 263688,
+              "real_time": 0.12,
+              "user_time": 0.09,
+              "system_time": 0.03
+            },
+            {
+              "size": 11,
+              "memory": 263432,
+              "real_time": 0.13,
+              "user_time": 0.1,
+              "system_time": 0.03
+            },
+            {
+              "size": 13,
+              "memory": 263824,
+              "real_time": 0.14,
+              "user_time": 0.1,
+              "system_time": 0.04
+            },
+            {
+              "size": 15,
+              "memory": 262276,
+              "real_time": 0.18,
+              "user_time": 0.14,
+              "system_time": 0.04
+            },
+            {
+              "size": 17,
+              "memory": 263684,
+              "real_time": 0.17,
+              "user_time": 0.14,
+              "system_time": 0.03
+            },
+            {
+              "size": 19,
+              "memory": 264328,
+              "real_time": 0.19,
+              "user_time": 0.15,
+              "system_time": 0.04
+            },
+            {
+              "size": 21,
+              "memory": 264324,
+              "real_time": 0.2,
+              "user_time": 0.17,
+              "system_time": 0.03
+            },
+            {
+              "size": 23,
+              "memory": 264328,
+              "real_time": 0.23,
+              "user_time": 0.19,
+              "system_time": 0.03
+            },
+            {
+              "size": 25,
+              "memory": 264456,
+              "real_time": 0.25,
+              "user_time": 0.22,
+              "system_time": 0.03
+            },
+            {
+              "size": 27,
+              "memory": 265492,
+              "real_time": 0.27,
+              "user_time": 0.24,
+              "system_time": 0.04
+            },
+            {
+              "size": 29,
+              "memory": 265112,
+              "real_time": 0.3,
+              "user_time": 0.27,
+              "system_time": 0.02
+            },
+            {
+              "size": 31,
+              "memory": 265508,
+              "real_time": 0.33,
+              "user_time": 0.3,
+              "system_time": 0.03
+            },
+            {
+              "size": 33,
+              "memory": 266544,
+              "real_time": 0.37,
+              "user_time": 0.33,
+              "system_time": 0.03
+            },
+            {
+              "size": 35,
+              "memory": 266588,
+              "real_time": 0.39,
+              "user_time": 0.36,
+              "system_time": 0.03
+            },
+            {
+              "size": 37,
+              "memory": 266012,
+              "real_time": 0.42,
+              "user_time": 0.39,
+              "system_time": 0.03
+            },
+            {
+              "size": 39,
+              "memory": 266576,
+              "real_time": 0.46,
+              "user_time": 0.42,
+              "system_time": 0.03
+            },
+            {
+              "size": 41,
+              "memory": 268168,
+              "real_time": 0.5,
+              "user_time": 0.46,
+              "system_time": 0.04
+            },
+            {
+              "size": 43,
+              "memory": 267836,
+              "real_time": 0.53,
+              "user_time": 0.49,
+              "system_time": 0.04
             },
             {
               "size": 45,
-              "memory": 251928,
-              "real_time": 0.1,
-              "user_time": 0.06,
+              "memory": 268680,
+              "real_time": 0.58,
+              "user_time": 0.54,
               "system_time": 0.03
+            },
+            {
+              "size": 47,
+              "memory": 267572,
+              "real_time": 0.63,
+              "user_time": 0.59,
+              "system_time": 0.03
+            },
+            {
+              "size": 49,
+              "memory": 268280,
+              "real_time": 0.67,
+              "user_time": 0.64,
+              "system_time": 0.03
+            },
+            {
+              "size": 51,
+              "memory": 271008,
+              "real_time": 0.72,
+              "user_time": 0.68,
+              "system_time": 0.03
+            },
+            {
+              "size": 53,
+              "memory": 269024,
+              "real_time": 0.77,
+              "user_time": 0.74,
+              "system_time": 0.03
+            },
+            {
+              "size": 55,
+              "memory": 271140,
+              "real_time": 0.84,
+              "user_time": 0.8,
+              "system_time": 0.03
+            },
+            {
+              "size": 57,
+              "memory": 269644,
+              "real_time": 0.9,
+              "user_time": 0.85,
+              "system_time": 0.04
+            },
+            {
+              "size": 59,
+              "memory": 273288,
+              "real_time": 0.93,
+              "user_time": 0.88,
+              "system_time": 0.04
+            },
+            {
+              "size": 61,
+              "memory": 273240,
+              "real_time": 0.99,
+              "user_time": 0.95,
+              "system_time": 0.03
+            },
+            {
+              "size": 63,
+              "memory": 272668,
+              "real_time": 1.06,
+              "user_time": 1.03,
+              "system_time": 0.03
+            },
+            {
+              "size": 65,
+              "memory": 272876,
+              "real_time": 1.13,
+              "user_time": 1.09,
+              "system_time": 0.04
+            },
+            {
+              "size": 67,
+              "memory": 275388,
+              "real_time": 1.2,
+              "user_time": 1.16,
+              "system_time": 0.03
+            },
+            {
+              "size": 69,
+              "memory": 275212,
+              "real_time": 1.26,
+              "user_time": 1.22,
+              "system_time": 0.04
+            },
+            {
+              "size": 71,
+              "memory": 274952,
+              "real_time": 1.32,
+              "user_time": 1.28,
+              "system_time": 0.03
+            },
+            {
+              "size": 73,
+              "memory": 275940,
+              "real_time": 1.37,
+              "user_time": 1.33,
+              "system_time": 0.04
+            },
+            {
+              "size": 75,
+              "memory": 276812,
+              "real_time": 1.47,
+              "user_time": 1.44,
+              "system_time": 0.03
+            },
+            {
+              "size": 77,
+              "memory": 277304,
+              "real_time": 1.54,
+              "user_time": 1.49,
+              "system_time": 0.04
+            },
+            {
+              "size": 79,
+              "memory": 277808,
+              "real_time": 1.62,
+              "user_time": 1.58,
+              "system_time": 0.03
+            },
+            {
+              "size": 81,
+              "memory": 280460,
+              "real_time": 1.69,
+              "user_time": 1.65,
+              "system_time": 0.03
+            },
+            {
+              "size": 83,
+              "memory": 280560,
+              "real_time": 1.78,
+              "user_time": 1.74,
+              "system_time": 0.03
+            },
+            {
+              "size": 85,
+              "memory": 280796,
+              "real_time": 1.85,
+              "user_time": 1.81,
+              "system_time": 0.03
+            },
+            {
+              "size": 87,
+              "memory": 282192,
+              "real_time": 1.95,
+              "user_time": 1.91,
+              "system_time": 0.04
+            },
+            {
+              "size": 89,
+              "memory": 281640,
+              "real_time": 2.05,
+              "user_time": 2.02,
+              "system_time": 0.03
+            },
+            {
+              "size": 91,
+              "memory": 282264,
+              "real_time": 2.12,
+              "user_time": 2.08,
+              "system_time": 0.03
+            },
+            {
+              "size": 93,
+              "memory": 284288,
+              "real_time": 2.22,
+              "user_time": 2.18,
+              "system_time": 0.04
+            },
+            {
+              "size": 95,
+              "memory": 285300,
+              "real_time": 2.34,
+              "user_time": 2.3,
+              "system_time": 0.04
+            },
+            {
+              "size": 97,
+              "memory": 286048,
+              "real_time": 2.42,
+              "user_time": 2.38,
+              "system_time": 0.04
+            },
+            {
+              "size": 99,
+              "memory": 287676,
+              "real_time": 2.56,
+              "user_time": 2.52,
+              "system_time": 0.04
             }
           ],
           "exit_status": "OK"
@@ -144,4 +886,3 @@
     }
   ]
 }
- 
