@@ -211,7 +211,6 @@ _tests =
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
         singleLine = replicate n 'x'
     in File "SingleLongLine" singleLine
-    ]
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         Module "ConstructorsParameters_Datatypes"
         [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("P" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
