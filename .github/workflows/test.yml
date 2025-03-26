@@ -25,6 +25,10 @@ on:
         - 15 [DeepDependency_VariableModule]
         - 16 [DataImplicitIndices]
         - 17 [SingleLongLine]
+        - 18 [ConstructorsParameters_Datatypes]
+        - 19 [IndicesConstructors_Datatypes]
+        - 20 [IndicesParameters_Datatypes]
+        - 21 [Pattern_Matching_Datatypes]
       size:
         description: Select the size of the testcase (must be an integer value between 1 and 20)
         required: true

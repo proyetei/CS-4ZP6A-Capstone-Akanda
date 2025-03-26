@@ -9,7 +9,7 @@ import (
 
 var maxPoint int = 150
 var caseID int
-var maxID int = 13
+var maxID int = 21
 var output_folder string = "out"
 var webpage bool
 var verbose bool

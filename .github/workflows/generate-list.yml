@@ -29,6 +29,10 @@ on:
           - 15 [DeepDependency_VariableModule]
           - 16 [DataImplicitIndices]
           - 17 [SingleLongLine]
+          - 18 [ConstructorsParameters_Datatypes]
+          - 19 [IndicesConstructors_Datatypes]
+          - 20 [IndicesParameters_Datatypes]
+          - 21 [Pattern_Matching_Datatypes]
       datapoints:
         description: Enter a list of integer values following the format '1,5,7'
         required: true
