@@ -7,6 +7,7 @@ imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat \nopen im
 datatype = "Set"
 
 -- Print types
+printType (Con "Type") = "Set"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
@@ -60,7 +61,7 @@ printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args
 printDef (DefPatt var params ty _ cons) =
     var ++ ": " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n\t" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e) cons)
 -- Function to print datatype definitions
-printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 

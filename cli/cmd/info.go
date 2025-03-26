@@ -1,5 +1,7 @@
 package cmd
 
+import "bytes"
+
 type Overview struct {
 	Testcases []Test `json:"testcases"`
 }
@@ -23,33 +25,128 @@ type Test struct {
 	Languages   []LanguageJSON `json:"languages"`
 }
 
-// Language represents a programming language structure
 type LanguageJSON struct {
-	Name  string `json:"name"`
-	Tests []Data `json:"tests"`
+	Name        string `json:"name"`
+	Tests       []Data `json:"tests"`
+	Exit_status string `json:"exit_status"`
 }
 
-// Test represents a test case for a specific language
 type Data struct {
-	Size        int     `json:"size"`
-	Memory      int     `json:"memory"`
+	Size        float64 `json:"size"`
+	Memory      float64 `json:"memory"`
 	Real_time   float64 `json:"real_time"`
 	User_time   float64 `json:"user_time"`
 	System_time float64 `json:"system_time"`
 }
 
+type cmdResult struct {
+	outb bytes.Buffer
+	errb bytes.Buffer
+	err  error
+}
+
 var Case_list = map[int]Testcase{
 	1: {
 		1,
-		"Function with nested Let statements",
+		"A series of N nested let statements",
 		"LetExample",
-		10000,
+		5000,
 	},
 	2: {
 		2,
-		"Function with nested statements",
+		"A series of N nested let statements that define and use sequential variables based on previous definitions",
 		"LetAddExample",
-		20000,
+		5000,
+	},
+	3: {
+		3,
+		"A series of N nested functions",
+		"NestedFunction",
+		5000,
+	},
+	4: {
+		4,
+		"A specified number of simple datatype declarations",
+		"DataSimpleDeclarations",
+		5000,
+	},
+	5: {
+		5,
+		"Variable declaration with an identifier of a specified length",
+		"LongIdentifier",
+		5000,
+	},
+	6: {
+		6,
+		"A record declaration with N dependent fields",
+		"Fields_DependentRecordModule",
+		5000,
+	},
+	7: {
+		7,
+		"A very long chain (N) of dependent record definitions",
+		"ChainDef_DependentRecordModule",
+		100000,
+	},
+	8: {
+		8,
+		"A record with N parameters",
+		"Parameters_DependentRecordModule",
+		5000,
+	},
+	9: {
+		9,
+		"A file with N newlines",
+		"NewlineFile",
+		100000,
+	},
+	10: {
+		10,
+		"<TODO>",
+		"Fields_NonDependentRecordModule",
+		5000,
+	},
+	11: {
+		11,
+		"<TODO>",
+		"ChainDefFields_NonDependentRecordModule",
+		5000,
+	},
+	12: {
+		12,
+		"<TODO>",
+		"Constructors_Datatypes",
+		5000,
+	},
+	13: {
+		13,
+		"<TODO>",
+		"Parameters_Datatypes",
+		5000,
+	},
+	14: {
+		14,
+		"defines N variables, and uses both the first and last one in a declaration, N>=2",
+		"FirstLast_VariableModule",
+		5000,
+	},
+	15: {
+		15,
+		"Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression",
+		"DeepDependency_VariableModule",
+		5000,
+	},
+	16: {
+		16,
+		"A simple datatype declaration with a specified number of indices, defined implicitly",
+		"DataImplicitIndices",
+		5000,
+	},
+	17: {
+		17,
+		"A file consisting of a single long line with N characters",
+		"SingleLongLine",
+		5000,
 	},
 }
 
@@ -75,3 +172,5 @@ var Language_list = []Language{
 		"lean",
 	},
 }
+
+var StdMsg = "command could not complete successfully, check logs for more details"

@@ -43,12 +43,11 @@ _tests =
         in Module "NestedFunction" 
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
-    , \n -> let --4
-        genData 1 = [DefDataType "x1" [("y", Con "Bool")] (Con "Set")]
-        genData m = DefDataType ("x" ++ show m) [("y", Con "Bool")] (Con "Set") : genData (m-1)
-        -- in Module "DataSimpleDeclarations" [DefDataType "x" [("y", Con "Bool")] (Con "Set")]
+    , \n -> let --4 A specified number of simple datatype declarations.
+        genData 1 = [DefDataType "X1" [("y", Con "Nat")] (Con "Type")]
+        genData m = DefDataType ("X" ++ show m) [("Y", Con "Nat")] (Con "Type") : genData (m-1)
         in Module "DataSimpleDeclarations" (genData n)
-    , \n -> let --5
+    , \n -> let --5 Variable declaration with an identifier of a specified length.
         genIdentifier 1 = "x"
         genIdentifier m = 'x' : genIdentifier (m-1)
         in Module "LongIdentifier" [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]
@@ -200,10 +199,23 @@ _tests =
     resultDef = DefVar "result" (Just $ Con "Nat") sumVars
 
     in Module "DeepDependency_VariableModule" (genLevelDefs n ++ [resultDef])
-    , \n ->  --16 A single datatype where 'n' represents the number of 'Type' parameters, all needed for a 'n' constructors
+    , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
+        genType 1 = Con "Nat"
+        genType m = Arr (genType (m-1)) (Con "Nat")
+
+        genIndexName i = 'x' : show i
+        
+        genIndex 1 = [genIndexName 1]
+        genIndex m = genIndexName m : genIndex (m-1)
+       in Module "DataImplicitIndices" [DefDataType "D" [("C1", Arr (Index (genIndex n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex n))))] (Arr (genType n) (Con "Type"))]
+    , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
+        singleLine = replicate n 'x'
+    in File "SingleLongLine" singleLine
+    ]
+    , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         Module "ConstructorsParameters_Datatypes"
         [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("P" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
-    , \n -> let -- 17
+    , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -212,7 +224,7 @@ _tests =
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
        in Module "IndicesConstructors_Datatypes" [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (Con "D"))) [1 .. n]) (Arr (genType n) (Con "Type"))]
-    , \n -> let -- 18
+    , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -221,7 +233,7 @@ _tests =
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
        in Module "IndicesParameters_Datatypes" [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("P" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
-    ,  \n -> --19
+    ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     --Name [(Name,Type)] Type Name [([Arg], Expr)]
     let 
         genCall 1 = FunCall "F" [Var "C1"]
@@ -235,7 +247,6 @@ _tests =
        ]
      ]
     
-
 
 -- this is the list of expandable tests formatted as an IntMap so each test can be accessed by index
 -- to access the expandable test at index i: tests ! i

@@ -14,7 +14,10 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")"
-printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
+printType (Index names ty) = "{" ++ unwords' names ++ " : " ++ printType ty ++ "}" where
+    unwords' [] = ""
+    unwords' [n] = n
+    unwords' names = foldl1 (\ x n -> x ++ ", " ++ n) names
 printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
@@ -23,7 +26,7 @@ printExpr (Paren e) = "(" ++ printExpr e ++ ") "
 printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
 printExpr (Bin op e1 e2) = printExpr e1 ++ " "  ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
-printExpr (Let (d:[]) expr) = "let " ++ (printDef d) ++ " in \n    " ++ printExpr expr
+printExpr (Let (d:[]) expr) = "let \n    " ++ (printDef d) ++ " in \n    " ++ printExpr expr
 printExpr (Let (d:ds) expr) = "let \n    " ++ (foldl (\x y -> x ++ "\n    " ++ y) (printDef d) $ map printDef ds) ++ "\n    in \n    " ++ printExpr expr -- probably need to recursively indent blocks to make sure everything stays aligned
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ foldl (\x y -> x ++ "\n    " ++ y) "" $ map printDef ds
@@ -54,7 +57,7 @@ printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args e
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 printDef (DefPatt var params ty _ cons) =
     var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n\t" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e ) cons)
-printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ datatype ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\x y -> x ++ " -> " ++ y) datatype params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 
 -- Record Defn

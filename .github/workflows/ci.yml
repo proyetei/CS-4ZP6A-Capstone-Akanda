@@ -13,17 +13,18 @@ jobs:
       - name: Set up Haskell
         uses: haskell-actions/setup@v2
         with:
-          ghc-version: '9.6.6'
+          ghc-version: '9.4.7'
+          cabal-version: '3.8.1.0'
 
       - name: Build the translator executable
         working-directory: ./translators
-        run: ghc -o main main.hs
+        run: cabal build
 
       - name: Store translator as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: translator-folder
-          path: ./translators/main
+          path: ./translators/dist-newstyle/build/x86_64-linux/ghc-9.4.7/translators-0.1.0.0/x/translators/build/translators/translators
           retention-days: 2
   build_cli:
     runs-on: ubuntu-latest
@@ -88,3 +89,5 @@ jobs:
           context: .
           tags: ${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
           file: Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

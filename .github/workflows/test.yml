@@ -6,7 +6,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: select the testcase you would like to generate
+        description: Select the testcase you would like to generate
         options: 
         - 1 [LetExample]
         - 2 [LetAddExample]
@@ -21,8 +21,12 @@ on:
         - 11 [ChainDefFields_NonDependentRecordModule]
         - 12 [Constructors_Datatypes]
         - 13 [Parameters_Datatypes]
+        - 14 [FirstLast_VariableModule]
+        - 15 [DeepDependency_VariableModule]
+        - 16 [DataImplicitIndices]
+        - 17 [SingleLongLine]
       size:
-        description: must be an integer value
+        description: Select the size of the testcase (must be an integer value between 1 and 20)
         required: true
       
 
@@ -35,13 +39,20 @@ jobs:
         username: ${{ vars.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2 
       - name: Run Test
         run: |
-          cd /code
+          echo "${{ github.ref }}"
+          echo "${{ github.ref.name }}"
+          if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
+          cd translators
+          ghc -o main main.hs
+          chmod +x main
           mkdir out
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./main
-          cd out
+          cd out 
           GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
           echo "${GREEN} Coq $file_name Output:"
@@ -52,9 +63,10 @@ jobs:
           idris2 --check "$file_name.idr"
           echo "${GREEN} Agda $file_name Output:"
           agda "./$file_name.agda"
+        shell: bash
       - name: Store generated files as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: output
-          path: /code/out
+          path: ./translators/out
           retention-days: 1

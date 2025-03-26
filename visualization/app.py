@@ -8,15 +8,15 @@ import io
 import base64
 
 
-# LOGIC: To avoid issues with static images not appearing on Vercel hosted website
-# the code below encodes the processed graphs from JSON file and 
-# encodes the matplotlib graph as base64 object and then saves the image to a BytesIO object
+# LOGIC: Since Vercel is a serverless platform, it doesn't support saving static files
+# To avoid issues with static images not appearing on Vercel hosted website
+# The graphs are first saved to a BytesIO object instead of a file, and then converted to base64
 
 app = Flask(__name__)
 
 # Returns the current directory
 curr_directory = os.path.dirname(__file__)
-json_path = os.path.join(curr_directory, 'dummyNew.json')
+json_path = os.path.join(curr_directory, 'data.json')
 
 # Load the JSON file into a variable called `data` to be used later
 try:
@@ -24,18 +24,34 @@ try:
         data = json.load(f)
 # file error exception message
 except FileNotFoundError:
-    print(f"Error: The file {json_path} does not exist. Please ensure 'dummyNew.json' is in the correct location.")
+    print(f"Error: The file {json_path} does not exist. Please ensure 'data.json' is in the correct location.")
     exit(1)
+
+
+# LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
+
+def checkExitStatus(plt, language_data, x_values, y_values):
+    if language_data["exit_status"] != "OK":
+        max_size = max(x_values)
+        index = x_values.index(max_size)
+        y_value = y_values[index]
+        # if the exit status is memory exceeded then its marked by red cross, if its time limit exceeded, its marked by blue cross
+        if language_data["exit_status"] == "memory":
+            plt.plot(max_size, y_value, marker='x', markersize=12, color='red', markeredgewidth=2)
+        else:
+            plt.plot(max_size, y_value, marker='x', markersize=12, color='blue', markeredgewidth=2)
+
 
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # use name file
+    # file_name = test_case[""]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
-    plt.title(f"Real Time Complexity for {description}")
+    plt.figure(figsize=(7, 5))
+    plt.title(f"Real Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("Real Time (s)")
 
@@ -45,9 +61,14 @@ def plot_size_vs_real_time(test_case):
         points = language_data["tests"] 
         x_values = [point["size"] for point in points] 
         real_time_values = [point["real_time"] for point in points] 
+
+        color = 'purple' if language == "Lean" else None
         
         # Plot real time complexity marked by solid line and o
-        plt.plot(x_values, real_time_values, marker='o', label=f'{language} - Real Time')
+        plt.plot(x_values, real_time_values, marker='o', label=f'{language} - Real Time', color = color)
+
+        # Call exit status marker
+        checkExitStatus(plt, language_data, x_values, real_time_values)
     
     # Add legend
     plt.legend(loc='upper left')
@@ -70,11 +91,11 @@ def plot_size_vs_real_time(test_case):
 def plot_size_vs_user_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
-    plt.title(f"User Time Complexity for {description} ")
+    plt.figure(figsize=(7, 5))
+    plt.title(f"User Time Complexity for {test_case_name} ")
     plt.xlabel("Size")
     plt.ylabel("User Time (s)")
 
@@ -84,9 +105,13 @@ def plot_size_vs_user_time(test_case):
         points = language_data["tests"]  
         x_values = [point["size"] for point in points]  
         user_time_values = [point["user_time"] for point in points]
+
+        color = 'purple' if language == "Lean" else None
         
         # Plot user time complexity marked by dotted line and x
-        plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time')
+        plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time', color = color)
+        # Check exit status and plot marker if not OK
+        checkExitStatus(plt, language_data, x_values, user_time_values)
         
     # Add legend
     plt.legend(loc='upper left')
@@ -109,11 +134,11 @@ def plot_size_vs_user_time(test_case):
 def plot_size_vs_system_time(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
-    plt.title(f"System Time Complexity for {description}")
+    plt.figure(figsize=(7, 5))
+    plt.title(f"System Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("System Time (s)")
 
@@ -123,9 +148,14 @@ def plot_size_vs_system_time(test_case):
         points = language_data["tests"]  
         x_values = [point["size"] for point in points]  
         system_time_values = [point["system_time"] for point in points]
+
+        color = 'purple' if language == "Lean" else None
         
         # Plot system time complexity marked by dotted line and x
-        plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time')
+        plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time', color = color)
+
+        # Check exit status and plot marker if not OK
+        checkExitStatus(plt, language_data, x_values, system_time_values)
         
     # Add legend
     plt.legend(loc='upper left')
@@ -148,13 +178,13 @@ def plot_size_vs_system_time(test_case):
 def plot_size_vs_memory(test_case):
     test_case_name = test_case["name"]
     languages = test_case["languages"]
-    description = test_case["description"]
+    # description = test_case["description"]
 
     # Create a new figure
-    plt.figure(figsize=(8, 6))
-    plt.title(f"Memory Usage for {description}")
+    plt.figure(figsize=(7, 5))
+    plt.title(f"Memory Usage for {test_case_name}")
     plt.xlabel("Size")
-    plt.ylabel("Memory (MB)")
+    plt.ylabel("Memory (KB)")
 
     # Plot each language's data for memory usage vs size
     for language_data in languages:
@@ -162,10 +192,14 @@ def plot_size_vs_memory(test_case):
         points = language_data["tests"]  
         x_values = [point["size"] for point in points]  
         memory_values = [point["memory"] for point in points]
+
+        color = 'purple' if language == "Lean" else None
         
         # Plot memory usage marked by dotted line and x
-        plt.plot(x_values, memory_values, marker='x', linestyle='--', label=f'{language} - Memory')
+        plt.plot(x_values, memory_values, marker='x', linestyle='--', label=f'{language} - Memory', color = color )
         
+        # Check exit status and plot marker if not OK
+        checkExitStatus(plt, language_data, x_values, memory_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
@@ -200,8 +234,12 @@ def index():
     # Generate graphs before displaying the page
     graphs = generate_graphs(data)
 
+    # Get test case
+    test_case = data["testcases"][0]
+
     # Return a simple HTML page to display the images
-    return render_template('index.html', graphs=graphs)
+    return render_template('index.html',  test_case_name=test_case["name"], 
+                           test_case_desc=test_case["description"], graphs=graphs)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

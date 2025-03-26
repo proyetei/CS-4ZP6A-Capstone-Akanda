@@ -54,7 +54,7 @@ printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg ar
 printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 printDef _ (DefPatt var params ty _ cons) = 
     var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e ) cons)
-printDef _ (DefDataType str args t) = "inductive " ++ str ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
+printDef _ (DefDataType str args t) = "inductive " ++ str ++ " : " ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
 printDef _ (DefPDataType str params args t) =
    "inductive " ++ str ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
