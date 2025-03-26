@@ -2,7 +2,7 @@ module PrintRocq (runRocq) where
 
 import Grammar
     ( Arg(arg, ty, Arg),
-      Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType),
+      Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType, DefPatt, OpenName),
       Expr(FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
       Type(Arr, Con, TVar, PCon, DCon, Suc, Index) )
@@ -58,8 +58,10 @@ printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) 
 printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ "."
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
+
+printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with\n" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map printArg a) ++ " => " ++ printExpr e) cons)
 printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
-printDef (DefPDataType name params args ty) = "Inductive " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
+printDef (DefPDataType name params args ty) = "Inductive " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args) ++ "."
 
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =
@@ -107,7 +109,7 @@ printDef (InitRec name recType maybeConsName fields) =
       case [c | DefRecType rName _ (Just c) _ _ <- definedRecords, rName == recType] of
         (c:_) -> Just c
         _ -> Nothing
-
+printDef (OpenName _) = ""
 
 -- Store all defined records to check constructors
 definedRecords :: [Definition]

@@ -52,6 +52,8 @@ printDef _ (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y
 printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr
 printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg args) ++ " := " ++ printExpr expr
 printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
+printDef _ (DefPatt var params ty _ cons) = 
+    var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e ) cons)
 printDef _ (DefDataType str args t) = "inductive " ++ str ++ " : " ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
 printDef _ (DefPDataType str params args t) =
    "inductive " ++ str ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
@@ -88,6 +90,7 @@ printDef recs (InitRec name recType maybeConsName fields) =
         case [ c | DefRecType rName _ (Just c) _ _ <- rs, rName == rt ] of
             (c:_) -> Just c
             _     -> Nothing
+printDef _ (OpenName n) = "open " ++ n
 
 
 printLean :: Module -> String
