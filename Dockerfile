@@ -27,19 +27,23 @@ USER nixusr
 ENV USER=nixusr
 ENV PATH="/home/nixusr/.nix-profile/bin:${PATH}"
 RUN curl -sL https://nixos.org/nix/install | sh -s -- --no-daemon
-RUN nix-env -iA nixpkgs.coq nixpkgs.idris2 nixpkgs.haskellPackages.Agda nixpkgs.lean4 
+RUN nix-channel --add https://nixos.org/channels/nixpkgs-24.11-darwin nixstable
+RUN nix-channel --update
+# using unstable nix channel to get lean version 4.17 which includes Init.Data.Vector
+RUN nix-env -iA nixstable.coq nixstable.idris2 nixstable.haskellPackages.Agda nixpkgs.lean4 
 
 USER root
 ENV USER=root
 
 ENV AGDA_DIR="/root/.agda" 
+ENV LANG=C.UTF-8
 
 WORKDIR /code
 COPY mhpgeez .
-COPY translator-folder/main .
+COPY translator-folder/translators .
 COPY visualization/. .
 
-RUN chmod +x main mhpgeez
+RUN chmod +x mhpgeez translators
 
 
 

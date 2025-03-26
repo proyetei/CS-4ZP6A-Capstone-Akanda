@@ -162,7 +162,7 @@ func translateTest(test Testcase, operations int) {
 
 	}
 
-	translate_cmd := exec.Command("bash", "-c", "./main")
+	translate_cmd := exec.Command("bash", "-c", "./translators")
 	translate_cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	cmdDone := make(chan error, 1)

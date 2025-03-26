@@ -105,6 +105,14 @@ jobs:
 
         - name: Adding URL to job summary
           run: |
+            testcase=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
+            {
+            echo "### Workflow Inputs"
+            echo "| Arg                 | Value |"
+            echo "| ------------------- | ----- |"
+            echo "| Testcase            | $testcase |"
+            echo "| Datapoints          | ${{ github.event.inputs.datapoints }} |"
+            } >> $GITHUB_STEP_SUMMARY
             URL=$(cat deployment-url.txt)
-            echo "Deployment: " >> $GITHUB_STEP_SUMMARY
+            echo "### Deployment: " >> $GITHUB_STEP_SUMMARY
             echo "${URL}" >> $GITHUB_STEP_SUMMARY
