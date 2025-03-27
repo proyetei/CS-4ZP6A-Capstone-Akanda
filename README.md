@@ -38,6 +38,41 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
 
+<table style="width: 60%;">
+    <tr>
+        <th style="width: 50%;">Test Case</th>
+        <th style="width: 50%;">Example (N = 3)</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">LetExample (ID = 1)<br>A series of N nested let statements. </td>
+        <td><img src="testcases/test1.png" width="120" height="150"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables based on previous definitions</td>
+        <td><img src="testcases/test2.png" width="120" height="150"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">NestedFunction (ID = 3)<br>A series of N nested functions</td>
+        <td><img src="testcases/test3.png" width="190" height="150"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations</td>
+        <td><img src="testcases/test4.png" width="140" height="130"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length</td>
+        <td><img src="testcases/test5.png" width="100" height="60"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">Fields_DependentRecordModule (ID = 6)<br>A record declaration with N dependent fields</td>
+        <td><img src="testcases/test6.png" width="210" height="150"></td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions</td>
+        <td><img src="testcases/test7.png" width="210" height="180"></td>
+    </tr>
+</table>
+
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
 ## CI <a id='ssCI'></a>
