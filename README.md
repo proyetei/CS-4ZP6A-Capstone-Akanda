@@ -37,10 +37,10 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 - Vercel for deployment
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
-<table style="width: 60%;">
+<table style="width: 80%;">
     <tr>
-        <th style="width: 30%;">Test Case</th>
-        <th style="width: 70%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example (N = 3)&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th>Test Case</th>
+        <th>Example (N = 3)</th>
     </tr>
     <tr>
         <td style="vertical-align: top;">LetExample (ID = 1)<br>A series of N nested let statements. </td>
@@ -71,6 +71,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
         <td><img src="testcases/test7.png" width="210" height="180"></td>
     </tr>
 </table>
+
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
