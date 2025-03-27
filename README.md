@@ -226,7 +226,7 @@ result = x1 + x3</code></pre>
     </tr>
     <tr>
         <td>DeepDependency_VariableModule (ID = 15)<br>Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression</td>
-        <td> N = 1
+        <td> For N = 1
             <pre><code>x1L1 : Nat
 x1L1 = 1
 x1L2 : Nat
@@ -251,6 +251,61 @@ result : Nat
 result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1L10</code></pre>
         </td>
     </tr>
+    <tr>
+        <td>DataImplicitIndices (ID = 16)<br>A simple datatype declaration with a specified number of indices, defined implicitly</td>
+        <td>
+            <pre><code>data D : Nat -> Nat -> Nat -> Set where
+ C1 : {x3 x2 x1 : Nat} -> D x3 x2 x1</code></pre>
+        </td>
+    </tr>
+    <tr>
+        <td>SingleLongLine (ID = 17)<br>A file consisting of a single long line with N characters</td>
+        <td>
+            <pre><code>xxx</code></pre>
+        </td>
+    </tr>
+    <tr>
+        <td>ConstructorsParameters_Datatypes (ID = 18)<br>A single datatype where N represents the number of 'Type' parameters, all needed for N constructors</td>
+        <td>
+            <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
+ C1 : D P1 P2 P3 
+ C2 : D P1 P2 P3 
+ C3 : D P1 P2 P3</code></pre>
+        </td>
+    </tr>
+    <tr>
+        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, all needed for N constructors</td>
+        <td>
+            <pre><code>data D : Nat -> Nat -> Nat -> Set where
+ C1 : {X1 : Nat} -> D 
+ C2 : {X2 X1 : Nat} -> D 
+ C3 : {X3 X2 X1 : Nat} -> D</code></pre>
+        </td>
+    </tr>
+    <tr>
+        <td>IndicesParameters_Datatypes (ID = 20)<br>A single datatype where N represents the number of 'Type' parameters as well as the number of indices</td>
+        <td>
+            <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
+ C : {X3 X2 X1 : Nat} -> D P1 P2 P3</code></pre>
+        </td>
+    </tr>
+    <tr>
+        <td>Pattern_Matching_Datatypes (ID = 21)<br>A function pattern matching on N constructors of a datatype</td>
+        <td>
+            <pre><code>data D : Set where
+ C1 : D 
+ C2 : D 
+ C3 : D
+N : Nat
+N = let
+    F: D -> Nat
+        F C1 = 1 
+        F C2 = 2 
+        F C3 = 3 in
+    F C3 + F C2 + F C1</code></pre>
+        </td>
+    </tr>
+
 </table>
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
