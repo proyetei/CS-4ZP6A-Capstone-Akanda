@@ -213,7 +213,7 @@ _tests =
     in File "SingleLongLine" singleLine
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         Module "ConstructorsParameters_Datatypes"
-        [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("P" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
+        [DefPDataType "D" (map (\i -> ("p" ++ show i)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
@@ -231,7 +231,7 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
-       in Module "IndicesParameters_Datatypes" [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("P" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
+       in Module "IndicesParameters_Datatypes" [DefPDataType "D" (map (\i -> ("p" ++ show i)) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("p" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     --Name [(Name,Type)] Type Name [([Arg], Expr)]
     let 
