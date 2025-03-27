@@ -37,41 +37,110 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 - Vercel for deployment
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
-<table style="width: 80%;">
+<table>
     <tr>
         <th>Test Case</th>
-        <th>Agda Example At Size N = 3</th>
+        <th>Agda Example For N = 3</th>
     </tr>
     <tr>
-        <td style="vertical-align: top;">LetExample (ID = 1)<br>A series of N nested let statements. </td>
-        <td><img src="testcases/test1.png" width="120" height="150"></td>
+        <td>LetExample (ID = 1)<br>A series of N nested let statements. </td>
+        <td>
+            <pre><code>n : Nat
+n = let
+    x1 = 1
+ in
+    let
+    x2 = x1
+ in
+    let
+    x3 = x2
+ in
+    x3</code></pre>
+        </td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables <br> based on previous definitions</td>
-        <td><img src="testcases/test2.png" width="120" height="150"></td>
+        <td>LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables<br>based on previous definitions</td>
+        <td>
+            <pre><code>n : Nat
+n = let
+    x1 = 1
+ in
+    let
+    x2 = x1  +  x1
+ in
+    let
+    x3 = x2  +  x2
+ in
+    x3</code></pre>
+        </td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">NestedFunction (ID = 3)<br>A series of N nested functions</td>
-        <td><img src="testcases/test3.png" width="190" height="150"></td>
+        <td>NestedFunction (ID = 3)<br>A series of N nested functions</td>
+        <td>
+            <pre><code>n : Nat
+n = let
+    f1 : Nat -> Nat
+    f1 x1 = x1 + 1
+    f2 : Nat -> Nat -> Nat
+    f2 x1 x2 = 1 + x1 + x2
+    f3 : Nat -> Nat -> Nat -> Nat
+    f3 x1 x2 x3 = 1 + x1 + x2 + x3
+    in f3 2 3 4 + f2 2 3 + f1 2</code></pre>
+        </td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations</td>
-        <td><img src="testcases/test4.png" width="160" height="130"></td>
+        <td>DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations</td>
+        <td>
+            <pre><code>data x3 : Set where
+ y : Bool
+data x2 : Set where
+ y : Bool
+data x1 : Set where
+ y : Bool</code></pre>
+        </td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length</td>
-        <td><img src="testcases/test5.png" width="100" height="60"></td>
+        <td>LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length</td>
+        <td>
+            <pre><code>xxx : Nat
+xxx = 0</code></pre>
+        </td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">Fields_DependentRecordModule (ID = 6)<br>A record declaration with N dependent fields</td>
-        <td><img src="testcases/test6.png" width="210" height="150"></td>
+        <td>Fields_DependentRecordModule (ID = 6)<br>A record declaration with N dependent fields</td>
+        <td>
+            <pre><code>record X : Set where
+    constructor Const
+    field
+        f1 : Nat
+        f2 : Vec Nat f1
+        f3 : Vec Nat (suc f1)
+
+example : X
+example = Const 1 (1 ∷ []) (1 ∷ 1 ∷ [])</code></pre>
+        </td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions</td>
-        <td><img src="testcases/test7.png" width="220" height="180"></td>
+        <td>ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions</td>
+        <td>
+            <pre><code>record Record1 : Set where
+    constructor Const1
+    field
+        f1 : Nat
+record Record2 : Set where
+    constructor Const2
+    field
+        f2 : Record1
+record Record3 : Set where
+    constructor Const3
+    field
+        f3 : Record2
+
+example : Record3
+example =  Const3 (Const2 (Const1 10) )</code></pre>
+        </td>
     </tr>
 </table>
-
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
