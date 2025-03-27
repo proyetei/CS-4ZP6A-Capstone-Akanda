@@ -40,14 +40,14 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 <table style="width: 80%;">
     <tr>
         <th>Test Case</th>
-        <th>Example At Size N = 3 From Agda</th>
+        <th>Agda Example At Size N = 3</th>
     </tr>
     <tr>
         <td style="vertical-align: top;">LetExample (ID = 1)<br>A series of N nested let statements. </td>
         <td><img src="testcases/test1.png" width="120" height="150"></td>
     </tr>
     <tr>
-        <td style="vertical-align: top;">LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables based on previous definitions</td>
+        <td style="vertical-align: top;">LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables<br> based on previous definitions</td>
         <td><img src="testcases/test2.png" width="120" height="150"></td>
     </tr>
     <tr>
