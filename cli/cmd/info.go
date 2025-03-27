@@ -22,6 +22,8 @@ type Language struct {
 type Test struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
+	Interval    string         `json:"interval"`
+	LowerBound  int            `json:"lower_bound"`
 	Languages   []LanguageJSON `json:"languages"`
 }
 
@@ -183,7 +185,7 @@ var Language_list = []Language{
 	{
 		"Agda",
 		".agda",
-		"agda",
+		"agda +RTS -M2.8G -RTS",
 	},
 	{
 		"Idris",
