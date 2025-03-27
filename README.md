@@ -56,7 +56,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
     </tr>
     <tr>
         <td style="vertical-align: top;">DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations</td>
-        <td><img src="testcases/test4.png" width="100" height="130"></td>
+        <td><img src="testcases/test4.png" width="120" height="160"></td>
     </tr>
     <tr>
         <td style="vertical-align: top;">LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length</td>
@@ -68,7 +68,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
     </tr>
     <tr>
         <td style="vertical-align: top;">ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions</td>
-        <td><img src="testcases/test7.png" width="210" height="180"></td>
+        <td><img src="testcases/test7.png" width="220" height="180"></td>
     </tr>
 </table>
 
