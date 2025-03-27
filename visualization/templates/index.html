@@ -7,7 +7,7 @@
     <style>
         /* General body styling */
         body {
-            font-family: Arial, sans-serif;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
             margin: 0;
             padding: 20px;
             background: linear-gradient(to right,  #1e293b, #111827);
@@ -31,13 +31,20 @@
             margin-bottom: 10px;
         }
 
+        h2 {
+            font-size: 1.5rem;
+            color: #377ddf;
+        }
+
         h3 {
             font-size: 1.2rem;
             color: #94a3b8;
         }
 
         h4 {
-            color: #599bf7;
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #7795be;
         }
 
         /* Graph container styling */
@@ -63,6 +70,17 @@
         .graph-container img:hover {
             transform: scale(1.02); /* Add animation: slight zoom on hover */
         }
+        .info-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            text-align: left;
+            max-width: 1200px; /* Limit container width for better readability */
+            width: 100%;
+        }
+        .text-bold {
+            font-weight: 400;
+        }
 
         /* Responsive layout */
         @media (min-width: 768px) {
@@ -85,13 +103,27 @@
     <div class="header">
         <h1>Test Case Results for System Benchmarking</h1>
         <h3>Results for {{ test_case_name }} - {{ test_case_desc }}</h3>
-        <h4>Note, for each proof assistants, if there is a red 'X' marker, it indicates that the test case exceeded memory, the blue 'X' marker indicates time limit exceeded. </h4>
-
     </div>
     <div class="graph-container">
         {% for graph in graphs %}
             <img src="data:image/png;base64,{{ graph }}" alt="Graph">
         {% endfor %}
+    </div>
+    <div class="info-container">
+        <h2> Graph Explanation </h3>
+        <h4> <li> For each proof assistants, if there is a red 'X' marker, it indicates that the test case exceeded memory, the blue 'X' marker indicates time limit exceeded. </li>
+            <li> For the log log plots a negative y-axis indicates a very small value for the y axis for user time, system time, real time </li>
+
+         <li>
+            User time - Amount of time spent <span class="text-bold">outside </span> of the kernel 
+         </li>
+         <li>
+            System time - Amount of time spent <span class="text-bold"> inside </span> the kernel 
+         </li>
+         <li> Real time - CPU time or Clock time 
+
+         </li>
+        </h4>
     </div>
 </body>
 </html>
