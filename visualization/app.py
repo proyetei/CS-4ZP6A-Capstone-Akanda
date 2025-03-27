@@ -95,6 +95,7 @@ def plot_size_vs_real_time(test_case):
 # Function to plot size vs user time
 def plot_size_vs_user_time(test_case):
     test_case_name = test_case["name"]
+    test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -116,7 +117,7 @@ def plot_size_vs_user_time(test_case):
         # Plot user time complexity marked by dotted line and x
         plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time', color = color)
         # Check exit status and plot marker if not OK
-        checkExitStatus(plt, language_data, x_values, user_time_values)
+        checkExitStatus(plt, language_data, test_case_lower, x_values, user_time_values)
         
     # Add legend
     plt.legend(loc='upper left')
@@ -138,6 +139,7 @@ def plot_size_vs_user_time(test_case):
 # Function to plot size vs system time
 def plot_size_vs_system_time(test_case):
     test_case_name = test_case["name"]
+    test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -160,7 +162,7 @@ def plot_size_vs_system_time(test_case):
         plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time', color = color)
 
         # Check exit status and plot marker if not OK
-        checkExitStatus(plt, language_data, x_values, system_time_values)
+        checkExitStatus(plt, language_data, test_case_lower, x_values, system_time_values)
         
     # Add legend
     plt.legend(loc='upper left')
@@ -182,6 +184,7 @@ def plot_size_vs_system_time(test_case):
 # Function to plot size vs memory
 def plot_size_vs_memory(test_case):
     test_case_name = test_case["name"]
+    test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -204,7 +207,7 @@ def plot_size_vs_memory(test_case):
         plt.plot(x_values, memory_values, marker='x', linestyle='--', label=f'{language} - Memory', color = color )
         
         # Check exit status and plot marker if not OK
-        checkExitStatus(plt, language_data, x_values, memory_values)
+        checkExitStatus(plt, language_data, test_case_lower, x_values, memory_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
