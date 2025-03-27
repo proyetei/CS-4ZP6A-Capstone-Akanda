@@ -235,14 +235,14 @@ _tests =
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     --Name [(Name,Type)] Type Name [([Arg], Expr)]
     let 
-        genCall 1 = FunCall "F" [Var "C1"]
-        genCall p = Bin "+" (FunCall "F" [Var ("C" ++ show p)]) (genCall (p-1))
+        genCall 1 = FunCall "F" [Var "c1"]
+        genCall p = Bin "+" (FunCall "F" [Var ("c" ++ show p)]) (genCall (p-1))
     in
        Module "Pattern_Matching_Datatypes"
-       [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
+       [DefDataType "D" (map (\ i -> ("c" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
         OpenName "D",
         DefVar "N" (Just $ Con "Nat")
-       (Let [DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n])] (genCall n))--pattern matching function
+       (Let [DefPatt "F" [("c", Con "D")] (Con "Nat") "c" (map (\i -> ([Arg ("c" ++ show i) (Con "D")], String (show i))) [1..n])] (genCall n))--pattern matching function
        ]
      ]
     
