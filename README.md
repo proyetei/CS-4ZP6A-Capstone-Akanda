@@ -56,7 +56,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
     </tr>
     <tr>
         <td style="vertical-align: top;">DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations</td>
-        <td><img src="testcases/test4.png" width="140" height="130"></td>
+        <td><img src="testcases/test4.png" width="100%" height="130"></td>
     </tr>
     <tr>
         <td style="vertical-align: top;">LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length</td>
