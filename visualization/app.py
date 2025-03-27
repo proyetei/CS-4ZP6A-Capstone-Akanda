@@ -30,11 +30,15 @@ except FileNotFoundError:
 
 # LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
 
-def checkExitStatus(plt, language_data, x_values, y_values):
+def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
     if language_data["exit_status"] != "OK":
-        max_size = max(x_values)
-        index = x_values.index(max_size)
-        y_value = y_values[index]
+        if len(x_values) == 0:
+            max_size = lower_bound
+            y_value = 0
+        else:
+            max_size = max(x_values)
+            index = x_values.index(max_size)
+            y_value = y_values[index]
         # if the exit status is memory exceeded then its marked by red cross, if its time limit exceeded, its marked by blue cross
         if language_data["exit_status"] == "memory":
             plt.plot(max_size, y_value, marker='x', markersize=12, color='red', markeredgewidth=2)
@@ -45,6 +49,7 @@ def checkExitStatus(plt, language_data, x_values, y_values):
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
+    test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
     # use name file
     # file_name = test_case[""]
@@ -68,7 +73,7 @@ def plot_size_vs_real_time(test_case):
         plt.plot(x_values, real_time_values, marker='o', label=f'{language} - Real Time', color = color)
 
         # Call exit status marker
-        checkExitStatus(plt, language_data, x_values, real_time_values)
+        checkExitStatus(plt, language_data, test_case_lower, x_values, real_time_values)
     
     # Add legend
     plt.legend(loc='upper left')
