@@ -41,7 +41,10 @@ def checkExitStatus(plt, language_data, x_values, y_values):
         else:
             plt.plot(max_size, y_value, marker='x', markersize=12, color='blue', markeredgewidth=2)
 
-
+# LOGIC: testcase interval, if that field is equal to string log, allow for negtiave values for y axis of the graph
+def should_use_log_scale(test_case):
+    """Check if test case should use log scale on y-axis"""
+    return test_case.get("interval", "").lower() == "log"
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
@@ -54,6 +57,12 @@ def plot_size_vs_real_time(test_case):
     plt.title(f"Real Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("Real Time (s)")
+
+    # Set y-axis scale based on test case interval
+    if should_use_log_scale(test_case):
+        plt.yscale('symlog')  # symlog allows negative values
+    else:
+        plt.ylim(bottom=0)  # Regular linear scale starting at 0
 
     # Plot each language's data for real time complexity vs size
     for language_data in languages:
@@ -99,6 +108,12 @@ def plot_size_vs_user_time(test_case):
     plt.xlabel("Size")
     plt.ylabel("User Time (s)")
 
+    # Set y-axis scale based on test case interval
+    if should_use_log_scale(test_case):
+        plt.yscale('symlog')  # symlog allows negative values
+    else:
+        plt.ylim(bottom=0)  # Regular linear scale starting at 0
+
     # Plot each language's data for user time complexity vs size
     for language_data in languages:
         language = language_data["name"]  
@@ -141,6 +156,12 @@ def plot_size_vs_system_time(test_case):
     plt.title(f"System Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("System Time (s)")
+
+    # Set y-axis scale based on test case interval
+    if should_use_log_scale(test_case):
+        plt.yscale('symlog')  # symlog allows negative values
+    else:
+        plt.ylim(bottom=0)  # Regular linear scale starting at 0
 
     # Plot each language's data for system time complexity vs size
     for language_data in languages:
@@ -185,6 +206,12 @@ def plot_size_vs_memory(test_case):
     plt.title(f"Memory Usage for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("Memory (KB)")
+
+    # Set y-axis scale based on test case interval
+    if should_use_log_scale(test_case):
+        plt.yscale('symlog')  # symlog allows negative values
+    else:
+        plt.ylim(bottom=0)  # Regular linear scale starting at 0
 
     # Plot each language's data for memory usage vs size
     for language_data in languages:
@@ -243,3 +270,5 @@ def index():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
+
+    
