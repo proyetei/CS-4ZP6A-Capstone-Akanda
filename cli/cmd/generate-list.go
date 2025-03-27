@@ -44,6 +44,7 @@ var generateListCmd = &cobra.Command{
 		}
 
 		slices.Sort(datapoints)
+		data.Testcases[0].LowerBound = datapoints[0]
 		for i := 0; i < len(datapoints); i++ {
 			log.Printf("datapoint %d out of %d\n", i+1, len(datapoints))
 			translateTest(testcase, datapoints[i])
@@ -122,6 +123,8 @@ func dataTemplate(test Testcase) Overview {
 			{
 				Name:        test.file_name,
 				Description: test.desc,
+				Interval:    "None",
+				LowerBound:  1,
 				Languages: []LanguageJSON{
 					{
 						Name:        "Coq",
@@ -235,7 +238,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		}()
 
 		select {
-		case <-time.After(30 * time.Second):
+		case <-time.After(120 * time.Second):
 			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 			log.Println("Process killed, context deadline exceeded")
 			exit_status[Language_list[i].name] = "time"
@@ -259,6 +262,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			if err != nil {
 				log.Println("Could not unmarshal test data", err)
 			} else {
+				test_data.Memory = test_data.Memory / 1000
 				if interval == "log" {
 					test_data.Memory = safe_log(test_data.Memory)
 					test_data.Real_time = safe_log(test_data.Real_time)
