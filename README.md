@@ -212,7 +212,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>FirstLast_VariableModule (ID = 14)</td>
+        <td>FirstLast_VariableModule (ID = 14)<br>defines N variables, and uses both the first and last <br> one in a declaration, N>=2</td>
         <td>
             <pre><code>x1 : Nat
 x1 = 1
@@ -225,7 +225,7 @@ result = x1 + x3</code></pre>
         </td>
     </tr>
     <tr>
-        <td>FirstLast_VariableModule (ID = 14)</td>
+        <td>DeepDependency_VariableModule (ID = 15)<br>Defines a series of dependent variables, with 10 variables at each level of <br>dependency, and then utilizes the innermost variables in a subsequent expression</td>
         <td> N = 1
             <pre><code>x1L1 : Nat
 x1L1 = 1
