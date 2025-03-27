@@ -40,7 +40,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 <table style="width: 60%;">
     <tr>
         <th style="width: 30%;">Test Case</th>
-        <th style="width: 70%;">Example (N = 3)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+        <th style="width: 70%;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example (N = 3)&nbsp;&nbsp;&nbsp;&nbsp;</th>
     </tr>
     <tr>
         <td style="vertical-align: top;">LetExample (ID = 1)<br>A series of N nested let statements. </td>
