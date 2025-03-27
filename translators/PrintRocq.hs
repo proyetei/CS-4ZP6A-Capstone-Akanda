@@ -12,7 +12,7 @@ import Data.List (isPrefixOf)
 imports = "Require Import Coq.Vectors.Vector. \nRequire Import List. \nImport VectorNotations. \nImport ListNotations.\n"
 datatype = "Type"
 
-
+printType (Con "Type") = "Type"
 printType (Con t) =
   (if "Record" `isPrefixOf` t then t else (map toLower t)) --Rec type should stay cap
 --printType (Con t) = map toLower t
@@ -61,7 +61,7 @@ printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map print
 
 printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with\n" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map printArg a) ++ " => " ++ printExpr e) cons)
 printDef (DefDataType name args ty) = "Inductive " ++ map toLower name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args)
-printDef (DefPDataType name params args ty) = "Inductive " ++ map toLower name ++ unwords (map (\x -> " (" ++ map toLower x ++ ": type)") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args)
+printDef (DefPDataType name params args ty) = "Inductive " ++ map toLower name ++ unwords (map (\x -> " (" ++ map toLower x ++ ": Type)") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args)
 
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =
