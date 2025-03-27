@@ -158,7 +158,7 @@ _tests =
         [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
     , \n ->  --13
         Module "Parameters_Datatypes"
-        [DefPDataType "D" (map (\i -> ("P" ++ show i)) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("P" ++ show i) ) [1 .. n]))] (Con "Type")]
+        [DefPDataType "D" (map (\i -> ("p" ++ show i)) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
     
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
