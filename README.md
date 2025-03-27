@@ -40,7 +40,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 <table style="width: 80%;">
     <tr>
         <th>Test Case</th>
-        <th>Example At Size N = 3 hehehehehehehehe</th>
+        <th>Example At Size N = 3 From Agda</th>
     </tr>
     <tr>
         <td style="vertical-align: top;">LetExample (ID = 1)<br>A series of N nested let statements. </td>
