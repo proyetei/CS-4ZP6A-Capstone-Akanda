@@ -60,8 +60,8 @@ printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg ar
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 
 printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with\n" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map printArg a) ++ " => " ++ printExpr e) cons)
-printDef (DefDataType name args ty) = "Inductive " ++ name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
-printDef (DefPDataType name params args ty) = "Inductive " ++ name ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " : " ++ datatype ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args) ++ "."
+printDef (DefDataType name args ty) = "Inductive " ++ map toLower name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args)
+printDef (DefPDataType name params args ty) = "Inductive " ++ map toLower name ++ unwords (map (\x -> " (" ++ map toLower x ++ ": type)") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args)
 
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =
