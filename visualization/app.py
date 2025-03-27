@@ -6,11 +6,10 @@ matplotlib.use('Agg')  # Set the backend to 'Agg' to avoid GUI issues
 import matplotlib.pyplot as plt
 import io
 import base64
-
+from matplotlib.ticker import ScalarFormatter
 
 # LOGIC: Since Vercel is a serverless platform, it doesn't support saving static files
-# To avoid issues with static images not appearing on Vercel hosted website
-# The graphs are first saved to a BytesIO object instead of a file, and then converted to base64
+# To avoid issues with static images not appearing on Vercel hosted website, the graphs are first saved to a BytesIO object instead of a file, and then converted to base64
 
 app = Flask(__name__)
 
@@ -28,7 +27,7 @@ except FileNotFoundError:
     exit(1)
 
 
-# LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
+# METHOD CHECK EXIT STATUS LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
 
 def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
     if language_data["exit_status"] != "OK":
@@ -45,17 +44,18 @@ def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
         else:
             plt.plot(max_size, y_value, marker='x', markersize=12, color='blue', markeredgewidth=2)
 
-# LOGIC: testcase interval, if that field is equal to string log, allow for negtiave values for y axis of the graph
+# METHOD USE LOG SCALE LOGIC: for the testcase interval, take the log of lower bound and upper bound as the y axis
+# If that field is equal to string log, allow for negtiave values for y axis of the graph
 def should_use_log_scale(test_case):
     """Check if test case should use log scale on y-axis"""
     return test_case.get("interval", "").lower() == "log"
+
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
-    test_case_lower = test_case["lower_bound"]
+    # if "lower_bound" is not found, it will default to 0
+    test_case_lower = test_case.get("lower_bound", 0)
     languages = test_case["languages"]
-    # use name file
-    # file_name = test_case[""]
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
@@ -65,9 +65,11 @@ def plot_size_vs_real_time(test_case):
 
     # Set y-axis scale based on test case interval
     if should_use_log_scale(test_case):
-        plt.yscale('symlog')  # symlog allows negative values
+        plt.yscale('symlog', linthresh=1e-3)
+        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
     else:
-        plt.ylim(bottom=0)  # Regular linear scale starting at 0
+        plt.ylim(bottom=0)
 
     # Plot each language's data for real time complexity vs size
     for language_data in languages:
@@ -76,6 +78,7 @@ def plot_size_vs_real_time(test_case):
         x_values = [point["size"] for point in points] 
         real_time_values = [point["real_time"] for point in points] 
 
+        # To avoid confusion with the red marker, change leans pointer to purple
         color = 'purple' if language == "Lean" else None
         
         # Plot real time complexity marked by solid line and o
@@ -104,7 +107,8 @@ def plot_size_vs_real_time(test_case):
 # Function to plot size vs user time
 def plot_size_vs_user_time(test_case):
     test_case_name = test_case["name"]
-    test_case_lower = test_case["lower_bound"]
+    # if "lower_bound" is not found, it will default to 0
+    test_case_lower = test_case.get("lower_bound", 0)
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -116,9 +120,11 @@ def plot_size_vs_user_time(test_case):
 
     # Set y-axis scale based on test case interval
     if should_use_log_scale(test_case):
-        plt.yscale('symlog')  # symlog allows negative values
+        plt.yscale('symlog', linthresh=1e-3)
+        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
     else:
-        plt.ylim(bottom=0)  # Regular linear scale starting at 0
+        plt.ylim(bottom=0)
 
     # Plot each language's data for user time complexity vs size
     for language_data in languages:
@@ -154,7 +160,8 @@ def plot_size_vs_user_time(test_case):
 # Function to plot size vs system time
 def plot_size_vs_system_time(test_case):
     test_case_name = test_case["name"]
-    test_case_lower = test_case["lower_bound"]
+    # if "lower_bound" is not found, it will default to 0
+    test_case_lower = test_case.get("lower_bound", 0)
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -166,9 +173,11 @@ def plot_size_vs_system_time(test_case):
 
     # Set y-axis scale based on test case interval
     if should_use_log_scale(test_case):
-        plt.yscale('symlog')  # symlog allows negative values
+        plt.yscale('symlog', linthresh=1e-3)
+        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
     else:
-        plt.ylim(bottom=0)  # Regular linear scale starting at 0
+        plt.ylim(bottom=0)
 
     # Plot each language's data for system time complexity vs size
     for language_data in languages:
@@ -205,7 +214,8 @@ def plot_size_vs_system_time(test_case):
 # Function to plot size vs memory
 def plot_size_vs_memory(test_case):
     test_case_name = test_case["name"]
-    test_case_lower = test_case["lower_bound"]
+    # if "lower_bound" is not found, it will default to 0
+    test_case_lower = test_case.get("lower_bound", 0)
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -217,9 +227,11 @@ def plot_size_vs_memory(test_case):
 
     # Set y-axis scale based on test case interval
     if should_use_log_scale(test_case):
-        plt.yscale('symlog')  # symlog allows negative values
+        plt.yscale('symlog', linthresh=1e-3)
+        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
     else:
-        plt.ylim(bottom=0)  # Regular linear scale starting at 0
+        plt.ylim(bottom=0)
 
     # Plot each language's data for memory usage vs size
     for language_data in languages:
@@ -273,6 +285,7 @@ def index():
     test_case = data["testcases"][0]
 
     # Return a simple HTML page to display the images
+    # Extract name and description to reference on the website
     return render_template('index.html',  test_case_name=test_case["name"], 
                            test_case_desc=test_case["description"], graphs=graphs)
 
