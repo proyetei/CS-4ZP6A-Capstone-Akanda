@@ -154,12 +154,9 @@ _tests =
         exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
     in Module "ChainDefFields_NonDependentRecordModule" (genRecords n ++ [exampleInit])
     , \n -> --12
-        Module "Constructors_Datatypes"
-        [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
+        Module "Constructors_Datatypes" [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
     , \n ->  --13
-        Module "Parameters_Datatypes"
-        [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
-    
+        Module "Parameters_Datatypes" [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
     let
@@ -212,8 +209,7 @@ _tests =
         singleLine = replicate n 'x'
     in File "SingleLongLine" singleLine
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
-        Module "ConstructorsParameters_Datatypes"
-        [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
+        Module "ConstructorsParameters_Datatypes" [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
@@ -235,14 +231,18 @@ _tests =
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     --Name [(Name,Type)] Type Name [([Arg], Expr)]
     let 
+        --wholeTest = if n > 0 then [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
+        --    OpenName "D",
+        --    DefVar "N" (Just $ Con "Nat")
+        --    (Let [DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n])] (genCall n))--pattern matching function
+        --    ] else []
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
     in
-       Module "Pattern_Matching_Datatypes"
-       [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
-        OpenName "D",
-        DefVar "N" (Just $ Con "Nat")
-       (Let [ParenD (DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]))] (genCall n))--pattern matching function
+       Module "Pattern_Matching_Datatypes" [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
+       OpenName "D",
+       DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]),
+       DefVar "N" (Just $ Con "Nat") (genCall n)
        ]
      ]
     

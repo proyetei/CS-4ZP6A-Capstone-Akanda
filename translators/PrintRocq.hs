@@ -2,7 +2,7 @@ module PrintRocq (runRocq) where
 
 import Grammar
     ( Arg(arg, ty, Arg),
-      Definition(ParenD, DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType, DefPatt, OpenName),
+      Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType, DefPatt, OpenName),
       Expr(Constructor, FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
       Type(Arr, Con, TVar, PCon, DCon, Suc, Index) )
@@ -52,7 +52,6 @@ printVecElements (VecCons x xs) = printExpr x ++ "; " ++ printVecElements xs
 printListElements ListEmpty = ""
 printListElements (ListCons x ListEmpty) = printExpr x
 printListElements (ListCons x xs) = printExpr x ++ "; " ++ printListElements xs
-printDef (ParenD def) = printDef def
 printDef (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr
 printDef (DefVar var (Just t) expr) = "Definition " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ ". \n"--LEAVING OUT: Compute " ++ var ++ "."
 printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
@@ -60,7 +59,7 @@ printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y 
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 
-printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> map toLower name) a) ++ " => " ++ printExpr e) cons) ++ " end"
+printDef (DefPatt var params ty m cons) = "Fixpoint " ++ var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> map toLower name) a) ++ " => " ++ printExpr e) cons) ++ " end"
 printDef (DefDataType name args ty) = "Inductive " ++ map toLower name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args) ++ "."
 printDef (DefPDataType name params args ty) = "Inductive " ++ map toLower name ++ unwords (map (\(x, y) -> " (" ++ map toLower x ++ ": " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args) ++ "."
 
