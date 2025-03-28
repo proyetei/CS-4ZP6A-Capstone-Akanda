@@ -46,9 +46,9 @@ def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
 
 # METHOD USE LOG SCALE LOGIC: for the testcase interval, take the log of lower bound and upper bound as the y axis
 # If that field is equal to string log, allow for negtiave values for y axis of the graph
-def should_use_log_scale(test_case):
-    """Check if test case should use log scale on y-axis"""
-    return test_case.get("interval", "").lower() == "log"
+# def should_use_log_scale(test_case):
+#     """Check if test case should use log scale on y-axis"""
+#     return test_case.get("interval", "").lower() == "log"
 
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
@@ -63,12 +63,12 @@ def plot_size_vs_real_time(test_case):
     plt.ylabel("Real Time (s)")
 
     # Set y-axis scale based on test case interval
-    if should_use_log_scale(test_case):
-        plt.yscale('symlog', linthresh=1e-3)
-        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
-        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
-    else:
-        plt.ylim(bottom=0)
+    # if should_use_log_scale(test_case):
+    #     plt.yscale('symlog', linthresh=1e-3)
+    #     plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+    #     plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
+    # else:
+    #     plt.ylim(bottom=0)
 
     # Plot each language's data for real time complexity vs size
     for language_data in languages:
@@ -117,12 +117,12 @@ def plot_size_vs_user_time(test_case):
     plt.ylabel("User Time (s)")
 
     # Set y-axis scale based on test case interval
-    if should_use_log_scale(test_case):
-        plt.yscale('symlog', linthresh=1e-3)
-        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
-        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
-    else:
-        plt.ylim(bottom=0)
+    # if should_use_log_scale(test_case):
+    #     plt.yscale('symlog', linthresh=1e-3)
+    #     plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+    #     plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
+    # else:
+    #     plt.ylim(bottom=0)
 
     # Plot each language's data for user time complexity vs size
     for language_data in languages:
@@ -169,12 +169,12 @@ def plot_size_vs_system_time(test_case):
     plt.ylabel("System Time (s)")
 
     # Set y-axis scale based on test case interval
-    if should_use_log_scale(test_case):
-        plt.yscale('symlog', linthresh=1e-3)
-        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
-        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
-    else:
-        plt.ylim(bottom=0)
+    # if should_use_log_scale(test_case):
+    #     plt.yscale('symlog', linthresh=1e-3)
+    #     plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+    #     plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
+    # else:
+    #     plt.ylim(bottom=0)
 
     # Plot each language's data for system time complexity vs size
     for language_data in languages:
@@ -222,12 +222,12 @@ def plot_size_vs_memory(test_case):
     plt.ylabel("Memory (KB)")
 
     # Set y-axis scale based on test case interval
-    if should_use_log_scale(test_case):
-        plt.yscale('symlog', linthresh=1e-3)
-        plt.gca().yaxis.set_major_formatter(ScalarFormatter())
-        plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
-    else:
-        plt.ylim(bottom=0)
+    # if should_use_log_scale(test_case):
+    #     plt.yscale('symlog', linthresh=1e-3)
+    #     plt.gca().yaxis.set_major_formatter(ScalarFormatter())
+    #     plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
+    # else:
+    #     plt.ylim(bottom=0)
 
     # Plot each language's data for memory usage vs size
     for language_data in languages:
