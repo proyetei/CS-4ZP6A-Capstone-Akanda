@@ -53,8 +53,7 @@ def should_use_log_scale(test_case):
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
     test_case_name = test_case["name"]
-    # if "lower_bound" is not found, it will default to 0
-    test_case_lower = test_case.get("lower_bound", 0)
+    test_case_lower = test_case.get("lower_bound")
     languages = test_case["languages"]
 
     # Create a new figure
@@ -107,8 +106,7 @@ def plot_size_vs_real_time(test_case):
 # Function to plot size vs user time
 def plot_size_vs_user_time(test_case):
     test_case_name = test_case["name"]
-    # if "lower_bound" is not found, it will default to 0
-    test_case_lower = test_case.get("lower_bound", 0)
+    test_case_lower = test_case.get("lower_bound")
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -160,8 +158,7 @@ def plot_size_vs_user_time(test_case):
 # Function to plot size vs system time
 def plot_size_vs_system_time(test_case):
     test_case_name = test_case["name"]
-    # if "lower_bound" is not found, it will default to 0
-    test_case_lower = test_case.get("lower_bound", 0)
+    test_case_lower = test_case.get("lower_bound")
     languages = test_case["languages"]
     # description = test_case["description"]
 
@@ -214,8 +211,7 @@ def plot_size_vs_system_time(test_case):
 # Function to plot size vs memory
 def plot_size_vs_memory(test_case):
     test_case_name = test_case["name"]
-    # if "lower_bound" is not found, it will default to 0
-    test_case_lower = test_case.get("lower_bound", 0)
+    test_case_lower = test_case.get("lower_bound")
     languages = test_case["languages"]
     # description = test_case["description"]
 
