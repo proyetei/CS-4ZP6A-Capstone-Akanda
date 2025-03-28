@@ -44,8 +44,8 @@ _tests =
             [ DefVar "n" (Just $ Con "Nat") 
                 (Let (reverse(genFunc n)) (genCall n)) ]
     , \n -> let --4 A specified number of simple datatype declarations.
-        genData 1 = [DefDataType "X1" [("y", Con "Nat")] (Con "Type")]
-        genData m = DefDataType ("X" ++ show m) [("Y", Con "Nat")] (Con "Type") : genData (m-1)
+        genData 1 = [DefDataType "X1" [("Y", Con "X1")] (Con "Type")]
+        genData m = DefDataType ("X" ++ show m) [("Y", Con ("X" ++ show m))] (Con "Type") : genData (m-1)
         in Module "DataSimpleDeclarations" (genData n)
     , \n -> let --5 Variable declaration with an identifier of a specified length.
         genIdentifier 1 = "x"
