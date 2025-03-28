@@ -40,7 +40,7 @@ printVecElements VecEmpty = "[]"
 printVecElements (VecCons x xs) = printExpr x ++ " ∷ " ++ printVecElements xs
 printListElements  ListEmpty = "[]"
 printListElements  (ListCons x xs) = printExpr x ++ " ∷ " ++ printListElements  xs
-
+printDef (ParenD def) = "(" ++ printDef def ++ ")"
 -- Function to print variable definitions
 printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n"
     where

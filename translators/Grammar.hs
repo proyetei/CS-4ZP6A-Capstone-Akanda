@@ -18,6 +18,7 @@ data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefRecType Name (Maybe [Arg]) (Maybe Name) [(Name,Type)] Type -- (Maybe Arg) for parameters, (Maybe Name) is the type constructor
                 | InitRec Name Name (Maybe Name)[(String, Expr)] -- record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
                 | OpenName Name --just for Lean, to refer to user-defined datatypes directly
+                | ParenD Definition
 
 data Type = Con Name -- type constructor
         | PCon Name [Type] -- parameterized type constructor

@@ -242,7 +242,7 @@ _tests =
        [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
         OpenName "D",
         DefVar "N" (Just $ Con "Nat")
-       Paren (Let [DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n])] (genCall n))--pattern matching function
+       (Let [ParenD (DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]))] (genCall n))--pattern matching function
        ]
      ]
     
