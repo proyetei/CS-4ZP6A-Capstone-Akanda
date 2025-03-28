@@ -256,7 +256,7 @@ def get_error_messages(language_data, lower_bound, x_values, y_values):
         errors.append({
             "language": language_data["name"],
             "size": max_size,
-            "type_of_error": "memory exceeded" if language_data["exit_status"] == "memory" else "timeout"
+            "type_of_error": "memory" if language_data["exit_status"] == "memory" else "time"
         })
     return errors
 
