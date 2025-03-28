@@ -86,14 +86,18 @@ var generateRangeCmd = &cobra.Command{
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error marshalling json data", err)
 		}
 
 		log.Println("Creating JSON file")
 		file, err := os.Create("data.json")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error creating json file:", err)
 		}
 		defer file.Close()
@@ -101,7 +105,9 @@ var generateRangeCmd = &cobra.Command{
 		log.Println("Writing data to JSON file")
 		_, err = file.Write(json_data)
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error writing to json file:", err)
 
 		}

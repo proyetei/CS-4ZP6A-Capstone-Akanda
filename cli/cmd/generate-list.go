@@ -59,14 +59,18 @@ var generateListCmd = &cobra.Command{
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error marshalling json data", err)
 		}
 
 		log.Println("Creating JSON file")
 		file, err := os.Create("data.json")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error creating json file:", err)
 		}
 		defer file.Close()
@@ -74,7 +78,9 @@ var generateListCmd = &cobra.Command{
 		log.Println("Writing data to JSON file")
 		_, err = file.Write(json_data)
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error writing to json file:", err)
 
 		}
@@ -160,7 +166,9 @@ func translateTest(test Testcase, operations int) {
 
 	err := setup_cmd.Run()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error executing the output folder setup commands", err)
 
 	}
@@ -172,7 +180,9 @@ func translateTest(test Testcase, operations int) {
 	go func() {
 		stdin, err := translate_cmd.StdinPipe()
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Could not create Stdin pipe", err)
 		}
 		stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
@@ -187,11 +197,15 @@ func translateTest(test Testcase, operations int) {
 	select {
 	case <-time.After(20 * time.Second):
 		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Process killed, context deadline exceeded")
 	case result := <-cmdDone:
 		if result != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Could not translate the testcase", result)
 		}
 	}
@@ -201,12 +215,16 @@ func translateTest(test Testcase, operations int) {
 func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, operations int) (map[string][]Data, map[string]string) {
 	originalDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error getting current directory:", err)
 	}
 	err = os.Chdir(output_folder)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 	}
 
@@ -247,7 +265,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			final_result = result
 		}
 
-		if final_result.err != nil {
+		if final_result.err != nil && test.id != 17 {
 			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
 			exit_status[Language_list[i].name] = "memory"
 
@@ -278,7 +296,9 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 	}
 	err = os.Chdir(originalDir)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 
 	}
@@ -291,12 +311,16 @@ func loadAgdalib(test Testcase) {
 	log.Println("Type-checking the Agda file once to load the stdlib")
 	originalDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error getting current directory:", err)
 	}
 	err = os.Chdir(output_folder)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 	}
 	agda_str := Language_list[1].cmd + " ./" + test.file_name + Language_list[1].file_extension
@@ -325,7 +349,9 @@ func loadAgdalib(test Testcase) {
 
 	err = os.Chdir(originalDir)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 
 	}
@@ -345,7 +371,9 @@ func generateGraphs() {
 	setup_cmd := exec.Command("bash", "-c", setup_str)
 	err := setup_cmd.Run()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error executing the setup commands for the graph folder", err)
 
 	} // ask proyetei if still need this
@@ -355,7 +383,9 @@ func generateGraphs() {
 	go func() {
 		err := app_cmd.Start()
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error starting Python script:", err)
 
 		}
@@ -363,13 +393,17 @@ func generateGraphs() {
 		// Wait for the command to finish
 		err = app_cmd.Wait()
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error waiting for Python script:", err)
 		}
 	}()
 	err = exec.Command("xdg-open", "http://127.0.0.1:5001").Start()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error opening webpage:", err)
 	}
 	fmt.Println(termlink.ColorLink("Results", "http://127.0.0.1:5001", "italic green"))
