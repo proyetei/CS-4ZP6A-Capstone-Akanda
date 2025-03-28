@@ -33,7 +33,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 - Haskell for building the translators, grammars, and the automated code generator creating test cases for each of the 4 proof assistants (Idris, Agda, Lean, Rocq)
 - Includes a CI/CD pipeline in GitHub Actions to run the tests using Go + Docker and generating JSON file with the benchmarking results
 - Flask + Python for the backend
-- HTML/CSS/JavaScript for frontend
+- HTML/Tailwind CSS/JavaScript for frontend
 - Vercel for deployment
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
