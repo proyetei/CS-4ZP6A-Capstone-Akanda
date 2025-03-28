@@ -4,6 +4,10 @@ module PrintIdris (runIdris) where
 import Grammar
 
 imports = "import Data.Vect"
+
+printImport (ImportLib "Vec") = "import Data.Vect"
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 datatype = "Type"
 
 printType (Con t) = t
@@ -100,9 +104,9 @@ definedRecords = []
 
 
 printIdris :: Module -> String
-printIdris (Module name defs) =
+printIdris (Module name imports defs) =
     let
-        headers = "module Main\n" ++ imports
+        headers = "module Main\n" ++ unlines (map printImport imports)
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
 
@@ -113,5 +117,5 @@ runIdris m = do
     writeFile ("out/" ++ name ++ ".idr") $ printIdris m
         where
             name = case m of
-                Module n _ -> n
+                Module n _ _ -> n
                 File n _ -> n

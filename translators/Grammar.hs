@@ -1,13 +1,13 @@
-module Grammar (Module (..), Definition (..), Type (..), Arg (..), Expr (..)) where
+module Grammar (Module (..), Definition (..), Type (..), Arg (..), Expr (..), Import (..)) where
 
 -- grammar
 
-data Module = Module { mod :: Name, defs :: [Definition] } -- is there anything like 'module Main where' FEL?
+data Module = Module { mod :: Name, imports :: [Import], defs :: [Definition] } -- is there anything like 'module Main where' FEL?
         | File { fil :: Name, con :: String } -- this option is for empty files and other invalid programs
 
-{- data Import = ImportLib Lib   -- i feel like it doesn't make sense to define a universal import because libraries will be language-specific
+data Import = ImportLib Lib   -- i feel like it doesn't make sense to define a universal import because libraries will be language-specific
             | ImportFun Name Lib
--}
+
 
 data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefNesFun Name (Maybe Type) [Arg] Expr -- Constructor for nested functions

@@ -3,7 +3,14 @@ module PrintAgda (runAgda) where
 
 import Grammar
 
-imports = "open import Agda.Builtin.IO  \nopen import Agda.Builtin.Nat \nopen import Data.Vec \nopen import Agda.Builtin.List \n" --open import IO alone not scoping to stlib
+--imports = "\nopen import Agda.Builtin.Nat \nopen import Data.Vec \nopen import Agda.Builtin.List \n" --open import IO alone not scoping to stlib
+
+printImport (ImportLib "Nat") = "open import Agda.Builtin.Nat"
+printImport (ImportLib "Vec") = "open import Data.Vec"
+printImport (ImportLib "List") = "open import Agda.Builtin.List"
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
+
 datatype = "Set"
 
 -- Print types
@@ -104,9 +111,9 @@ definedRecords = []
 
 -- Print the Agda module
 printAgda :: Module -> String
-printAgda (Module name defs) =
+printAgda (Module name imports defs) =
     let
-        headers = "module " ++ name ++ " where \n" ++ imports
+        headers = "module " ++ name ++ " where \n" ++ unlines (map printImport imports)
         -- Concatenate all definitions
         body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
 
@@ -119,5 +126,5 @@ runAgda m = do
     writeFile ("out/" ++ name ++ ".agda") $ printAgda m
         where 
             name = case m of 
-                Module n _ -> n
+                Module n _ _ -> n
                 File n _ -> n

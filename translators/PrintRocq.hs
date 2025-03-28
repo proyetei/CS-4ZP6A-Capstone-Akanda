@@ -5,11 +5,15 @@ import Grammar
       Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType, DefPatt, OpenName),
       Expr(FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
-      Type(Arr, Con, TVar, PCon, DCon, Suc, Index) )
+      Type(Arr, Con, TVar, PCon, DCon, Suc, Index), Import (ImportLib, ImportFun) )
 import Data.Char
 import Data.List (isPrefixOf)
 
-imports = "Require Import Coq.Vectors.Vector. \nRequire Import List. \nImport VectorNotations. \nImport ListNotations.\n"
+--imports = "Require Import Coq.Vectors.Vector. \nRequire Import List. \nImport VectorNotations. \nImport ListNotations.\n"
+printImport (ImportLib "Vec") = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
+
 datatype = "Type"
 
 printType (Con "Type") = "Type"
@@ -117,9 +121,9 @@ definedRecords = []
 
 
 printRocq :: Module -> String
-printRocq (Module name defs) =
+printRocq (Module name imports defs) =
     let
-        headers = imports ++ "\n\nModule " ++ name ++ ".\n" 
+        headers = unlines (map printImport imports) ++ "\n\nModule " ++ name ++ ".\n" 
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 
@@ -130,5 +134,5 @@ runRocq m = do
     writeFile ("out/" ++ name ++ ".v") $ printRocq m
         where
             name = case m of
-                Module n _ -> n
+                Module n _ _ -> n
                 File n _ -> n
