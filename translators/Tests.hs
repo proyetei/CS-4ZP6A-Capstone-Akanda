@@ -171,13 +171,13 @@ _tests =
         --just "" to prevent inheretence of DefRecType
         exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
     in Module "ChainDefFields_NonDependentRecordModule" $ iszero n
-    , \n -> --12
+    , \n -> --12 Description: creates a simple datatype with N constructors
         let
             iszero 0 = [] 
             iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
         in Module "Constructors_Datatypes" $ iszero n
         
-    , \n ->  --13
+    , \n ->  --13 Description: creates a datatype with a single constructor accepting N parameters
         let
             iszero 0 = [] 
             iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
@@ -268,14 +268,12 @@ _tests =
         genIndex m = genIndexName m : genIndex (m-1)
        in Module "IndicesParameters_Datatypes" $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
-    --Name [(Name,Type)] Type Name [([Arg], Expr)]
     let 
         iszero 0 = []
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
-                        OpenName "D",
-                        DefVar "N" (Just $ Con "Nat")
-                    (Let [DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n])] (genCall n))--pattern matching function
-                    ]
+                OpenName "D",
+                DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]),
+                DefVar "N" (Just $ Con "Nat") (genCall n)]
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
     in
