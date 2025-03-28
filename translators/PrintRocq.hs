@@ -3,7 +3,7 @@ module PrintRocq (runRocq) where
 import Grammar
     ( Arg(arg, ty, Arg),
       Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType, DefPatt, OpenName),
-      Expr(FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
+      Expr(Constructor, FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
       Type(Arr, Con, TVar, PCon, DCon, Suc, Index) )
 import Data.Char
@@ -26,6 +26,7 @@ printType (Index names ty) = "forall {" ++ unwords names ++ " : " ++ printType t
 printReturnType (Con t) = map toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
 printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
+printExpr (Constructor name) = map toLower name
 printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
@@ -59,7 +60,7 @@ printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y 
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 
-printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e) cons) ++ " end"
+printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> map toLower name) a) ++ " => " ++ printExpr e) cons) ++ " end"
 printDef (DefDataType name args ty) = let
     printIndices :: Type -> String
     printIndices (Arr (Index n t) ctype) = printType(Index n t)  ++ ", " ++ printType ctype
@@ -71,7 +72,7 @@ printDef (DefPDataType name params args ty) = let
     printIndices (Arr (Index n t) ctype) = printType(Index n t)  ++ ", " ++ printType ctype
     printIndices t = printType t
     in
-        "Inductive " ++ map toLower name ++ unwords (map (\x -> " (" ++ map toLower x ++ ": Type)") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ printIndices y) args) ++ "."
+        "Inductive " ++ map toLower name ++ unwords (map (\(x, y) -> " (" ++ map toLower x ++ ": " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ printIndices y) args) ++ "."
 
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =

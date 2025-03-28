@@ -20,6 +20,7 @@ printReturnType (Arr _ t) = printReturnType t
 printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
 
 -- Print expressions (unchanged)
+printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
@@ -56,7 +57,7 @@ printDef _ (DefPatt var params ty _ cons) =
     var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e ) cons)
 printDef _ (DefDataType str args t) = "inductive " ++ str ++ " : " ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
 printDef _ (DefPDataType str params args t) =
-   "inductive " ++ str ++ unwords (map (\x -> " (" ++ x ++ ": Type)") params) ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
+   "inductive " ++ str ++ unwords (map (\(x, y) -> " (" ++ x ++ ": " ++ printType y ++ ")") params) ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)
 
 -- records Def
 printDef _ (DefRecType name params maybeConName fields _) =
