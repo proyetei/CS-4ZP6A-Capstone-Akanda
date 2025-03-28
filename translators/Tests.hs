@@ -133,7 +133,7 @@ _tests =
          -- Define the record X with param, a constructor "Const",
          -- two fields "sums" and "values", and overall type Set.
          recDef = DefRecType "X" params (Just "Const")
-                  [("sums", Con "Nat"), ("values", PCon "List" [Con "Nat"])]
+                  [("sums", Con "Nat")]
                   (Con "Set")
 
          -- Build the record type application as a string: "X 1 2 ... n"
@@ -141,7 +141,7 @@ _tests =
 
          -- Define the record instance "example" with computed field values:
          exampleInit = InitRec "example" recTypeInstance (Just "Const")
-                        [("sums", Paren sumExpr), ("values", listExpr)]
+                        [("sums", Paren sumExpr)]
        in Module "Parameters_DependentRecordModule" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 9
     -- Generate a file with n newlines where n = user input
