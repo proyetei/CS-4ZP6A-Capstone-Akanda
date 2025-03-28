@@ -46,7 +46,7 @@ printVecElements (VecCons x xs) = printExpr x ++ ", " ++ printVecElements xs
 printListElements ListEmpty = ""
 printListElements (ListCons expr ListEmpty) = printExpr expr
 printListElements (ListCons expr rest) = printExpr expr ++ ", " ++ printListElements rest
-printDef _ (ParenD def) = "(" ++ printDef [] def ++ ")"
+printDef _ (ParenD def) = printDef [] def
 printDef _ (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr
 printDef _ (DefVar var (Just t) expr) = "def " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr
 printDef _ (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
