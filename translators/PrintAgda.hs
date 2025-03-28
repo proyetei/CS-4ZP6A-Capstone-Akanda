@@ -59,7 +59,7 @@ printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args e
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 --Name [(Name,Type)] Type [([Arg], Expr)]
 printDef (DefPatt var params ty _ cons) =
-    var ++ ": " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e) cons) ++ "\n"
+    var ++ " : " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e) cons) ++ "\n"
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ " " ++ unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
