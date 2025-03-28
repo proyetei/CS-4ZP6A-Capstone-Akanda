@@ -59,7 +59,7 @@ printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y 
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 
-printDef (DefPatt var params ty m cons) = "Fixpoint " ++ var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> map toLower name) a) ++ " => " ++ printExpr e) cons) ++ " end"
+printDef (DefPatt var params ty m cons) = "Fixpoint " ++ var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> map toLower name) a) ++ " => " ++ printExpr e) cons) ++ " end."
 printDef (DefDataType name args ty) = "Inductive " ++ map toLower name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args) ++ "."
 printDef (DefPDataType name params args ty) = "Inductive " ++ map toLower name ++ unwords (map (\(x, y) -> " (" ++ map toLower x ++ ": " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args) ++ "."
 
