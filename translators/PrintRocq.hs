@@ -60,8 +60,18 @@ printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg ar
 printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 
 printDef (DefPatt var params ty m cons) = var ++ " " ++ (unwords $ map (\(x, y) -> " (" ++ x ++ " : " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := \nmatch " ++ m ++ " with" ++ unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e) cons) ++ " end"
-printDef (DefDataType name args ty) = "Inductive " ++ map toLower name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args) ++ "."
-printDef (DefPDataType name params args ty) = "Inductive " ++ map toLower name ++ unwords (map (\x -> " (" ++ map toLower x ++ ": Type)") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ (printType y)) args) ++ "."
+printDef (DefDataType name args ty) = let
+    printIndices :: Type -> String
+    printIndices (Arr (Index n t) ctype) = printType(Index n t)  ++ ", " ++ printType ctype
+    printIndices t = printType t
+    in
+        "Inductive " ++ map toLower name ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ printIndices y) args) ++ "."
+printDef (DefPDataType name params args ty) = let
+    printIndices :: Type -> String
+    printIndices (Arr (Index n t) ctype) = printType(Index n t)  ++ ", " ++ printType ctype
+    printIndices t = printType t
+    in
+        "Inductive " ++ map toLower name ++ unwords (map (\x -> " (" ++ map toLower x ++ ": Type)") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ printIndices y) args) ++ "."
 
 --Function for Records
 printDef (DefRecType name params maybeConName fields _) =
