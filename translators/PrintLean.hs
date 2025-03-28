@@ -2,8 +2,11 @@ module PrintLean (runLean) where
 
 import Grammar
 
-imports = "import Init.Data.Vector"
+--imports = "import Init.Data.Vector"
 
+printImport (ImportLib "Vec") = "import Init.Data.Vector"
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 -- Print types (unchanged)
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -94,9 +97,9 @@ printDef _ (OpenName n) = "open " ++ n
 
 
 printLean :: Module -> String
-printLean (Module name defs) =
+printLean (Module name imports defs) =
     let
-        headers = imports
+        headers = unlines (map printImport imports)
         recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
         body = foldl (\x y -> x ++ "\n" ++ printDef recs y) "" defs
     in headers ++ "\n" ++ body
@@ -107,5 +110,5 @@ runLean m = do
     writeFile ("out/" ++ name ++ ".lean") $ printLean m
   where 
     name = case m of 
-           Module n _ -> n
+           Module n _ _  -> n
            File n _ -> n
