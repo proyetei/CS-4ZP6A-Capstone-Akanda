@@ -22,6 +22,8 @@ type Language struct {
 type Test struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
+	Interval    string         `json:"interval"`
+	LowerBound  int            `json:"lower_bound"`
 	Languages   []LanguageJSON `json:"languages"`
 }
 
@@ -148,6 +150,30 @@ var Case_list = map[int]Testcase{
 		"SingleLongLine",
 		5000,
 	},
+	18: {
+		18,
+		"A single datatype where N represents the number of 'Type' parameters, all needed for N constructors",
+		"ConstructorsParameters_Datatypes",
+		5000,
+	},
+	19: {
+		19,
+		"A single datatype where N represents the number of indices, all needed for N constructors",
+		"IndicesConstructors_Datatypes",
+		5000,
+	},
+	20: {
+		20,
+		"A single datatype where N represents the number of 'Type' parameters as well as the number of indices",
+		"IndicesParameters_Datatypes",
+		5000,
+	},
+	21: {
+		21,
+		"A function pattern matching on N constructors of a datatype",
+		"Pattern_Matching_Datatypes",
+		5000,
+	},
 }
 
 var Language_list = []Language{
@@ -159,7 +185,7 @@ var Language_list = []Language{
 	{
 		"Agda",
 		".agda",
-		"agda",
+		"agda +RTS -M2.8G -RTS",
 	},
 	{
 		"Idris",

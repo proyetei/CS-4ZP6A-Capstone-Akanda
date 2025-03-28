@@ -31,7 +31,7 @@ def delete_old_previews(token):
            date_time = datetime.datetime.fromtimestamp(time_in_s)
            current_time = datetime.datetime.now()
            time_difference = current_time - date_time
-           if time_difference > datetime.timedelta(hours=6):
+           if time_difference > datetime.timedelta(hours=24):
                 old_previews += [deployment["uid"]]
            else:
                 newer_previews[deployment["uid"]] = time_difference
@@ -46,7 +46,7 @@ def delete_old_previews(token):
     active_previews = preview_count - deleted_preview
 
     # if there are still more than 10 active preview deployments and delete the oldest ones until there are only 9 active deployments
-    while active_previews >= 10:
+    while active_previews >= 15:
         time_differences = list(newer_previews.values())
         oldest_creation = max(time_difference)
         deployment_id = list(newer_previews.keys())[time_differences.index(oldest_creation)]

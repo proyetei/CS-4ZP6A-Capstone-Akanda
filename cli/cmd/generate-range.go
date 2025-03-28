@@ -53,6 +53,8 @@ var generateRangeCmd = &cobra.Command{
 		if interval == "quadratic" {
 			i = int(math.Pow(math.Ceil(math.Sqrt(float64(i))), 2))
 		}
+		data.Testcases[0].LowerBound = i
+		data.Testcases[0].Interval = interval
 
 		for i <= upperBound {
 			if point > num_points {
