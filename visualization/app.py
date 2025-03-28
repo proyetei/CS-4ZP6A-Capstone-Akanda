@@ -44,12 +44,6 @@ def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
         else:
             plt.plot(max_size, y_value, marker='x', markersize=12, color='blue', markeredgewidth=2)
 
-# CREATE METHOD USE LOG SCALE LOGIC: IF THE JSON FILE FIELD CALLED "INTERVAL" SAYS "LOG" ALLOW FOR NEGATIVE VALUES FOR Y AXIS OF THE GRAPH
-# def checkNegativeYAxis(language_data):
-#     if language_data["interval"] == "log":
-
-
-
 
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
@@ -112,14 +106,6 @@ def plot_size_vs_user_time(test_case):
     plt.ylabel("User Time (s)")
 
 
-    # Set y-axis scale based on test case interval
-    # if should_use_log_scale(test_case):
-    #     plt.yscale('symlog', linthresh=1e-3)
-    #     plt.gca().yaxis.set_major_formatter(ScalarFormatter())
-    #     plt.gca().yaxis.set_minor_formatter(ScalarFormatter())
-    # else:
-    #     plt.ylim(bottom=0)
-
     # Plot each language's data for user time complexity vs size
     for language_data in languages:
         language = language_data["name"]  
@@ -163,8 +149,6 @@ def plot_size_vs_system_time(test_case):
     plt.title(f"System Time Complexity for {test_case_name}")
     plt.xlabel("Size")
     plt.ylabel("System Time (s)")
-
-    # Set y-axis scale based on test case interval
 
 
     # Plot each language's data for system time complexity vs size
@@ -212,7 +196,6 @@ def plot_size_vs_memory(test_case):
     plt.xlabel("Size")
     plt.ylabel("Memory (MB)")
 
-    # Set y-axis scale based on test case interval
 
 
     # Plot each language's data for memory usage vs size
@@ -257,6 +240,26 @@ def generate_graphs(data):
         graphs.extend([real_time_graph, user_time_graph, system_time_graph, memory_graph])
     return graphs
 
+
+def get_error_messages(language_data, lower_bound, x_values, y_values):
+
+    errors = []
+    if language_data["exit_status"] != "OK":
+        if len(x_values) == 0:
+            max_size = lower_bound
+            y_value = 0
+        else:
+            max_size = max(x_values)
+            index = x_values.index(max_size)
+            y_value = y_values[index]
+            
+        errors.append({
+            "language": language_data["name"],
+            "size": max_size,
+            "type_of_error": "memory exceeded" if language_data["exit_status"] == "memory" else "timeout"
+        })
+    return errors
+
 # Route to serve the images
 @app.route('/')
 def index():
@@ -265,13 +268,21 @@ def index():
 
     # Get test case
     test_case = data["testcases"][0]
+    
+    # Extract error information for each language
+    errors = []
+    for language_data in test_case["languages"]:
+        x_values = [point["size"] for point in language_data["tests"]]
+        # Using real_time values for error calculation; change to another metric if needed
+        y_values = [point["real_time"] for point in language_data["tests"]]
+        errors.extend(get_error_messages(language_data, test_case["lower_bound"], x_values, y_values))
+
 
     # Return a simple HTML page to display the images
     # Extract name and description to reference on the website
-    return render_template('index.html',  test_case_name=test_case["name"], 
+    return render_template('index.html',  test_case_name=test_case["name"], errors=errors, 
                            test_case_desc=test_case["description"], graphs=graphs)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
 
-    
