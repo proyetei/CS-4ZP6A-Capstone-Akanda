@@ -7,7 +7,6 @@ import Grammar
 
 printImport (ImportLib "Nat") = "open import Agda.Builtin.Nat"
 printImport (ImportLib "Vec") = "open import Data.Vec"
-printImport (ImportLib "List") = "open import Agda.Builtin.List"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
