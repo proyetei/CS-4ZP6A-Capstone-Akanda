@@ -18,6 +18,7 @@ printType (DCon name types exprs) = -- For dependent type constructors (like suc
 printType (Suc t) = "(suc " ++ printType t ++ ")"
 printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 -- Print expressions
+printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
@@ -62,7 +63,7 @@ printDef (DefPatt var params ty _ cons) =
     var ++ ": " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n\t" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e) cons)
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
-printDef (DefPDataType name params cons ty) = "data " ++ name ++ " " ++ unwords (map (\x -> "(" ++ x ++ " : Set) ") params) ++ " : Set where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefPDataType name params cons ty) = "data " ++ name ++ " " ++ unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
 --printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\x y -> "(" ++ x ++ " : Set) -> " ++ y) datatype params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ unwords (map (\p -> p ++ " ->") params) ++ printType t) cons) ++ "\n"
 
 

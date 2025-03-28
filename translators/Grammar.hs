@@ -13,8 +13,8 @@ data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefNesFun Name (Maybe Type) [Arg] Expr -- Constructor for nested functions
                 | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)] --function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
                 | DefVar Name (Maybe Type) Expr
-                | DefDataType Name [(Name,Type)] Type -- usually type is Set
-                | DefPDataType Name [Name] [(Name,Type)] Type
+                | DefDataType Name [(Name,Type)] Type -- datatype name, constructors, usually type is Set
+                | DefPDataType Name [(Name, Type)] [(Name,Type)] Type --datatype name, parameters, constrcutors, overall type
                 | DefRecType Name (Maybe [Arg]) (Maybe Name) [(Name,Type)] Type -- (Maybe Arg) for parameters, (Maybe Name) is the type constructor
                 | InitRec Name Name (Maybe Name)[(String, Expr)] -- record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
                 | OpenName Name --just for Lean, to refer to user-defined datatypes directly
@@ -49,6 +49,8 @@ data Expr = Var Name
         | ListEmpty             -- Represents `[]`
         | ListCons Expr Expr      -- Represents list construction, e.g. `1 :: []`
         | Paren Expr
+        | Constructor Name
+        
         
 -- aliases for readability purposes
 type Name = String
