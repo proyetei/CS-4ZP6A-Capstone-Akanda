@@ -51,11 +51,18 @@ def plot_size_vs_real_time(test_case):
     test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(Real Time [s])"
+    else:
+        xlabel = "Size"
+        ylabel = "Real Time [s]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"Real Time Complexity for {test_case_name}")
-    plt.xlabel("Size")
-    plt.ylabel("Real Time (s)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
     # Set y-axis scale based on test case interval
 
@@ -99,11 +106,18 @@ def plot_size_vs_user_time(test_case):
     languages = test_case["languages"]
     # description = test_case["description"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(User Time [s])"
+    else:
+        xlabel = "Size"
+        ylabel = "User Time [s]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"User Time Complexity for {test_case_name} ")
-    plt.xlabel("Size")
-    plt.ylabel("User Time (s)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
 
     # Plot each language's data for user time complexity vs size
@@ -144,11 +158,18 @@ def plot_size_vs_system_time(test_case):
     languages = test_case["languages"]
     # description = test_case["description"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(System Time [s])"
+    else:
+        xlabel = "Size"
+        ylabel = "System Time [s]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"System Time Complexity for {test_case_name}")
-    plt.xlabel("Size")
-    plt.ylabel("System Time (s)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
 
     # Plot each language's data for system time complexity vs size
@@ -190,11 +211,18 @@ def plot_size_vs_memory(test_case):
     languages = test_case["languages"]
     # description = test_case["description"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(Memory [MB])"
+    else:
+        xlabel = "Size"
+        ylabel = "Memory [MB]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"Memory Usage for {test_case_name}")
-    plt.xlabel("Size")
-    plt.ylabel("Memory (MB)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
 
 
@@ -241,8 +269,7 @@ def generate_graphs(data):
     return graphs
 
 
-def get_error_messages(language_data, lower_bound, x_values, y_values):
-
+def get_error_messages(language_data, interval, lower_bound, x_values, y_values):
     errors = []
     if language_data["exit_status"] != "OK":
         if len(x_values) == 0:
@@ -252,6 +279,9 @@ def get_error_messages(language_data, lower_bound, x_values, y_values):
             max_size = max(x_values)
             index = x_values.index(max_size)
             y_value = y_values[index]
+        if interval == "log":
+            max_size = 2 ** max_size
+
             
         errors.append({
             "language": language_data["name"],
@@ -275,7 +305,7 @@ def index():
         x_values = [point["size"] for point in language_data["tests"]]
         # Using real_time values for error calculation; change to another metric if needed
         y_values = [point["real_time"] for point in language_data["tests"]]
-        errors.extend(get_error_messages(language_data, test_case["lower_bound"], x_values, y_values))
+        errors.extend(get_error_messages(language_data, test_case["lower_bound"], test_case["interval"], x_values, y_values))
 
 
     # Return a simple HTML page to display the images

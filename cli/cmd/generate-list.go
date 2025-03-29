@@ -28,16 +28,17 @@ var generateListCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
+		starting_time = startupTimes()
 		testcase := listInputValidation(caseID)
 		data := dataTemplate(testcase)
 		dataMap := map[string][]Data{
-			"Coq":   {},
+			"Rocq":  {},
 			"Agda":  {},
 			"Idris": {},
 			"Lean":  {},
 		}
 		exit_status := map[string]string{
-			"Coq":   "OK",
+			"Rocq":  "OK",
 			"Agda":  "OK",
 			"Idris": "OK",
 			"Lean":  "OK",
@@ -59,14 +60,18 @@ var generateListCmd = &cobra.Command{
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error marshalling json data", err)
 		}
 
 		log.Println("Creating JSON file")
 		file, err := os.Create("data.json")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error creating json file:", err)
 		}
 		defer file.Close()
@@ -74,7 +79,9 @@ var generateListCmd = &cobra.Command{
 		log.Println("Writing data to JSON file")
 		_, err = file.Write(json_data)
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error writing to json file:", err)
 
 		}
@@ -117,6 +124,31 @@ func listInputValidation(input int) Testcase {
 
 }
 
+func startupTimes() map[int]map[string][]Data {
+	var startup_times map[int]map[string][]Data
+	jsonFile, err := os.Open("startup.json")
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
+
+		}
+		log.Fatalln("Could not open JSON file", err)
+	}
+	defer jsonFile.Close()
+	json_bytes, _ := io.ReadAll(jsonFile)
+
+	err = json.Unmarshal(json_bytes, &startup_times)
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
+		log.Fatalln("Error marshalling json data", err)
+	}
+
+	return startup_times
+
+}
+
 func dataTemplate(test Testcase) Overview {
 	data := Overview{
 		Testcases: []Test{
@@ -127,7 +159,7 @@ func dataTemplate(test Testcase) Overview {
 				LowerBound:  1,
 				Languages: []LanguageJSON{
 					{
-						Name:        "Coq",
+						Name:        "Rocq",
 						Tests:       []Data{},
 						Exit_status: "OK",
 					},
@@ -160,7 +192,9 @@ func translateTest(test Testcase, operations int) {
 
 	err := setup_cmd.Run()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error executing the output folder setup commands", err)
 
 	}
@@ -172,7 +206,9 @@ func translateTest(test Testcase, operations int) {
 	go func() {
 		stdin, err := translate_cmd.StdinPipe()
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Could not create Stdin pipe", err)
 		}
 		stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
@@ -187,11 +223,15 @@ func translateTest(test Testcase, operations int) {
 	select {
 	case <-time.After(20 * time.Second):
 		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Process killed, context deadline exceeded")
 	case result := <-cmdDone:
 		if result != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Could not translate the testcase", result)
 		}
 	}
@@ -201,30 +241,37 @@ func translateTest(test Testcase, operations int) {
 func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, operations int) (map[string][]Data, map[string]string) {
 	originalDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error getting current directory:", err)
 	}
 	err = os.Chdir(output_folder)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 	}
 
-	pattern := `(?s)"real_time": ([0-9]*\.[0-9]+), "user_time": ([0-9]*\.[0-9]+), "system_time": ([0-9]*\.[0-9]+), "memory": ([0-9]+)}`
+	pattern := `"real_time": ([0-9]*\.[0-9]+), "user_time": ([0-9]*\.[0-9]+), "system_time": ([0-9]*\.[0-9]+), "memory": ([0-9]+)}`
 	re := regexp.MustCompile(pattern)
 
 	for i := 0; i < len(Language_list); i++ {
 		var test_data Data
 		var final_result cmdResult
+		var type_check_time string
+		exit := "OK"
 		if exit_status[Language_list[i].name] != "OK" {
 			continue
 		}
 
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
-		time_str := `/usr/bin/time --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
-		cmd_str := time_str + Language_list[i].cmd + " ./" + test.file_name + Language_list[i].file_extension
+		time_str := `/usr/bin/time -o time.json --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
+		cmd_str := fmt.Sprintf("%s %s ./%s%s", time_str, Language_list[i].cmd, test.file_name, Language_list[i].file_extension)
 		cmd := exec.Command("bash", "-c", cmd_str)
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		fmt.Println(cmd_str)
 
 		cmdDone := make(chan cmdResult, 1)
 		go func() {
@@ -241,19 +288,15 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		case <-time.After(120 * time.Second):
 			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 			log.Println("Process killed, context deadline exceeded")
-			exit_status[Language_list[i].name] = "time"
+			exit = "time"
 			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
 		case result := <-cmdDone:
 			final_result = result
 		}
-
-		if final_result.err != nil {
-			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
-			exit_status[Language_list[i].name] = "memory"
-
-		}
 		if exit_status[Language_list[i].name] == "OK" {
-			matches := re.FindStringSubmatch(final_result.errb.String())
+			type_check_time = get_time()
+			fmt.Println(type_check_time)
+			matches := re.FindStringSubmatch(type_check_time)
 			if matches == nil {
 				log.Println("Could not record the space and time data")
 			}
@@ -263,6 +306,13 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 				log.Println("Could not unmarshal test data", err)
 			} else {
 				test_data.Memory = test_data.Memory / 1000
+				if starting_time != nil {
+					test_data.Real_time = safe_time(test_data.Real_time, starting_time[test.id][Language_list[i].name][0].Real_time)
+					test_data.System_time = safe_time(test_data.System_time, starting_time[test.id][Language_list[i].name][0].System_time)
+					test_data.User_time = safe_time(test_data.User_time, starting_time[test.id][Language_list[i].name][0].User_time)
+
+				}
+
 				if interval == "log" {
 					test_data.Memory = safe_log(test_data.Memory)
 					test_data.Real_time = safe_log(test_data.Real_time)
@@ -273,12 +323,21 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 				}
 				dataMap[Language_list[i].name] = append(dataMap[Language_list[i].name], test_data)
 			}
+
 		}
+		if final_result.err != nil && test.id != 17 {
+			log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
+			exit = "memory"
+
+		}
+		exit_status[Language_list[i].name] = exit
 
 	}
 	err = os.Chdir(originalDir)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 
 	}
@@ -287,16 +346,41 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 
 }
 
+func get_time() string {
+	dat, err := os.ReadFile("./time.json")
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
+		log.Fatalln("Could not read time file", err)
+
+	}
+	return string(dat)
+
+}
+func safe_time(type_check float64, start_time float64) float64 {
+	real_time := type_check - start_time
+	if real_time <= 0 {
+		return 0.01
+	} else {
+		return real_time
+	}
+
+}
 func loadAgdalib(test Testcase) {
 	log.Println("Type-checking the Agda file once to load the stdlib")
 	originalDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error getting current directory:", err)
 	}
 	err = os.Chdir(output_folder)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 	}
 	agda_str := Language_list[1].cmd + " ./" + test.file_name + Language_list[1].file_extension
@@ -325,7 +409,9 @@ func loadAgdalib(test Testcase) {
 
 	err = os.Chdir(originalDir)
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error changing directory:", err)
 
 	}
@@ -333,7 +419,7 @@ func loadAgdalib(test Testcase) {
 
 func safe_log(value float64) float64 {
 	if value <= 0 {
-		return 0
+		return math.Log2(0.01)
 	} else {
 		return math.Log2(value)
 	}
@@ -345,7 +431,9 @@ func generateGraphs() {
 	setup_cmd := exec.Command("bash", "-c", setup_str)
 	err := setup_cmd.Run()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error executing the setup commands for the graph folder", err)
 
 	} // ask proyetei if still need this
@@ -355,7 +443,9 @@ func generateGraphs() {
 	go func() {
 		err := app_cmd.Start()
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error starting Python script:", err)
 
 		}
@@ -363,13 +453,17 @@ func generateGraphs() {
 		// Wait for the command to finish
 		err = app_cmd.Wait()
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error waiting for Python script:", err)
 		}
 	}()
 	err = exec.Command("xdg-open", "http://127.0.0.1:5001").Start()
 	if err != nil {
-		fmt.Println(StdMsg)
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
 		log.Fatalln("Error opening webpage:", err)
 	}
 	fmt.Println(termlink.ColorLink("Results", "http://127.0.0.1:5001", "italic green"))
