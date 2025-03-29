@@ -1,128 +1,67 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results</title>
-    <style>
-        /* General body styling */
-        body {
-            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(to right,  #1e293b, #111827);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        /* Container for the heading and description */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        /* Text styling */
-        h1 {
-            font-size: 2rem;
-            color: #d1d5db;
-            margin-bottom: 10px;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            color: #377ddf;
-        }
-
-        h3 {
-            font-size: 1.2rem;
-            color: #94a3b8;
-        }
-
-        h4 {
-            font-size: 1rem;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #7795be;
-        }
-
-        /* Graph container styling */
-        .graph-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 50px; /* Space between graphs */
-            max-width: 1200px; /* Limit container width for better readability */
-            width: 100%;
-        }
-
-        /* Individual graph styling */
-        .graph-container img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease-in-out; /* Add animation styling ease in out */
-        }
-
-        .graph-container img:hover {
-            transform: scale(1.02); /* Add animation: slight zoom on hover */
-        }
-        .info-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            text-align: left;
-            max-width: 1200px; /* Limit container width for better readability */
-            width: 100%;
-        }
-        .text-bold {
-            font-weight: 400;
-        }
-
-        /* Responsive layout */
-        @media (min-width: 768px) {
-            /* Desktop: Two graphs per row */
-            .graph-container img {
-                width: calc(50% - 10px); /* Two graphs with gap */
-                max-width: 45%;
-            }
-        }
-
-        @media (max-width: 767px) {
-            /* Mobile: One graph per row */
-            .graph-container img {
-                width: 100%; /* Full width on mobile */
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="header">
-        <h1>Test Case Results for System Benchmarking</h1>
-        <h3>Results for {{ test_case_name }} - {{ test_case_desc }}</h3>
-    </div>
-    <div class="graph-container">
-        {% for graph in graphs %}
-            <img src="data:image/png;base64,{{ graph }}" alt="Graph">
-        {% endfor %}
-    </div>
-    <div class="info-container">
-        <h2> Graph Explanation </h3>
-        <h4> <li> For each proof assistants, if there is a red 'X' marker, it indicates that the test case exceeded memory, the blue 'X' marker indicates time limit exceeded. </li>
+<body class="min-h-screen flex flex-col items-center justify-center p-5 bg-gradient-to-r from-[#1e293b] to-[#111827]">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h1 class="text-2xl text-gray-300 mb-2">Test Case Results for System Benchmarking</h1>
+    <h3 class="text-lg text-slate-400">Results for {{ test_case_name }} - {{ test_case_desc }}</h3>
+  </div>
 
-         <li>
-            User time - Amount of time spent <span class="text-bold">outside </span> of the kernel 
-         </li>
-         <li>
-            System time - Amount of time spent <span class="text-bold"> inside </span> the kernel 
-         </li>
-         <li> Real time - CPU time or Clock time 
+  <!-- Graph Container -->
+  <div class="flex flex-wrap justify-center gap-12 max-w-5xl w-full">
+    {% for graph in graphs %}
+      <img 
+        class="w-full md:w-[45%] max-w-full h-auto border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105" 
+        src="data:image/png;base64,{{ graph }}" 
+        alt="Graph"
+      >
+    {% endfor %}
+  </div>
 
-         </li>
-        </h4>
+  <!-- Information Container -->
+  <h2 class="text-2xl text-[#377ddf] mt-8 mb-4">Graph Explanation</h2>
+  <div class="grid grid-cols-2 gap-4 max-w-5xl w-full mt-5">
+
+    <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <p class="font-bold mb-2">DEFINITIONS:</p>
+      <ul class="list-disc ml-4">
+        <li>User time - Amount of time spent <span class="font-bold">outside</span> of the kernel.</li>
+        <li>System time - Amount of time spent <span class="font-bold">inside</span> the kernel.</li>
+        <li>Real time - CPU time or Clock time.</li>
+        <li>Memory - Maximum resident set size of the type checking command, in Megabytes.</li>
+      </ul>
     </div>
+
+    <div class="bg-white shadow-md p-4 border border-gray-300 text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <div class="text-base font-sans text-[#7795be]">
+        For each proof assistant, if there is a red 'X' marker it indicates that the test case exceeded memory, and a blue 'X' marker indicates a time limit exceeded. <br/>
+        {% if errors %}
+          <p class="mt-4 font-bold">TIMEOUT INFO:</p>
+          <ul class="list-disc ml-4">
+            {% for error in errors %}
+              <li>{{ error.language }} has a <span class="font-bold italic">{{ error.type_of_error }}</span> error at size {{ error.size }}.</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <p class="font-bold mb-2"> LOG LOG PLOT:</p>
+      <ul class="list-disc ml-4">
+        <li> For the log plots, the y axis is the log value of the time in base 2. </li>
+      </ul>
+    </div>
+  </div>
+  
+
 </body>
 </html>
