@@ -14,7 +14,7 @@ _tests =
             lets p = 
                 if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ xs p 
                 else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
-        in Module "LetExample" $ iszero n
+        in Module "LetExample" [ImportLib "Nat"] $ iszero n
     , \n -> let --2
         iszero 0 = []
         iszero _ = [DefVar "n" (Just $ Con "Nat") $ lets 1]
@@ -23,7 +23,7 @@ _tests =
         lets p = 
             if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ Var $ "x" ++ show p
             else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
-    in Module "LetAddExample" $ iszero n
+    in Module "LetAddExample" [ImportLib "Nat"] $ iszero n
     
     , -- 3 Description: Generate Nested Functions 
     \n -> let --3
@@ -46,19 +46,21 @@ _tests =
                             (FunCall ("f" ++ show p) (map Int [2 .. p + 1])) 
                             (genCall (p - 1))
 
-        in Module "NestedFunction" 
+        in Module "NestedFunction" [ImportLib "Nat"]
             $ iszero n
+
     , \n -> let --4 A specified number of simple datatype declarations.
         genData 0 = []
-        genData 1 = [DefDataType "X1" [("y", Con "Nat")] (Con "Type")]
-        genData m = DefDataType ("X" ++ show m) [("Y", Con "Nat")] (Con "Type") : genData (m-1)
-        in Module "DataSimpleDeclarations" $ genData n
+        genData 1 = [DefDataType "X1" [("Y", Con "X1")] (Con "Type")]
+        genData m = DefDataType ("X" ++ show m) [("Y", Con ("X" ++ show m))] (Con "Type") : genData (m-1)
+        in Module "DataSimpleDeclarations" [ImportLib "Nat"] $ genData n
+
     , \n -> let --5 Variable declaration with an identifier of a specified length.
         iszero 0 = []
         iszero _ = [DefVar (genIdentifier n) (Just $ Con "Nat") $ Int 0]    
         genIdentifier 1 = "x"
         genIdentifier m = 'x' : genIdentifier (m-1)
-        in Module "LongIdentifier" $ iszero n
+        in Module "LongIdentifier" [ImportLib "Nat"] $ iszero n
     
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
@@ -83,67 +85,67 @@ _tests =
         buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))
 
         -- Define the record structure
-        xDef = DefRecType "X" Nothing Nothing (genFields n) (Con "Set")
+        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type")
 
         -- Define the example initialization
-        exampleInit = InitRec "example" "X" Nothing (genExample n)
+        exampleInit = DefRec "example" (Con "X") "Const" (genExample n)
 
-        in Module "Fields_DependentRecordModule" $ iszero n
+        in Module "Fields_DependentRecordModule" [ImportLib "Nat", ImportLib "Vec"] $ iszero n
 
     , --7 Description: Generate a very long chain (N) of dependent record definitions 
     \n -> let 
         iszero 0 = []
         iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
-        genRecords 1 = [DefRecType "Record1" Nothing (Just "Const1") [("f1", Con "Nat")] (Con "Set")]
+        genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] (Con "Type")]
         genRecords level =
             let prev = "Record" ++ show (level - 1)
                 curr = "Record" ++ show level
                 constructor = "Const" ++ show level 
                 field = "f" ++ show level
-            in genRecords (level - 1) ++ [DefRecType curr Nothing (Just constructor) [(field, Con prev)] (Con "Set")]
+            in genRecords (level - 1) ++ [DefRecType curr [] constructor [(field, Con prev)] (Con "Type")]
 
         -- Generate Example Init
-        genExample 1 = FunCall "Const1" [Int 10] 
+        genExample 1 = Paren $ FunCall "Const1" [Int 10] 
         genExample level =
             let prevExample = genExample (level - 1)
                 constructor = "Const" ++ show level 
-            in FunCall constructor [Paren prevExample] 
+            in Paren $ FunCall constructor [prevExample] 
 
-        --just "" to prevent inheretence of DefRecType
-        exampleInit = InitRec "example" ("Record" ++ show n) (Just ("")) [("example", genExample n)]
+        exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("example", genExample $ n-1)] -- fixed
         
-        in Module "ChainDef_DependentRecordModule" $ iszero n
+        in Module "ChainDef_DependentRecordModule" [ImportLib "Nat"] $ iszero n
     
     , -- 8 Description: Generate record with N parameters 
     \n -> let 
-         iszero 0 = []
-         iszero _ = [recDef, exampleInit]
-         -- Helper to build the sum exp 1 + 2 + ... + n
-         buildSum 1 = Int 1
-         buildSum m = Bin "+" (buildSum (m-1)) (Int m)
-         sumExpr = buildSum n
+        iszero 0 = []
+        iszero _ = [recDef, exampleInit]
+        -- Helper to build the sum exp 1 + 2 + ... + n
+        buildSum 1 = Int 1
+        buildSum m = Bin "+" (buildSum (m-1)) (Int m)
+        sumExpr = buildSum n
 
-         -- Helper to build the list exp: [1, 2, …, n]
-         buildList i = if i > n then ListEmpty else ListCons (Int i) (buildList (i+1))
-         listExpr = buildList 1
+        -- Helper to build the list exp: [1, 2, …, n]
+        buildList i = if i > n then ListEmpty else ListCons (Int i) (buildList (i+1))
+        listExpr = buildList 1
 
-         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
-         params = Just $ map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
+        -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
+        params = map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
 
-         -- Define the record X with param, a constructor "Const",
-         -- two fields "sums" and "values", and overall type Set.
-         recDef = DefRecType "X" params (Just "Const")
-                  [("sums", Con "Nat"), ("values", PCon "List" [Con "Nat"])]
-                  (Con "Set")
+        -- Define the record X with param, a constructor "Const",
+        -- two fields "sums" and "values", and overall type Set.
+        recDef = DefRecType "X" params "Const"
+                 [("sums", Con "Nat")]
+                 (Con "Set")
 
-         -- Build the record type application as a string: "X 1 2 ... n"
-         recTypeInstance = "X " ++ unwords (map show [1..n])
+        -- Build the record type application as a string: "X 1 2 ... n"
+        -- recTypeInstance = "X " ++ unwords (map show [1..n])
+        recTypeInstance = DCon "X" [] $ map Int [1..n]
 
-         -- Define the record instance "example" with computed field values:
-         exampleInit = InitRec "example" recTypeInstance (Just "Const")
-                        [("sums", Paren sumExpr), ("values", listExpr)]
-       in Module "Parameters_DependentRecordModule" $ iszero n
+        -- Define the record instance "example" with computed field values:
+        exampleInit = DefRec "example" recTypeInstance "Const"
+                       [("sums", Paren sumExpr)]
+      in Module "Parameters_DependentRecordModule" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 9
     -- Generate a file with n newlines where n = user input
     newlines = replicate n '\n'
@@ -155,33 +157,33 @@ _tests =
         genFields 1 = [("f1", Con "Nat")]
         genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
         -- Define the record structure
-        xDef = DefRecType "X" Nothing Nothing (genFields n) (Con "Set")
+        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type") -- TODO EMMA FIX
         -- Generate example initialization dynamically
         genExample 1 = [("f1", Int 1)]
         genExample p = genExample (p - 1) ++ [("f" ++ show p, Int 1)] 
         -- Define the example initialization
-        exampleInit = InitRec "example" "X" Nothing (genExample n)
-    in Module "Fields_NonDependentRecordModule" $ iszero n
+        exampleInit = DefRec "example" (Con "X") "Const" (genExample n) -- TODO EMMA FIX
+    in Module "Fields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 11
         iszero 0 = []
         iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
-        genRecords 1 = [DefRecType "Record1" Nothing (Just "Const1") [("f1", Con "Nat")] (Con "Set")]
-        genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) Nothing (Just $ "Const" ++ show p) [("f" ++ show p, Con "Nat")] (Con "Set")]
+        genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] (Con "Type")]
+        genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) [] ("Const" ++ show p) [("f" ++ show p, Con "Nat")] (Con "Type")]
         --just "" to prevent inheretence of DefRecType
-        exampleInit = InitRec "example" ("Record" ++ show n) Nothing [("f1", Int 1)]
-    in Module "ChainDefFields_NonDependentRecordModule" $ iszero n
+        exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Int 1)] --TODO EMMA FIX
+    in Module "ChainDefFields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
     , \n -> --12
         let
             iszero 0 = [] 
             iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
-        in Module "Constructors_Datatypes" $ iszero n
+        in Module "Constructors_Datatypes" [] $ iszero n
         
     , \n ->  --13
         let
             iszero 0 = [] 
             iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] (Con "Type")]
-        in Module "Parameters_Datatypes" $ iszero n
+        in Module "Parameters_Datatypes" [] $ iszero n
         
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
@@ -198,7 +200,7 @@ _tests =
         finalExpr = Bin "+" (Var "x1") (Var ("x" ++ show n))
         resultDef = DefVar "result" (Just $ Con "Nat") finalExpr
 
-    in Module "FirstLast_VariableModule" $ iszero n
+    in Module "FirstLast_VariableModule" [ImportLib "Nat"] $ iszero n
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
     \n -> let
     iszero 0 = []
@@ -225,7 +227,7 @@ _tests =
 
     resultDef = DefVar "result" (Just $ Con "Nat") sumVars
 
-    in Module "DeepDependency_VariableModule" $ iszero n
+    in Module "DeepDependency_VariableModule" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
         iszero 0 = []
         iszero _ = [DefDataType "D" [("C1", Arr (Index (genIndex n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex n))))] (Arr (genType n) (Con "Type"))]
@@ -236,7 +238,7 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
-       in Module "DataImplicitIndices" $ iszero n
+       in Module "DataImplicitIndices" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
         singleLine = replicate n 'x'
     in File "SingleLongLine" singleLine
@@ -244,7 +246,7 @@ _tests =
         let
             iszero 0 = []
             iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
-        in Module "ConstructorsParameters_Datatypes" $ iszero n
+        in Module "ConstructorsParameters_Datatypes" [] $ iszero n
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         iszero 0 = []
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (Con "D"))) [1 .. n]) (Arr (genType n) (Con "Type"))]
@@ -255,7 +257,7 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
-       in Module "IndicesConstructors_Datatypes" $ iszero n
+       in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
         iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("p" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
@@ -266,7 +268,7 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
-       in Module "IndicesParameters_Datatypes" $ iszero n
+       in Module "IndicesParameters_Datatypes" [ImportLib "Nat"] $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     --Name [(Name,Type)] Type Name [([Arg], Expr)]
     let 
@@ -279,7 +281,7 @@ _tests =
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
     in
-       Module "Pattern_Matching_Datatypes" $ iszero n
+       Module "Pattern_Matching_Datatypes" [ImportLib "Nat"] $ iszero n
      ]
     
 
@@ -289,7 +291,7 @@ tests :: IntMap (Int -> Module)
 tests = Map.fromList $ zip [1..(length _tests)] _tests
 
 -- this is a list of the names of the tests, in order (to be used in the menu of CLI)
-desc = fmap (\x -> (\(Module n _) -> n) $ x 0) _tests
+desc = fmap (\x -> (\(Module n _ _) -> n) $ x 0) _tests
 
 
 -- add more tests below. can be expandable or not

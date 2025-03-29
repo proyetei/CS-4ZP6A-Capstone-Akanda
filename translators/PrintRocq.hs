@@ -2,15 +2,16 @@ module PrintRocq (runRocq) where
 
 import Grammar
     ( Arg(arg, ty, Arg),
-      Definition(DefNesFun, DefVar, DefFun, DefRecType, InitRec, DefDataType, DefPDataType, DefPatt, OpenName),
+      Definition(DefNesFun, DefVar, DefFun, DefRecType, DefRec, DefDataType, DefPDataType, DefPatt, OpenName),
       Expr(Constructor, FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
       Module(File, Module),
-      Type(Arr, Con, TVar, PCon, DCon, Suc, Index) )
+      Type(Arr, Con, TVar, PCon, DCon, Suc, Index), Import (ImportLib, ImportFun) )
 import Data.Char
 import Data.List (isPrefixOf)
 
-imports = "Require Import Coq.Vectors.Vector. \nRequire Import List. \nImport VectorNotations. \nImport ListNotations.\n"
-datatype = "Type"
+printImport (ImportLib "Vec") = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
 
 printType (Con "Type") = "Type"
 printType (Con t) =
@@ -20,6 +21,8 @@ printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
 printType (PCon "Vec" args) = "t " ++ unwords (map printType args)
 printType (PCon name types) = (map toLower name) ++ " " ++ unwords (map printType types)
+printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
+    name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")" --
 printType (Index names ty) = "forall {" ++ unwords names ++ " : " ++ printType ty ++ "}"
@@ -31,7 +34,7 @@ printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
 printExpr (String str) = str
-printExpr (Paren e) = "(" ++ printExpr e ++ ") "
+printExpr (Paren e) = "(" ++ printExpr e ++ ")"
 printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
 printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
@@ -75,36 +78,28 @@ printDef (DefPDataType name params args ty) = let
         "Inductive " ++ map toLower name ++ unwords (map (\(x, y) -> " (" ++ map toLower x ++ ": " ++ printType y ++ ")") params) ++ " : " ++ printType ty ++ " := " ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ printIndices y) args) ++ "."
 
 --Function for Records
-printDef (DefRecType name params maybeConName fields _) =
+printDef (DefRecType name params consName fields _) =
     "Record " ++ name ++ paramsStr ++ " : Type := " ++ consName ++ " {\n" ++
     concatMap (\(fname, ftype) -> "  " ++ fname ++ " : " ++ printType ftype ++ ";\n") fields ++
     "}.\n"
     where
-        consName = case maybeConName of
-            Just conName -> conName  -- Use provided constructor
-            Nothing      -> "Const"   -- Default to "Const" if none provided
         paramsStr = case params of
-            Just args -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") args)
-            Nothing   -> ""
+            [] -> ""
+            _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
 
 
-printDef (InitRec name recType maybeConsName fields) =
-  "Definition " ++ name ++ " : " ++ recType ++ " :=\n  " ++ constructorCall ++ ".\n"
+printDef (DefRec name recType consName fields) =
+  "Definition " ++ name ++ " : " ++ printType recType ++ " :=\n  " ++ constructorCall ++ ".\n"
   where
     -- Split the record type into words.
     -- The first word is the record name; any remaining words are the concrete parameter values.
-    recWords = words recType
-    baseName = if null recWords then recType else head recWords
+    recWords = words $ printType recType
+    baseName = if null recWords then printType recType else head recWords
     paramsStr = case recWords of
                   (_:ps) -> unwords ps
                   _      -> ""
 
     -- Use the provided constructor name if available; otherwise, look up the default.
-    consName = case maybeConsName of
-                 Just c -> c
-                 Nothing -> case lookupConstructor baseName of
-                              Just con -> con
-                              Nothing -> "Const"  -- Default if no constructor found
 
     -- Build a string for the field values; each field value is preceded by a space.
     fieldsStr = concatMap (\(_, value) -> " " ++ printExpr value) fields
@@ -113,13 +108,6 @@ printDef (InitRec name recType maybeConsName fields) =
     constructorCall = if null paramsStr
                       then consName ++ fieldsStr
                       else consName ++ " " ++ paramsStr ++ fieldsStr
-
-    -- Function to find the constructor from defined records
-    lookupConstructor :: String -> Maybe String
-    lookupConstructor recType =
-      case [c | DefRecType rName _ (Just c) _ _ <- definedRecords, rName == recType] of
-        (c:_) -> Just c
-        _ -> Nothing
 printDef (OpenName _) = ""
 
 -- Store all defined records to check constructors
@@ -128,9 +116,9 @@ definedRecords = []
 
 
 printRocq :: Module -> String
-printRocq (Module name defs) =
+printRocq (Module name imports defs) =
     let
-        headers = imports ++ "\n\nModule " ++ name ++ ".\n" 
+        headers = unlines (map printImport imports) ++ "\n\nModule " ++ name ++ ".\n" 
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 
@@ -141,5 +129,5 @@ runRocq m = do
     writeFile ("out/" ++ name ++ ".v") $ printRocq m
         where
             name = case m of
-                Module n _ -> n
+                Module n _ _ -> n
                 File n _ -> n
