@@ -271,7 +271,6 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		cmd_str := fmt.Sprintf("%s %s ./%s%s", time_str, Language_list[i].cmd, test.file_name, Language_list[i].file_extension)
 		cmd := exec.Command("bash", "-c", cmd_str)
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-		fmt.Println(cmd_str)
 
 		cmdDone := make(chan cmdResult, 1)
 		go func() {
@@ -295,7 +294,6 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		}
 		if exit_status[Language_list[i].name] == "OK" {
 			type_check_time = get_time()
-			fmt.Println(type_check_time)
 			matches := re.FindStringSubmatch(type_check_time)
 			if matches == nil {
 				log.Println("Could not record the space and time data")
