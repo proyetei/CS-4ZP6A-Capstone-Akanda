@@ -6,6 +6,9 @@ printImport (ImportLib "Vec") = "import Init.Data.Vector"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
+printImport (ImportLib "Vec") = "import Init.Data.Vector"
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 -- Print types (unchanged)
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -50,7 +53,6 @@ printVecElements (VecCons x xs) = printExpr x ++ ", " ++ printVecElements xs
 printListElements ListEmpty = ""
 printListElements (ListCons expr ListEmpty) = printExpr expr
 printListElements (ListCons expr rest) = printExpr expr ++ ", " ++ printListElements rest
-
 printDef _ (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr
 printDef _ (DefVar var (Just t) expr) = "def " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr
 printDef _ (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
@@ -58,7 +60,7 @@ printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ (foldl (\x y -> x 
 printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg args) ++ " := " ++ printExpr expr
 printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ " : " ++ printReturnType t ++ " := " ++ printExpr expr
 printDef _ (DefPatt var params ty _ cons) = 
-    var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e ) cons)
+    "def " ++ var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n| " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " => " ++ printExpr e ) cons)
 printDef _ (DefDataType str args t) = "inductive " ++ str ++ " : " ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ printType y) args)
 printDef _ (DefPDataType str params args t) =
    "inductive " ++ str ++ unwords (map (\(x, y) -> " (" ++ x ++ ": " ++ printType y ++ ")") params) ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ " : " ++ (printType y)) args)

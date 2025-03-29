@@ -27,35 +27,41 @@
   </div>
 
   <!-- Information Container -->
-  <div class="flex flex-wrap justify-center text-left max-w-5xl w-full mt-5">
-    <div>
-      <h2 class="text-xl text-[#377ddf] mb-2">Graph Explanation</h2>
-      <ul class="list-disc list-inside text-base font-sans text-[#7795be]">
-        <li>
-          For each proof assistant, if there is a red 'X' marker it indicates that the test case exceeded memory, and a blue 'X' marker indicates a time limit exceeded.
-        </li>
+  <h2 class="text-2xl text-[#377ddf] mt-8 mb-4">Graph Explanation</h2>
+  <div class="grid grid-cols-2 gap-4 max-w-5xl w-full mt-5">
+
+    <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <p class="font-bold mb-2">DEFINITIONS:</p>
+      <ul class="list-disc ml-4">
+        <li>User time - Amount of time spent <span class="font-bold">outside</span> of the kernel.</li>
+        <li>System time - Amount of time spent <span class="font-bold">inside</span> the kernel.</li>
+        <li>Real time - CPU time or Clock time.</li>
+        <li>Memory - Maximum resident set size of the type checking command, in Megabytes.</li>
+      </ul>
+    </div>
+
+    <div class="bg-white shadow-md p-4 border border-gray-300 text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <div class="text-base font-sans text-[#7795be]">
+        For each proof assistant, if there is a red 'X' marker it indicates that the test case exceeded memory, and a blue 'X' marker indicates a time limit exceeded. <br/>
         {% if errors %}
-          {% for error in errors %}
-            <li>
-              {{ error.language }} timed out at size {{ error.size }} and it was a {{ error.type_of_error }} error.
-            </li>
-          {% endfor %}
+          <p class="mt-4 font-bold">TIMEOUT INFO:</p>
+          <ul class="list-disc ml-4">
+            {% for error in errors %}
+              <li>{{ error.language }} has a <span class="font-bold italic">{{ error.type_of_error }}</span> error at size {{ error.size }}.</li>
+            {% endfor %}
+          </ul>
         {% endif %}
-        <li>
-          User time - Amount of time spent <span class="font-bold">outside</span> of the kernel.
-        </li>
-        <li>
-          System time - Amount of time spent <span class="font-bold">inside</span> the kernel.
-        </li>
-        <li>
-          Real time - CPU time or Clock time.
-        </li>
-        <li>
-          Memory - Maximum resident set size of the type checking command, in Megabytes.
-        </li>
+      </div>
+    </div>
+
+    <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <p class="font-bold mb-2"> LOG LOG PLOT:</p>
+      <ul class="list-disc ml-4">
+        <li> For the log plots, the y axis is the log value of the time in base 2. </li>
       </ul>
     </div>
   </div>
+  
 
 </body>
 </html>
