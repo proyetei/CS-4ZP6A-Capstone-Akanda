@@ -13,6 +13,7 @@ var maxID int = 21
 var output_folder string = "out"
 var webpage bool
 var verbose bool
+var starting_time map[int]map[string][]Data
 
 var rootCmd = &cobra.Command{
 	Use:   "cli",

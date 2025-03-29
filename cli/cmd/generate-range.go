@@ -26,6 +26,7 @@ var generateRangeCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
+		starting_time = startupTimes()
 		testcase := rangeInputValidation(caseID)
 		data := dataTemplate(testcase)
 		dataMap := map[string][]Data{

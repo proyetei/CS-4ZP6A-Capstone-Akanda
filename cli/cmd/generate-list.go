@@ -28,6 +28,7 @@ var generateListCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
+		starting_time = startupTimes()
 		testcase := listInputValidation(caseID)
 		data := dataTemplate(testcase)
 		dataMap := map[string][]Data{
@@ -120,6 +121,31 @@ func listInputValidation(input int) Testcase {
 	}
 
 	return testcase
+
+}
+
+func startupTimes() map[int]map[string][]Data {
+	var startup_times map[int]map[string][]Data
+	jsonFile, err := os.Open("startup.json")
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
+
+		}
+		log.Fatalln("Could not open JSON file", err)
+	}
+	defer jsonFile.Close()
+	json_bytes, _ := io.ReadAll(jsonFile)
+
+	err = json.Unmarshal(json_bytes, &startup_times)
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
+		log.Fatalln("Error marshalling json data", err)
+	}
+
+	return startup_times
 
 }
 
@@ -281,6 +307,13 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 				log.Println("Could not unmarshal test data", err)
 			} else {
 				test_data.Memory = test_data.Memory / 1000
+				if starting_time != nil {
+					test_data.Real_time = math.Abs(test_data.Real_time - starting_time[test.id][Language_list[i].name][0].Real_time)
+					test_data.System_time = math.Abs(test_data.System_time - starting_time[test.id][Language_list[i].name][0].System_time)
+					test_data.User_time = math.Abs(test_data.User_time - starting_time[test.id][Language_list[i].name][0].User_time)
+
+				}
+
 				if interval == "log" {
 					test_data.Memory = safe_log(test_data.Memory)
 					test_data.Real_time = safe_log(test_data.Real_time)
@@ -359,7 +392,7 @@ func loadAgdalib(test Testcase) {
 
 func safe_log(value float64) float64 {
 	if value <= 0 {
-		return 0
+		return math.Log2(0.01)
 	} else {
 		return math.Log2(value)
 	}

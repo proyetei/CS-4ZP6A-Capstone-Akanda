@@ -47,7 +47,6 @@ jobs:
         uses: actions/checkout@v2 
       - name: Run Test
         run: |
-          echo "${{ github.ref }}"
           if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
           cd translators
           ghc -o main main.hs

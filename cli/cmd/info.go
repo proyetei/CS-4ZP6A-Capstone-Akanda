@@ -76,7 +76,7 @@ var Case_list = map[int]Testcase{
 		5,
 		"Variable declaration with an identifier of a specified length",
 		"LongIdentifier",
-		5000,
+		1000000,
 	},
 	6: {
 		6,
@@ -100,7 +100,7 @@ var Case_list = map[int]Testcase{
 		9,
 		"A file with N newlines",
 		"NewlineFile",
-		100000,
+		500000,
 	},
 	10: {
 		10,
