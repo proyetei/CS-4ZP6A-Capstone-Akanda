@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -56,10 +57,10 @@ var StartTimeCmd = &cobra.Command{
 			}
 			for pal, info := range cumulative_times[test.id] {
 				if len(info) != 0 {
-					startup_times[test.id][pal][0].System_time = info[0].System_time / 10
-					startup_times[test.id][pal][0].User_time = info[0].User_time / 10
-					startup_times[test.id][pal][0].Real_time = info[0].Real_time / 10
-					startup_times[test.id][pal][0].Memory = info[0].Memory / 10
+					startup_times[test.id][pal][0].System_time = math.Floor((info[0].System_time/10)*100) / 100
+					startup_times[test.id][pal][0].User_time = math.Floor((info[0].User_time/10)*100) / 100
+					startup_times[test.id][pal][0].Real_time = math.Floor((info[0].Real_time/10)*100) / 100
+					startup_times[test.id][pal][0].Memory = math.Floor((info[0].Memory/10)*100) / 100
 
 				}
 

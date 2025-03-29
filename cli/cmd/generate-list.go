@@ -308,9 +308,9 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			} else {
 				test_data.Memory = test_data.Memory / 1000
 				if starting_time != nil {
-					test_data.Real_time = math.Abs(test_data.Real_time - starting_time[test.id][Language_list[i].name][0].Real_time)
-					test_data.System_time = math.Abs(test_data.System_time - starting_time[test.id][Language_list[i].name][0].System_time)
-					test_data.User_time = math.Abs(test_data.User_time - starting_time[test.id][Language_list[i].name][0].User_time)
+					test_data.Real_time = test_data.Real_time - starting_time[test.id][Language_list[i].name][0].Real_time
+					test_data.System_time = test_data.System_time - starting_time[test.id][Language_list[i].name][0].System_time
+					test_data.User_time = test_data.User_time - starting_time[test.id][Language_list[i].name][0].User_time
 
 				}
 

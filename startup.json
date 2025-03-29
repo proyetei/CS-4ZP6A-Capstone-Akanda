@@ -3,37 +3,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.0012,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.020999999999999998,
-        "system_time": 0.019999999999999997
+        "memory": 49.86,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.9276,
-        "real_time": 0.10300000000000001,
-        "user_time": 0.037,
-        "system_time": 0.06200000000000001
+        "memory": 64.79,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.20919999999995,
-        "real_time": 0.841,
-        "user_time": 0.647,
-        "system_time": 0.18699999999999997
+        "memory": 243.38,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.47200000000004,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09299999999999999,
-        "system_time": 0.05600000000000001
+        "memory": 238.26,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -41,37 +41,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.0252,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.018,
-        "system_time": 0.022
+        "memory": 49.69,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 65.28399999999999,
-        "real_time": 0.10500000000000001,
-        "user_time": 0.03300000000000001,
-        "system_time": 0.06500000000000002
+        "memory": 64.69,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 244.26319999999996,
-        "real_time": 0.8400000000000001,
-        "user_time": 0.655,
-        "system_time": 0.17999999999999997
+        "memory": 242.9,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.94279999999998,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09299999999999999,
-        "system_time": 0.054000000000000006
+        "memory": 238.71,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -79,37 +79,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.4184,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.018999999999999996,
-        "system_time": 0.019999999999999997
+        "memory": 49.32,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 65.03920000000001,
-        "real_time": 0.10300000000000001,
-        "user_time": 0.038,
-        "system_time": 0.06200000000000001
+        "memory": 64.58,
+        "real_time": 0.06,
+        "user_time": 0.02,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.69359999999998,
-        "real_time": 0.844,
-        "user_time": 0.653,
-        "system_time": 0.187
+        "memory": 243.39,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.2576,
-        "real_time": 0.15099999999999997,
-        "user_time": 0.09499999999999999,
-        "system_time": 0.053000000000000005
+        "memory": 238.55,
+        "real_time": 0.08,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -117,37 +117,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.52839999999999,
-        "real_time": 0.039999999999999994,
-        "user_time": 0.013000000000000001,
-        "system_time": 0.018000000000000002
+        "memory": 49.16,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.4908,
-        "real_time": 0.10200000000000001,
-        "user_time": 0.033999999999999996,
-        "system_time": 0.06200000000000001
+        "memory": 64.85,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 244.65279999999998,
-        "real_time": 0.842,
-        "user_time": 0.655,
-        "system_time": 0.179
+        "memory": 243.25,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.25920000000002,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09299999999999999,
-        "system_time": 0.05500000000000001
+        "memory": 238.37,
+        "real_time": 0.08,
+        "user_time": 0.05,
+        "system_time": 0.02
       }
     ]
   },
@@ -155,37 +155,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.7812,
-        "real_time": 0.039999999999999994,
-        "user_time": 0.016000000000000004,
-        "system_time": 0.015
+        "memory": 48.98,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.73,
-        "real_time": 0.10699999999999998,
-        "user_time": 0.031999999999999994,
-        "system_time": 0.06800000000000002
+        "memory": 64.66,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.0432,
-        "real_time": 0.8400000000000001,
-        "user_time": 0.6519999999999999,
-        "system_time": 0.18599999999999997
+        "memory": 243.67,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.83599999999996,
-        "real_time": 0.15099999999999997,
-        "user_time": 0.09099999999999998,
-        "system_time": 0.05500000000000001
+        "memory": 237.37,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ]
   },
@@ -193,37 +193,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.32640000000001,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.019999999999999997,
-        "system_time": 0.019999999999999997
+        "memory": 49.52,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.9696,
-        "real_time": 0.10300000000000001,
-        "user_time": 0.031000000000000007,
-        "system_time": 0.06500000000000002
+        "memory": 65.15,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 244.12920000000003,
-        "real_time": 0.841,
-        "user_time": 0.649,
-        "system_time": 0.185
+        "memory": 243.27,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.22879999999995,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09499999999999999,
-        "system_time": 0.05500000000000001
+        "memory": 238.6,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ]
   },
@@ -231,37 +231,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.6996,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.020999999999999998,
-        "system_time": 0.018999999999999996
+        "memory": 50.29,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.7048,
-        "real_time": 0.10300000000000001,
-        "user_time": 0.03200000000000001,
-        "system_time": 0.06400000000000002
+        "memory": 64.62,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.2688,
-        "real_time": 0.845,
-        "user_time": 0.6469999999999999,
-        "system_time": 0.18999999999999997
+        "memory": 243.25,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.91879999999998,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09499999999999999,
-        "system_time": 0.051000000000000004
+        "memory": 236.79,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -269,37 +269,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.248400000000004,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.019999999999999997,
-        "system_time": 0.019999999999999997
+        "memory": 49.25,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0.01
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.82759999999999,
-        "real_time": 0.10200000000000001,
-        "user_time": 0.03600000000000001,
-        "system_time": 0.06200000000000001
+        "memory": 64.78,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 242.9196,
-        "real_time": 0.8399999999999999,
-        "user_time": 0.645,
-        "system_time": 0.192
+        "memory": 243.02,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.0292,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09199999999999998,
-        "system_time": 0.05500000000000001
+        "memory": 237.97,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.02
       }
     ]
   },
@@ -307,37 +307,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.0264,
-        "real_time": 0.039999999999999994,
-        "user_time": 0.013000000000000001,
-        "system_time": 0.018
+        "memory": 49.05,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.32159999999999,
-        "real_time": 0.09999999999999999,
-        "user_time": 0.033999999999999996,
-        "system_time": 0.06200000000000001
+        "memory": 64.46,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.3076,
-        "real_time": 0.842,
-        "user_time": 0.647,
-        "system_time": 0.18999999999999997
+        "memory": 243.63,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.454,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09599999999999999,
-        "system_time": 0.051000000000000004
+        "memory": 237.05,
+        "real_time": 0.08,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -345,37 +345,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 48.62760000000001,
-        "real_time": 0.039999999999999994,
-        "user_time": 0.015999999999999997,
-        "system_time": 0.017999999999999995
+        "memory": 49.76,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.5188,
-        "real_time": 0.101,
-        "user_time": 0.037,
-        "system_time": 0.06000000000000001
+        "memory": 64.76,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.41319999999996,
-        "real_time": 0.8419999999999999,
-        "user_time": 0.6490000000000001,
-        "system_time": 0.186
+        "memory": 243.69,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.3412,
-        "real_time": 0.15199999999999997,
-        "user_time": 0.09599999999999999,
-        "system_time": 0.051000000000000004
+        "memory": 238.52,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
       }
     ]
   },
@@ -383,37 +383,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.089999999999996,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.018999999999999996,
-        "system_time": 0.020999999999999998
+        "memory": 49.86,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.6932,
-        "real_time": 0.09999999999999999,
-        "user_time": 0.03599999999999999,
-        "system_time": 0.06200000000000001
+        "memory": 64.6,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.612,
-        "real_time": 0.843,
-        "user_time": 0.6540000000000001,
-        "system_time": 0.184
+        "memory": 243.21,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 236.92239999999998,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.08999999999999998,
-        "system_time": 0.05700000000000001
+        "memory": 237.93,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
       }
     ]
   },
@@ -421,37 +421,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.8036,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.019999999999999997,
-        "system_time": 0.020999999999999998
+        "memory": 49.75,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.65599999999999,
-        "real_time": 0.10200000000000001,
-        "user_time": 0.03899999999999999,
-        "system_time": 0.05900000000000001
+        "memory": 64.55,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.40680000000003,
-        "real_time": 0.8389999999999999,
-        "user_time": 0.6500000000000001,
-        "system_time": 0.18399999999999997
+        "memory": 243.03,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.9496,
-        "real_time": 0.15199999999999997,
-        "user_time": 0.09499999999999999,
-        "system_time": 0.05499999999999999
+        "memory": 237.58,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ]
   },
@@ -459,37 +459,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.6172,
-        "real_time": 0.051000000000000004,
-        "user_time": 0.019,
-        "system_time": 0.024
+        "memory": 50.2,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.87879999999998,
-        "real_time": 0.101,
-        "user_time": 0.03300000000000001,
-        "system_time": 0.06200000000000001
+        "memory": 65.05,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.9172,
-        "real_time": 0.8469999999999999,
-        "user_time": 0.649,
-        "system_time": 0.19199999999999998
+        "memory": 243.43,
+        "real_time": 0.54,
+        "user_time": 0.42,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.23600000000002,
-        "real_time": 0.15199999999999997,
-        "user_time": 0.09399999999999999,
-        "system_time": 0.053000000000000005
+        "memory": 238.48,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -497,37 +497,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.706,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.020999999999999998,
-        "system_time": 0.019999999999999997
+        "memory": 49.43,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.738,
-        "real_time": 0.101,
-        "user_time": 0.03599999999999999,
-        "system_time": 0.06300000000000001
+        "memory": 65.07,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 244.038,
-        "real_time": 0.8409999999999999,
-        "user_time": 0.651,
-        "system_time": 0.18399999999999997
+        "memory": 243.61,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.17680000000001,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09299999999999999,
-        "system_time": 0.05600000000000001
+        "memory": 238.21,
+        "real_time": 0.08,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -535,37 +535,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.217600000000004,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.020999999999999998,
-        "system_time": 0.018999999999999996
+        "memory": 49.17,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.9188,
-        "real_time": 0.101,
-        "user_time": 0.034,
-        "system_time": 0.06200000000000001
+        "memory": 64.59,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.39120000000003,
-        "real_time": 0.8400000000000001,
-        "user_time": 0.647,
-        "system_time": 0.18899999999999997
+        "memory": 243.52,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.29919999999998,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09299999999999999,
-        "system_time": 0.05600000000000001
+        "memory": 236.69,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
       }
     ]
   },
@@ -573,37 +573,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.68880000000001,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.020999999999999998,
-        "system_time": 0.019999999999999997
+        "memory": 49.55,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.7532,
-        "real_time": 0.101,
-        "user_time": 0.038,
-        "system_time": 0.06200000000000001
+        "memory": 64.53,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.63720000000004,
-        "real_time": 0.841,
-        "user_time": 0.6489999999999999,
-        "system_time": 0.18499999999999997
+        "memory": 243.37,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 238.13720000000004,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09499999999999999,
-        "system_time": 0.052000000000000005
+        "memory": 238.19,
+        "real_time": 0.08,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -611,37 +611,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.57039999999999,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.018999999999999996,
-        "system_time": 0.020999999999999998
+        "memory": 50.55,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.9296,
-        "real_time": 0.10200000000000001,
-        "user_time": 0.03500000000000001,
-        "system_time": 0.06100000000000001
+        "memory": 64.64,
+        "real_time": 0.06,
+        "user_time": 0.02,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.5096,
-        "real_time": 0.845,
-        "user_time": 0.645,
-        "system_time": 0.19299999999999998
+        "memory": 243.75,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 236.62800000000001,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09399999999999999,
-        "system_time": 0.051000000000000004
+        "memory": 237.92,
+        "real_time": 0.08,
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ]
   },
@@ -649,37 +649,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 186.3616,
-        "real_time": 2.047,
-        "user_time": 1.7399999999999998,
-        "system_time": 0.29799999999999993
+        "memory": 186.56,
+        "real_time": 1.19,
+        "user_time": 1.01,
+        "system_time": 0.17
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 123.26399999999998,
-        "real_time": 0.18999999999999997,
-        "user_time": 0.10200000000000001,
-        "system_time": 0.07799999999999999
+        "memory": 123.27,
+        "real_time": 0.11,
+        "user_time": 0.05,
+        "system_time": 0.05
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.02759999999998,
-        "real_time": 0.931,
-        "user_time": 0.734,
-        "system_time": 0.19299999999999998
+        "memory": 243.88,
+        "real_time": 0.59,
+        "user_time": 0.47,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.8576,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09299999999999999,
-        "system_time": 0.05299999999999999
+        "memory": 238.25,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ]
   },
@@ -687,37 +687,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.410399999999996,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.022,
-        "system_time": 0.018
+        "memory": 49.97,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.96000000000001,
-        "real_time": 0.10200000000000001,
-        "user_time": 0.034999999999999996,
-        "system_time": 0.06300000000000001
+        "memory": 64.42,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.5492,
-        "real_time": 0.843,
-        "user_time": 0.656,
-        "system_time": 0.18
+        "memory": 243.16,
+        "real_time": 0.53,
+        "user_time": 0.41,
+        "system_time": 0.11
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 236.46079999999998,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09499999999999999,
-        "system_time": 0.053000000000000005
+        "memory": 237.2,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -725,37 +725,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 50.605199999999996,
-        "real_time": 0.049999999999999996,
-        "user_time": 0.020999999999999998,
-        "system_time": 0.019999999999999997
+        "memory": 50.06,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.43679999999999,
-        "real_time": 0.10300000000000001,
-        "user_time": 0.034999999999999996,
-        "system_time": 0.06200000000000001
+        "memory": 64.51,
+        "real_time": 0.06,
+        "user_time": 0.02,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 242.76919999999996,
-        "real_time": 0.843,
-        "user_time": 0.65,
-        "system_time": 0.18899999999999997
+        "memory": 243.47,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.80640000000002,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.09399999999999999,
-        "system_time": 0.053000000000000005
+        "memory": 238.37,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   },
@@ -763,37 +763,37 @@
     "Agda": [
       {
         "size": 0,
-        "memory": 49.31679999999999,
-        "real_time": 0.039999999999999994,
-        "user_time": 0.012999999999999998,
-        "system_time": 0.019
+        "memory": 48.79,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Coq": [
       {
         "size": 0,
-        "memory": 64.2472,
-        "real_time": 0.09999999999999999,
-        "user_time": 0.03600000000000001,
-        "system_time": 0.06300000000000001
+        "memory": 64.41,
+        "real_time": 0.06,
+        "user_time": 0.01,
+        "system_time": 0.03
       }
     ],
     "Idris": [
       {
         "size": 0,
-        "memory": 243.26399999999998,
-        "real_time": 0.843,
-        "user_time": 0.6480000000000001,
-        "system_time": 0.19199999999999998
+        "memory": 243.39,
+        "real_time": 0.53,
+        "user_time": 0.42,
+        "system_time": 0.1
       }
     ],
     "Lean": [
       {
         "size": 0,
-        "memory": 237.73960000000002,
-        "real_time": 0.14999999999999997,
-        "user_time": 0.08999999999999998,
-        "system_time": 0.055999999999999994
+        "memory": 238.72,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
       }
     ]
   }
