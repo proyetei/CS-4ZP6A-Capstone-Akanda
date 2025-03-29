@@ -305,7 +305,7 @@ def index():
         x_values = [point["size"] for point in language_data["tests"]]
         # Using real_time values for error calculation; change to another metric if needed
         y_values = [point["real_time"] for point in language_data["tests"]]
-        errors.extend(get_error_messages(language_data, test_case["lower_bound"], test_case["interval"], x_values, y_values))
+        errors.extend(get_error_messages(language_data, test_case["interval"], test_case["lower_bound"], x_values, y_values))
 
 
     # Return a simple HTML page to display the images
