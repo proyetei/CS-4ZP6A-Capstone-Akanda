@@ -57,11 +57,18 @@ def plot_size_vs_real_time(test_case):
     test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(Real Time [s])"
+    else:
+        xlabel = "Size"
+        ylabel = "Real Time [s]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"Real Time Complexity for {test_case_name}")
-    plt.xlabel("Size")
-    plt.ylabel("Real Time (s)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
     # Set y-axis scale based on test case interval
 
@@ -105,11 +112,18 @@ def plot_size_vs_user_time(test_case):
     languages = test_case["languages"]
     # description = test_case["description"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(User Time [s])"
+    else:
+        xlabel = "Size"
+        ylabel = "User Time [s]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"User Time Complexity for {test_case_name} ")
-    plt.xlabel("Size")
-    plt.ylabel("User Time (s)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
 
     # Set y-axis scale based on test case interval
@@ -158,11 +172,18 @@ def plot_size_vs_system_time(test_case):
     languages = test_case["languages"]
     # description = test_case["description"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(System Time [s])"
+    else:
+        xlabel = "Size"
+        ylabel = "System Time [s]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"System Time Complexity for {test_case_name}")
-    plt.xlabel("Size")
-    plt.ylabel("System Time (s)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
     # Set y-axis scale based on test case interval
 
@@ -206,11 +227,18 @@ def plot_size_vs_memory(test_case):
     languages = test_case["languages"]
     # description = test_case["description"]
 
+    if test_case["interval"] == "log":
+        xlabel = "Log(Size)"
+        ylabel = "Log(Memory [MB])"
+    else:
+        xlabel = "Size"
+        ylabel = "Memory [MB]"
+
     # Create a new figure
     plt.figure(figsize=(7, 5))
     plt.title(f"Memory Usage for {test_case_name}")
-    plt.xlabel("Size")
-    plt.ylabel("Memory (MB)")
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
 
     # Set y-axis scale based on test case interval
 
