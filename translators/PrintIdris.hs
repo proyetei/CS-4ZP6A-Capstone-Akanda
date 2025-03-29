@@ -3,8 +3,6 @@ module PrintIdris (runIdris) where
 
 import Grammar
 
-imports = "import Data.Vect"
-
 printImport (ImportLib "Vec") = "import Data.Vect"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
@@ -81,6 +79,7 @@ printDef (DefRec name recType consName fields) =
     "\n" ++ name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields ++ "\n"
     
 printDef (OpenName _) = ""
+printDef (DefModule m) = printModule m
 -- Catch-all to prevent non-exhaustive errors
 printDef _ = error "Unhandled case in printDef"
 
@@ -88,20 +87,18 @@ printDef _ = error "Unhandled case in printDef"
 definedRecords :: [Definition]
 definedRecords = []
 
-
-
-printIdris :: Module -> String
-printIdris (Module name imports defs) =
+printModule :: Module -> String
+printModule (Module name imports defs) =
     let
         headers = "module Main\n" ++ unlines (map printImport imports)
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
 
-printIdris (File _ str) = str
+printModule (File _ str) = str
 
 runIdris :: Module -> IO()
 runIdris m = do
-    writeFile ("out/" ++ name ++ ".idr") $ printIdris m
+    writeFile ("out/" ++ name ++ ".idr") $ printModule m
         where
             name = case m of
                 Module n _ _ -> n

@@ -5,7 +5,7 @@ module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), 
 data Module = Module { mod :: Name, imports :: [Import], defs :: [Definition] } -- is there anything like 'module Main where' FEL?
         | File { fil :: Name, con :: String } -- this option is for empty files and other invalid programs
 
-data Import = ImportLib Lib   -- i feel like it doesn't make sense to define a universal import because libraries will be language-specific
+data Import = ImportLib Lib   
             | ImportFun Name Lib
 
 data Definition = DefFun Name (Maybe Type) [Arg] Expr
@@ -17,6 +17,7 @@ data Definition = DefFun Name (Maybe Type) [Arg] Expr
                 | DefRecType Name [Arg] Name [(Name,Type)] Type -- [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
                 | DefRec Name Type Name [(String, Expr)] -- record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
                 | OpenName Name --just for Lean, to refer to user-defined datatypes directly
+                | DefModule Module -- for nested modules
 
 data Type = Con Name -- type constructor
         | PCon Name [Type] -- parameterized type constructor

@@ -81,20 +81,21 @@ printDef recs (DefRec name recType consName fields) =
     recNamesList = [ rName | DefRecType rName _ _ _ _ <- recs ]
     openLine = if null recNamesList then "" else "open " ++ unwords recNamesList ++ "\n"
 printDef _ (OpenName n) = "open " ++ n
+printDef _ (DefModule m) = printModule m
 
 
-printLean :: Module -> String
-printLean (Module name imports defs) =
+printModule :: Module -> String
+printModule (Module name imports defs) =
     let
         headers = unlines (map printImport imports)
         recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
         body = foldl (\x y -> x ++ "\n" ++ printDef recs y) "" defs
     in headers ++ "\n" ++ body
-printLean (File _ str) = str
+printModule (File _ str) = str
 
 runLean :: Module -> IO()
 runLean m = do
-    writeFile ("out/" ++ name ++ ".lean") $ printLean m
+    writeFile ("out/" ++ name ++ ".lean") $ printModule m
   where 
     name = case m of 
            Module n _ _ -> n

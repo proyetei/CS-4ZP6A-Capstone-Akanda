@@ -1,11 +1,6 @@
 module PrintRocq (runRocq) where
 
 import Grammar
-    ( Arg(arg, ty, Arg),
-      Definition(DefNesFun, DefVar, DefFun, DefRecType, DefRec, DefDataType, DefPDataType, DefPatt, OpenName),
-      Expr(Constructor, FunCall, Var, Int, Bool, String, Mon, Bin, Let, If, Where, VecEmpty, VecCons, Paren, ListEmpty, ListCons),
-      Module(File, Module),
-      Type(Arr, Con, TVar, PCon, DCon, Suc, Index), Import (ImportLib, ImportFun) )
 import Data.Char
 import Data.List (isPrefixOf)
 
@@ -108,24 +103,25 @@ printDef (DefRec name recType consName fields) =
                       then consName ++ fieldsStr
                       else consName ++ " " ++ paramsStr ++ fieldsStr
 printDef (OpenName _) = ""
+printDef (DefModule m) = printModule m
 
 -- Store all defined records to check constructors
 definedRecords :: [Definition]
 definedRecords = []
 
 
-printRocq :: Module -> String
-printRocq (Module name imports defs) =
+printModule :: Module -> String
+printModule (Module name imports defs) =
     let
         headers = unlines (map printImport imports) ++ "\n\nModule " ++ name ++ ".\n" 
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 
-printRocq (File _ str) = str
+printModule (File _ str) = str
 
 runRocq :: Module -> IO()
 runRocq m = do
-    writeFile ("out/" ++ name ++ ".v") $ printRocq m
+    writeFile ("out/" ++ name ++ ".v") $ printModule m
         where
             name = case m of
                 Module n _ _ -> n
