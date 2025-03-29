@@ -6,9 +6,6 @@ printImport (ImportLib "Vec") = "import Init.Data.Vector"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
-printImport (ImportLib "Vec") = "import Init.Data.Vector"
-printImport (ImportLib _) = ""
-printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 -- Print types (unchanged)
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
