@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"regexp"
 	"slices"
+	"strings"
 	"syscall"
 	"time"
 
@@ -269,29 +270,14 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
 		time_str := `/usr/bin/time -o time.json --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
 		cmd_str := fmt.Sprintf("%s %s ./%s%s", time_str, Language_list[i].cmd, test.file_name, Language_list[i].file_extension)
-		cmd := exec.Command("bash", "-c", cmd_str)
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		cmd := exec.Command("timeout", "-v", "--signal=SIGINT", "110s", "bash", "-c", cmd_str)
+		// Could cause memory issues if output size is large
+		var outb, errb bytes.Buffer
+		cmd.Stdout = &outb
+		cmd.Stderr = &errb
+		err = cmd.Run()
 
-		cmdDone := make(chan cmdResult, 1)
-		go func() {
-			// Could cause memory issues if output size is large
-			var outb, errb bytes.Buffer
-			cmd.Stdout = &outb
-			cmd.Stderr = &errb
-			err = cmd.Run()
-			cmdDone <- cmdResult{outb, errb, err}
-			close(cmdDone)
-		}()
-
-		select {
-		case <-time.After(120 * time.Second):
-			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-			log.Println("Process killed, context deadline exceeded")
-			exit = "time"
-			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
-		case result := <-cmdDone:
-			final_result = result
-		}
+		final_result = cmdResult{outb, errb, err}
 		if exit_status[Language_list[i].name] == "OK" {
 			type_check_time = get_time()
 			matches := re.FindStringSubmatch(type_check_time)
@@ -324,8 +310,14 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 
 		}
 		if final_result.err != nil && test.id != 17 {
-			log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
-			exit = "memory"
+			if strings.Contains(final_result.errb.String(), "timeout") {
+				exit = "time"
+				log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
+			} else {
+				log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
+				exit = "memory"
+
+			}
 
 		}
 		exit_status[Language_list[i].name] = exit
