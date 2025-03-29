@@ -30,13 +30,13 @@ var generateRangeCmd = &cobra.Command{
 		testcase := rangeInputValidation(caseID)
 		data := dataTemplate(testcase)
 		dataMap := map[string][]Data{
-			"Coq":   {},
+			"Rocq":  {},
 			"Agda":  {},
 			"Idris": {},
 			"Lean":  {},
 		}
 		exit_status := map[string]string{
-			"Coq":   "OK",
+			"Rocq":  "OK",
 			"Agda":  "OK",
 			"Idris": "OK",
 			"Lean":  "OK",

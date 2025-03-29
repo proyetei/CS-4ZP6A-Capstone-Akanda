@@ -178,7 +178,7 @@ var Case_list = map[int]Testcase{
 
 var Language_list = []Language{
 	{
-		"Coq",
+		"Rocq",
 		".v",
 		"coqc",
 	},

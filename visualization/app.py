@@ -269,8 +269,7 @@ def generate_graphs(data):
     return graphs
 
 
-def get_error_messages(language_data, lower_bound, x_values, y_values):
-
+def get_error_messages(language_data, interval, lower_bound, x_values, y_values):
     errors = []
     if language_data["exit_status"] != "OK":
         if len(x_values) == 0:
@@ -280,6 +279,9 @@ def get_error_messages(language_data, lower_bound, x_values, y_values):
             max_size = max(x_values)
             index = x_values.index(max_size)
             y_value = y_values[index]
+        if interval == "log":
+            max_size = 2 ** max_size
+
             
         errors.append({
             "language": language_data["name"],
@@ -303,7 +305,7 @@ def index():
         x_values = [point["size"] for point in language_data["tests"]]
         # Using real_time values for error calculation; change to another metric if needed
         y_values = [point["real_time"] for point in language_data["tests"]]
-        errors.extend(get_error_messages(language_data, test_case["lower_bound"], x_values, y_values))
+        errors.extend(get_error_messages(language_data, test_case["lower_bound"], test_case["interval"], x_values, y_values))
 
 
     # Return a simple HTML page to display the images

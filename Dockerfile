@@ -42,6 +42,7 @@ WORKDIR /code
 COPY mhpgeez .
 COPY translator-folder/translators .
 COPY visualization/. .
+COPY startup.json .
 
 RUN chmod +x mhpgeez translators
 

@@ -32,13 +32,13 @@ var generateListCmd = &cobra.Command{
 		testcase := listInputValidation(caseID)
 		data := dataTemplate(testcase)
 		dataMap := map[string][]Data{
-			"Coq":   {},
+			"Rocq":  {},
 			"Agda":  {},
 			"Idris": {},
 			"Lean":  {},
 		}
 		exit_status := map[string]string{
-			"Coq":   "OK",
+			"Rocq":  "OK",
 			"Agda":  "OK",
 			"Idris": "OK",
 			"Lean":  "OK",
@@ -159,7 +159,7 @@ func dataTemplate(test Testcase) Overview {
 				LowerBound:  1,
 				Languages: []LanguageJSON{
 					{
-						Name:        "Coq",
+						Name:        "Rocq",
 						Tests:       []Data{},
 						Exit_status: "OK",
 					},
@@ -254,21 +254,24 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		log.Fatalln("Error changing directory:", err)
 	}
 
-	pattern := `(?s)"real_time": ([0-9]*\.[0-9]+), "user_time": ([0-9]*\.[0-9]+), "system_time": ([0-9]*\.[0-9]+), "memory": ([0-9]+)}`
+	pattern := `"real_time": ([0-9]*\.[0-9]+), "user_time": ([0-9]*\.[0-9]+), "system_time": ([0-9]*\.[0-9]+), "memory": ([0-9]+)}`
 	re := regexp.MustCompile(pattern)
 
 	for i := 0; i < len(Language_list); i++ {
 		var test_data Data
 		var final_result cmdResult
+		var type_check_time string
+		exit := "OK"
 		if exit_status[Language_list[i].name] != "OK" {
 			continue
 		}
 
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
-		time_str := `/usr/bin/time --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
-		cmd_str := time_str + Language_list[i].cmd + " ./" + test.file_name + Language_list[i].file_extension
+		time_str := `/usr/bin/time -o time.json --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
+		cmd_str := fmt.Sprintf("%s %s ./%s%s", time_str, Language_list[i].cmd, test.file_name, Language_list[i].file_extension)
 		cmd := exec.Command("bash", "-c", cmd_str)
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+		fmt.Println(cmd_str)
 
 		cmdDone := make(chan cmdResult, 1)
 		go func() {
@@ -285,13 +288,15 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		case <-time.After(120 * time.Second):
 			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 			log.Println("Process killed, context deadline exceeded")
-			exit_status[Language_list[i].name] = "time"
+			exit = "time"
 			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
 		case result := <-cmdDone:
 			final_result = result
 		}
 		if exit_status[Language_list[i].name] == "OK" {
-			matches := re.FindStringSubmatch(final_result.errb.String())
+			type_check_time = get_time()
+			fmt.Println(type_check_time)
+			matches := re.FindStringSubmatch(type_check_time)
 			if matches == nil {
 				log.Println("Could not record the space and time data")
 			}
@@ -302,9 +307,9 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			} else {
 				test_data.Memory = test_data.Memory / 1000
 				if starting_time != nil {
-					test_data.Real_time = test_data.Real_time - starting_time[test.id][Language_list[i].name][0].Real_time
-					test_data.System_time = test_data.System_time - starting_time[test.id][Language_list[i].name][0].System_time
-					test_data.User_time = test_data.User_time - starting_time[test.id][Language_list[i].name][0].User_time
+					test_data.Real_time = safe_time(test_data.Real_time, starting_time[test.id][Language_list[i].name][0].Real_time)
+					test_data.System_time = safe_time(test_data.System_time, starting_time[test.id][Language_list[i].name][0].System_time)
+					test_data.User_time = safe_time(test_data.User_time, starting_time[test.id][Language_list[i].name][0].User_time)
 
 				}
 
@@ -321,10 +326,11 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 
 		}
 		if final_result.err != nil && test.id != 17 {
-			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
-			exit_status[Language_list[i].name] = "memory"
+			log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
+			exit = "memory"
 
 		}
+		exit_status[Language_list[i].name] = exit
 
 	}
 	err = os.Chdir(originalDir)
@@ -340,6 +346,27 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 
 }
 
+func get_time() string {
+	dat, err := os.ReadFile("./time.json")
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
+		}
+		log.Fatalln("Could not read time file", err)
+
+	}
+	return string(dat)
+
+}
+func safe_time(type_check float64, start_time float64) float64 {
+	real_time := type_check - start_time
+	if real_time <= 0 {
+		return 0.01
+	} else {
+		return real_time
+	}
+
+}
 func loadAgdalib(test Testcase) {
 	log.Println("Type-checking the Agda file once to load the stdlib")
 	originalDir, err := os.Getwd()
