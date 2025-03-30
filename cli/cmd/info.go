@@ -185,7 +185,7 @@ var Language_list = []Language{
 	{
 		"Agda",
 		".agda",
-		"agda +RTS -M2.8G -RTS",
+		"agda +RTS -M3.0G -RTS",
 	},
 	{
 		"Idris",

@@ -6,7 +6,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: Select the testcase you would like to generate
+        description: Select the test case you would like to generate
         options: 
         - 1 [LetExample]
         - 2 [LetAddExample]
@@ -30,13 +30,20 @@ on:
         - 20 [IndicesParameters_Datatypes]
         - 21 [Pattern_Matching_Datatypes]
       size:
-        description: Select the size of the testcase (must be an integer value between 1 and 20)
+        description: Select the size of the test case (must be an integer value between 1 and 20)
         required: true
-      
 
 jobs:
+  set-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      docker_tag: ${{ steps.branch.outputs.tag }}
+    steps:
+      - id: branch
+        run: if [[ "${GITHUB_REF_NAME}" == "main" ]]; then echo "tag=latest" >> "$GITHUB_OUTPUT"; else echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"; fi
   generate-test:
     runs-on: ubuntu-latest
+    needs: set-tag
     container:
       image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
       credentials:
@@ -47,6 +54,7 @@ jobs:
         uses: actions/checkout@v2 
       - name: Run Test
         run: |
+          echo ${{needs.set-tag.outputs.docker_tag}}
           if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
           cd translators
           ghc -o main main.hs
@@ -57,13 +65,13 @@ jobs:
           cd out 
           GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
-          echo "${GREEN} Coq $file_name Output:"
+          echo -e "${GREEN} Coq $file_name Output:"
           coqc "$file_name.v"
-          echo "${GREEN} Lean $file_name Output:"
+          echo -e "${GREEN} Lean $file_name Output:"
           lean "$file_name.lean" 
-          echo "${GREEN} Idris $file_name Output:"
+          echo -e "${GREEN} Idris $file_name Output:"
           idris2 --check "$file_name.idr"
-          echo "${GREEN} Agda $file_name Output:"
+          echo -e "${GREEN} Agda $file_name Output:"
           agda "./$file_name.agda"
         shell: bash
       - name: Store generated files as artifacts

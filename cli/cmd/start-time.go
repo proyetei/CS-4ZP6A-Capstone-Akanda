@@ -3,8 +3,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
-	"math"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,14 +14,14 @@ var StartTimeCmd = &cobra.Command{
 	Use:   "startup-time",
 	Short: "Gets the startup time for each testcase and each language and returns a JSON file",
 	Run: func(cmd *cobra.Command, args []string) {
+		if !verbose {
+			log.SetOutput(io.Discard)
+		}
 		startup_times := make(map[int]map[string][]Data)
 
 		for _, test := range Case_list {
-			cumulative_times := make(map[int]map[string][]Data)
-			cumulative_times[test.id] = make(map[string][]Data)
 			startup_times[test.id] = make(map[string][]Data)
 			for _, lang := range Language_list {
-				cumulative_times[test.id][lang.name] = []Data{{0, 0, 0, 0, 0}}
 				startup_times[test.id][lang.name] = []Data{{0, 0, 0, 0, 0}}
 
 			}
@@ -45,22 +45,25 @@ var StartTimeCmd = &cobra.Command{
 				dataMap, _ = run_test(test, dataMap, exit_status, 0)
 				for language, data := range dataMap {
 					if len(data) != 0 {
-						cumulative_times[test.id][language][0].System_time += data[0].System_time
-						cumulative_times[test.id][language][0].Real_time += data[0].Real_time
-						cumulative_times[test.id][language][0].User_time += data[0].User_time
-						cumulative_times[test.id][language][0].Memory += data[0].Memory
+						if i == 0 {
+							startup_times[test.id][language][0].System_time = data[0].System_time
+							startup_times[test.id][language][0].Real_time = data[0].Real_time
+							startup_times[test.id][language][0].User_time = data[0].User_time
+
+						} else {
+							if data[0].System_time < startup_times[test.id][language][0].System_time {
+								startup_times[test.id][language][0].System_time = data[0].System_time
+							}
+							if data[0].User_time < startup_times[test.id][language][0].User_time {
+								startup_times[test.id][language][0].User_time = data[0].User_time
+							}
+							if data[0].Real_time < startup_times[test.id][language][0].Real_time {
+								startup_times[test.id][language][0].Real_time = data[0].Real_time
+							}
+
+						}
 
 					}
-
-				}
-
-			}
-			for pal, info := range cumulative_times[test.id] {
-				if len(info) != 0 {
-					startup_times[test.id][pal][0].System_time = math.Floor((info[0].System_time/10)*100) / 100
-					startup_times[test.id][pal][0].User_time = math.Floor((info[0].User_time/10)*100) / 100
-					startup_times[test.id][pal][0].Real_time = math.Floor((info[0].Real_time/10)*100) / 100
-					startup_times[test.id][pal][0].Memory = math.Floor((info[0].Memory/10)*100) / 100
 
 				}
 
@@ -100,5 +103,6 @@ var StartTimeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(StartTimeCmd)
+	StartTimeCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
 
 }
