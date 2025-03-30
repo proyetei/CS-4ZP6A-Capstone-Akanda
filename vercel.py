@@ -45,7 +45,7 @@ def delete_old_previews(token):
     
     active_previews = preview_count - deleted_preview
 
-    # if there are still more than 10 active preview deployments and delete the oldest ones until there are only 9 active deployments
+    # if there are still more than 15 active preview deployments and delete the oldest ones until there are only 14 active deployments
     while active_previews >= 15:
         time_differences = list(newer_previews.values())
         oldest_creation = max(time_differences)

@@ -1,0 +1,26 @@
+name: Startup-Time
+
+on:
+    workflow_dispatch:
+
+
+jobs:
+  startup-time:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
+      credentials:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    steps:
+      - name: Run Test
+        run: |
+          cd /code
+          touch startup.json
+          ./mhpgeez startup-time -v
+      - name: Store JSON file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: startup.json
+          path: /code/startup.json
+          retention-days: 2
