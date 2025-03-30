@@ -13,9 +13,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.54,
-        "user_time": 0.42,
-        "system_time": 0.11
+        "real_time": 0.44,
+        "user_time": 0.4,
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -23,8 +23,8 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.06,
-        "system_time": 0.03
+        "user_time": 0.05,
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -44,16 +44,16 @@
         "memory": 0,
         "real_time": 0.03,
         "user_time": 0.01,
-        "system_time": 0
+        "system_time": 0.01
       }
     ],
     "Idris": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.52,
+        "real_time": 0.44,
         "user_time": 0.4,
-        "system_time": 0.09
+        "system_time": 0.03
       }
     ],
     "Lean": [
@@ -61,8 +61,8 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
-        "system_time": 0.03
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -89,9 +89,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.55,
-        "user_time": 0.42,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -99,7 +99,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
+        "user_time": 0.06,
         "system_time": 0.02
       }
     ],
@@ -119,26 +119,26 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.03,
-        "user_time": 0.01,
-        "system_time": 0.01
+        "user_time": 0,
+        "system_time": 0
       }
     ],
     "Idris": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.54,
-        "user_time": 0.42,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.1,
+        "real_time": 0.09,
         "user_time": 0.06,
-        "system_time": 0.03
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -165,9 +165,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
-        "user_time": 0.42,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
       }
     ],
     "Lean": [
@@ -176,7 +176,7 @@
         "memory": 0,
         "real_time": 0.09,
         "user_time": 0.06,
-        "system_time": 0.03
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -195,7 +195,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.03,
-        "user_time": 0.01,
+        "user_time": 0,
         "system_time": 0.01
       }
     ],
@@ -203,9 +203,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.52,
-        "user_time": 0.39,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -214,7 +214,7 @@
         "memory": 0,
         "real_time": 0.09,
         "user_time": 0.05,
-        "system_time": 0.02
+        "system_time": 0.03
       }
     ],
     "Rocq": [
@@ -241,17 +241,17 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
-        "user_time": 0.41,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.09,
-        "user_time": 0.05,
+        "real_time": 0.1,
+        "user_time": 0.06,
         "system_time": 0.03
       }
     ],
@@ -279,9 +279,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.52,
+        "real_time": 0.44,
         "user_time": 0.4,
-        "system_time": 0.09
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -289,8 +289,8 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
-        "system_time": 0.02
+        "user_time": 0.06,
+        "system_time": 0.03
       }
     ],
     "Rocq": [
@@ -310,16 +310,16 @@
         "memory": 0,
         "real_time": 0.03,
         "user_time": 0,
-        "system_time": 0.01
+        "system_time": 0
       }
     ],
     "Idris": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
-        "user_time": 0.42,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
       }
     ],
     "Lean": [
@@ -327,8 +327,8 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
-        "system_time": 0.03
+        "user_time": 0.06,
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -355,9 +355,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.52,
-        "user_time": 0.4,
-        "system_time": 0.1
+        "real_time": 0.44,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -366,7 +366,7 @@
         "memory": 0,
         "real_time": 0.09,
         "user_time": 0.06,
-        "system_time": 0.03
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -393,9 +393,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
+        "real_time": 0.43,
         "user_time": 0.4,
-        "system_time": 0.1
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -404,7 +404,7 @@
         "memory": 0,
         "real_time": 0.09,
         "user_time": 0.05,
-        "system_time": 0.03
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -423,17 +423,17 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.03,
-        "user_time": 0,
-        "system_time": 0.01
+        "user_time": 0.01,
+        "system_time": 0
       }
     ],
     "Idris": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
+        "real_time": 0.43,
         "user_time": 0.4,
-        "system_time": 0.1
+        "system_time": 0.03
       }
     ],
     "Lean": [
@@ -462,23 +462,23 @@
         "memory": 0,
         "real_time": 0.03,
         "user_time": 0.01,
-        "system_time": 0
+        "system_time": 0.01
       }
     ],
     "Idris": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
-        "user_time": 0.41,
-        "system_time": 0.1
+        "real_time": 0.44,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.09,
+        "real_time": 0.1,
         "user_time": 0.06,
         "system_time": 0.03
       }
@@ -507,9 +507,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.51,
-        "user_time": 0.4,
-        "system_time": 0.09
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
       }
     ],
     "Lean": [
@@ -517,7 +517,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
+        "user_time": 0.06,
         "system_time": 0.03
       }
     ],
@@ -545,18 +545,18 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.56,
-        "user_time": 0.43,
-        "system_time": 0.11
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.1,
+        "real_time": 0.09,
         "user_time": 0.06,
-        "system_time": 0.03
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -575,7 +575,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.03,
-        "user_time": 0,
+        "user_time": 0.01,
         "system_time": 0.01
       }
     ],
@@ -583,18 +583,18 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.55,
-        "user_time": 0.43,
-        "system_time": 0.1
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.1,
-        "user_time": 0.06,
-        "system_time": 0.03
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -621,9 +621,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.53,
+        "real_time": 0.43,
         "user_time": 0.4,
-        "system_time": 0.11
+        "system_time": 0.02
       }
     ],
     "Lean": [
@@ -631,7 +631,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
+        "user_time": 0.06,
         "system_time": 0.03
       }
     ],
@@ -650,18 +650,18 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 1.28,
-        "user_time": 1.09,
-        "system_time": 0.16
+        "real_time": 1.37,
+        "user_time": 1.15,
+        "system_time": 0.17
       }
     ],
     "Idris": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.58,
-        "user_time": 0.46,
-        "system_time": 0.11
+        "real_time": 0.5,
+        "user_time": 0.44,
+        "system_time": 0.04
       }
     ],
     "Lean": [
@@ -669,7 +669,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
+        "user_time": 0.06,
         "system_time": 0.03
       }
     ],
@@ -697,18 +697,18 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.56,
-        "user_time": 0.43,
-        "system_time": 0.11
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.02
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.1,
+        "real_time": 0.09,
         "user_time": 0.06,
-        "system_time": 0.03
+        "system_time": 0.02
       }
     ],
     "Rocq": [
@@ -735,16 +735,16 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.54,
-        "user_time": 0.43,
-        "system_time": 0.11
+        "real_time": 0.44,
+        "user_time": 0.39,
+        "system_time": 0.02
       }
     ],
     "Lean": [
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.1,
+        "real_time": 0.09,
         "user_time": 0.06,
         "system_time": 0.03
       }
@@ -765,7 +765,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.03,
-        "user_time": 0.01,
+        "user_time": 0,
         "system_time": 0
       }
     ],
@@ -773,9 +773,9 @@
       {
         "size": 0,
         "memory": 0,
-        "real_time": 0.51,
+        "real_time": 0.43,
         "user_time": 0.39,
-        "system_time": 0.09
+        "system_time": 0.03
       }
     ],
     "Lean": [
@@ -783,7 +783,7 @@
         "size": 0,
         "memory": 0,
         "real_time": 0.09,
-        "user_time": 0.05,
+        "user_time": 0.06,
         "system_time": 0.03
       }
     ],

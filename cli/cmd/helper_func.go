@@ -243,7 +243,7 @@ func get_time() string {
 }
 func safe_time(type_check float64, start_time float64) float64 {
 	real_time := type_check - start_time
-	if real_time <= 0 {
+	if real_time < 0 {
 		log.Println("There is an artificial 0 at this point")
 		return 0
 	} else {
