@@ -48,7 +48,7 @@ def delete_old_previews(token):
     # if there are still more than 10 active preview deployments and delete the oldest ones until there are only 9 active deployments
     while active_previews >= 15:
         time_differences = list(newer_previews.values())
-        oldest_creation = max(time_difference)
+        oldest_creation = max(time_differences)
         deployment_id = list(newer_previews.keys())[time_differences.index(oldest_creation)]
         response = s.delete(api_url + "/v13/deployments/" + deployment_id)
         if response.status_code != 200:
