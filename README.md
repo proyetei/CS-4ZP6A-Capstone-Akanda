@@ -7,7 +7,7 @@
 - [Technology Stack](#ssTechnologyStack)
 - [Available Test Cases](#ssAvailableCases)
 - [How To Add Test Cases](#ssAddCases)
-- [CI](#ssCI)
+- [CI Workflows](#ssCIWorkflows)
 - [CLI](#ssCLI)
 - [Sources](#ssSources)
 
@@ -33,7 +33,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 - Haskell for building the translators, grammars, and the automated code generator creating test cases for each of the 4 proof assistants (Idris, Agda, Lean, Rocq)
 - Includes a CI/CD pipeline in GitHub Actions to run the tests using Go + Docker and generating JSON file with the benchmarking results
 - Flask + Python for the backend
-- HTML/CSS/JavaScript for frontend
+- HTML/Tailwind CSS/JavaScript for frontend
 - Vercel for deployment
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
@@ -310,7 +310,45 @@ N = let
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
-## CI <a id='ssCI'></a>
+### Extending MHPG
+
+### Extending CI Workflows
+
+### Extending CLI
+
+## CI Workflows <a id='ssCIWorkflows'></a>
+
+The CI implemented in github actions consists of 4 workflows (Build, Generate-List Testcases, Generate-Range Testcases, Tests). 
+
+### Build Workflow
+Allows users to build the CLI and the translator as well as creating and pushing the docker image. 
+
+<img src="images/build.png">
+
+### Generate-List Test Cases Workflow
+Allows users to generate and type check a selected test case at specific sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results. 
+
+<img src="images/generate-list.png">
+
+
+
+### Generate-Range Test Cases Workflow
+ Allows users to generate and type check a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results. 
+
+<img src="images/generate-range.png">
+
+
+
+### Tests Workflow
+Allows users to test the translator for a selected testcase at a size between 1 and 20.
+
+<img src="images/tests.png">
+
+**Things to add:** 
+- The tag of the dockerfile is based on the branch that is running the workflow, if it is the main branch the tag is set to "latest" otherwise it is set to the branch name
+- required inputs for each workflow + descriptions
+- Usage Instructions(i.e. Go to Actions Tab > Go to Build tab > Go to Run Workflow tab > Choose branch > Click Run Workflow) for each workflow???
+
 
 ## CLI <a id='ssCLI'></a>
 
@@ -325,4 +363,8 @@ N = let
 - https://dev.to/aws-builders/running-jobs-in-a-container-via-github-actions-securely-p0c
 - https://github.com/rishabkumar7/aws-devops-capstone-project/blob/main/.github/workflows/build-docker.yaml
 - https://goobar.dev/manually-triggering-github-actions-workflows/
-
+- https://forum.golangbridge.org/t/killing-child-process-on-timeout-in-go-code/995
+- https://stackoverflow.com/a/67752977
+- https://jarv.org/posts/command-with-timeout/
+- https://qmacro.org/blog/posts/2021/03/26/mass-deletion-of-github-actions-workflow-runs/
+- https://github.com/orgs/community/discussions/25725

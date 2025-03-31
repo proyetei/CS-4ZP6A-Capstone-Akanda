@@ -1,0 +1,800 @@
+{
+  "1": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.44,
+        "user_time": 0.4,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "10": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.44,
+        "user_time": 0.4,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "11": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "12": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "13": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "14": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "15": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.1,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "16": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.44,
+        "user_time": 0.4,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "17": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "18": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.44,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "19": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "2": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "20": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.44,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.1,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "21": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "3": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "4": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.05,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "5": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "6": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 1.37,
+        "user_time": 1.15,
+        "system_time": 0.17
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.5,
+        "user_time": 0.44,
+        "system_time": 0.04
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "7": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.4,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.02
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "8": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0.01,
+        "system_time": 0.01
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.44,
+        "user_time": 0.39,
+        "system_time": 0.02
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  },
+  "9": {
+    "Agda": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.03,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ],
+    "Idris": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.43,
+        "user_time": 0.39,
+        "system_time": 0.03
+      }
+    ],
+    "Lean": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0.09,
+        "user_time": 0.06,
+        "system_time": 0.03
+      }
+    ],
+    "Rocq": [
+      {
+        "size": 0,
+        "memory": 0,
+        "real_time": 0,
+        "user_time": 0,
+        "system_time": 0
+      }
+    ]
+  }
+}

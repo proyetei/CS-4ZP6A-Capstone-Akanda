@@ -1,4 +1,4 @@
-name: Generate-Range Testcases
+name: Generate-Range Test Cases
 
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -10,7 +10,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: Select the testcase you would like to generate
+        description: Select the test case you would like to generate
         options: 
           - 1 [LetExample]
           - 2 [LetAddExample]
@@ -33,7 +33,7 @@ on:
           - 20 [IndicesParameters_Datatypes]
           - 21 [Pattern_Matching_Datatypes]
       lower_bound:
-        description: Select a lower bound (integer value between 1 and upper_bound)
+        description: Select a lower bound (integer value between 1 and upper bound)
         required: true
       upper_bound:
         description: Select an upper bound (integer value greater than 1)
@@ -67,7 +67,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-range -v -w=false -t $testcase -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }} -d ${{ github.event.inputs.datapoints }}
+          ./mhpgeez generate-range -v -w=false -t $testcase -m 8 -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }} -d ${{ github.event.inputs.datapoints }}
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -106,7 +106,7 @@ jobs:
               python -m pip install --upgrade pip
               pip install requests
 
-        - name: Checking a secret
+        - name: Removing old preview deployments
           run: python vercel.py --token=${{ secrets.VERCEL_TOKEN }}
         
         - name: Install Vercel CLI

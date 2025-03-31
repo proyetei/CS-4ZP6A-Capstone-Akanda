@@ -1,4 +1,4 @@
-name: Generate-List Testcases
+name: Generate-List Test Cases
 
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -10,7 +10,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: Select the testcase you would like to generate
+        description: Select the test case you would like to generate
         options: 
           - 1 [LetExample]
           - 2 [LetAddExample]
@@ -53,7 +53,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }}
+          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }} -m 8
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:

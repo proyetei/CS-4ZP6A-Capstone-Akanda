@@ -3,7 +3,10 @@ module PrintIdris (runIdris) where
 
 import Grammar
 
-imports = "import Data.Vect"
+printImport (ImportLib "Vec") = "import Data.Vect"
+printImport (ImportLib _) = ""
+printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
+
 datatype = "Type"
 
 printType (Con t) = t
@@ -11,6 +14,8 @@ printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
 printType (PCon "Vec" [Con baseType, size]) = "Vect " ++ printType size ++ " " ++ baseType
 printType (PCon name types) = name ++ " " ++ unwords (map printType types)
+printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
+    name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")"
@@ -23,7 +28,7 @@ printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
 printExpr (String str) = str
-printExpr (Paren e) = "(" ++ printExpr e ++ ") "
+printExpr (Paren e) = "(" ++ printExpr e ++ ")"
 printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
 printExpr (Bin op e1 e2) = printExpr e1 ++ " "  ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
@@ -61,35 +66,20 @@ printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty +
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\(x, y) z -> "(" ++ x ++ " : " ++ printType y ++ ") -> " ++ z) (printType ty) params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ unwords (map (\(p, _) -> p ++ " ->") params) ++ printType t) cons) ++ "\n"
 
 -- Record Defn
-printDef (DefRecType name maybeParams maybeConName fields _) =
+printDef (DefRecType name params consName fields _) =
     "record " ++ name ++ paramsStr ++ " where\n    constructor " ++ consName ++ "\n" ++
     unlines (map (\(fname, ftype) -> "    " ++ fname ++ " : " ++ printType ftype) fields)
   where
-    consName = case maybeConName of
-                 Just conName -> conName
-                 Nothing -> "Const"  -- Default constructor name if not provided
-    paramsStr = case maybeParams of
-                  Just args -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") args)
-                  Nothing   -> ""
+    paramsStr = case params of
+        [] -> ""
+        _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
 
-printDef (InitRec name recType maybeConsName fields) =
-    name ++ " : " ++ recType ++ 
+printDef (DefRec name recType consName fields) =
+    name ++ " : " ++ printType recType ++ 
     "\n" ++ name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields ++ "\n"
-  where
-    consName = case maybeConsName of
-        Just c -> c
-        Nothing -> case
-            lookupConstructor recType of
-            Just conName -> conName  -- Constructor Provided
-            Nothing -> "Const"  -- Default to `Const` if no constructor is provided
-
-    -- Lookup the constructor from defined records
-    lookupConstructor :: String -> Maybe String
-    lookupConstructor recType =
-        case [c | DefRecType rName _ (Just c) _ _ <- definedRecords, rName == recType] of
-            (c:_) -> Just c
-            _ -> Nothing
+    
 printDef (OpenName _) = ""
+printDef (DefModule m) = printModule m
 -- Catch-all to prevent non-exhaustive errors
 printDef _ = error "Unhandled case in printDef"
 
@@ -97,21 +87,19 @@ printDef _ = error "Unhandled case in printDef"
 definedRecords :: [Definition]
 definedRecords = []
 
-
-
-printIdris :: Module -> String
-printIdris (Module name defs) =
+printModule :: Module -> String
+printModule (Module name imports defs) =
     let
-        headers = "module Main\n" ++ imports
+        headers = "module Main\n" ++ unlines (map printImport imports)
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
 
-printIdris (File _ str) = str
+printModule (File _ str) = str
 
 runIdris :: Module -> IO()
 runIdris m = do
-    writeFile ("out/" ++ name ++ ".idr") $ printIdris m
+    writeFile ("out/" ++ name ++ ".idr") $ printModule m
         where
             name = case m of
-                Module n _ -> n
+                Module n _ _ -> n
                 File n _ -> n
