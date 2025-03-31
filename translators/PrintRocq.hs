@@ -20,7 +20,7 @@ printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")" --
-printType (Index names ty) = "forall {" ++ unwords names ++ " : " ++ printType ty ++ "}"
+printType (Index names ty) = "forall {" ++ map toLower (unwords names) ++ " : " ++ printType ty ++ "}"
 printReturnType (Con t) = map toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
 printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"

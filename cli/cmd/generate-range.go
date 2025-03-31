@@ -26,16 +26,18 @@ var generateRangeCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
+		set_agda_memory()
+		starting_time = startupTimes()
 		testcase := rangeInputValidation(caseID)
 		data := dataTemplate(testcase)
 		dataMap := map[string][]Data{
-			"Coq":   {},
+			"Rocq":  {},
 			"Agda":  {},
 			"Idris": {},
 			"Lean":  {},
 		}
 		exit_status := map[string]string{
-			"Coq":   "OK",
+			"Rocq":  "OK",
 			"Agda":  "OK",
 			"Idris": "OK",
 			"Lean":  "OK",
@@ -57,7 +59,7 @@ var generateRangeCmd = &cobra.Command{
 		data.Testcases[0].Interval = interval
 
 		for i <= upperBound {
-			if point > num_points {
+			if point > num_points || active_languages == 0 {
 				break
 			}
 			log.Printf("datapoint %d out of %d\n", point, num_points)
@@ -86,14 +88,18 @@ var generateRangeCmd = &cobra.Command{
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error marshalling json data", err)
 		}
 
 		log.Println("Creating JSON file")
 		file, err := os.Create("data.json")
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error creating json file:", err)
 		}
 		defer file.Close()
@@ -101,7 +107,9 @@ var generateRangeCmd = &cobra.Command{
 		log.Println("Writing data to JSON file")
 		_, err = file.Write(json_data)
 		if err != nil {
-			fmt.Println(StdMsg)
+			if !verbose {
+				fmt.Println(StdMsg)
+			}
 			log.Fatalln("Error writing to json file:", err)
 
 		}
@@ -139,6 +147,11 @@ func rangeInputValidation(input int) Testcase {
 		fmt.Printf("Please provide a valid interval. Options are: %v\n", steps)
 		os.Exit(1)
 	}
+	if agda_memory < 1 || agda_memory > 10 {
+		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 10GB \n")
+		os.Exit(1)
+
+	}
 
 	return testcase
 
@@ -153,5 +166,6 @@ func init() {
 	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "the number of generated datapoints")
 	generateRangeCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "generates webpage with graph visualizations")
 	generateRangeCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
+	generateRangeCmd.PersistentFlags().IntVarP(&agda_memory, "agda-memory", "m", 3, "Setting the maximum heap size for Agda programs in GB")
 
 }

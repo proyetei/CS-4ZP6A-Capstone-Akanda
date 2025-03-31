@@ -1,4 +1,4 @@
-name: Generate-List Testcases
+name: Generate-List Test Cases
 
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -10,7 +10,7 @@ on:
       testcase:
         type: choice
         required: true
-        description: Select the testcase you would like to generate
+        description: Select the test case you would like to generate
         options: 
           - 1 [LetExample]
           - 2 [LetAddExample]
@@ -39,13 +39,18 @@ on:
       
 
 jobs:
+  set-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      docker_tag: ${{ steps.branch.outputs.tag }}
+    steps:
+      - id: branch
+        run: if [[ "${GITHUB_REF_NAME}" == "main" ]]; then echo "tag=latest" >> "$GITHUB_OUTPUT"; else echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"; fi
   generate-list:
     runs-on: ubuntu-latest
+    needs: set-tag
     container:
-      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
-      credentials:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:${{needs.set-tag.outputs.docker_tag}}
     steps:
       - name: Run Test
         run: |
@@ -53,7 +58,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }}
+          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }} -m 8
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:

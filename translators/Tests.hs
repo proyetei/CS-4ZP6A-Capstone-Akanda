@@ -244,11 +244,11 @@ _tests =
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         let
             iszero 0 = []
-            iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
+            iszero _ =  [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
         in Module "ConstructorsParameters_Datatypes" [] $ iszero n
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         iszero 0 = []
-        iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (Con "D"))) [1 .. n]) (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\k -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -259,7 +259,7 @@ _tests =
        in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
-        iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("p" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))] (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -272,9 +272,9 @@ _tests =
     let 
         iszero 0 = []
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
-                OpenName "D",
-                DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]),
-                DefVar "N" (Just $ Con "Nat") (genCall n)]
+          OpenName "D",
+          DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]),
+          DefVar "N" (Just $ Con "Nat") (genCall n)]
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
     in

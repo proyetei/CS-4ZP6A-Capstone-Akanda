@@ -42,10 +42,11 @@ WORKDIR /code
 COPY mhpgeez .
 COPY translator-folder/translators .
 COPY visualization/. .
+COPY startup.json .
 
 RUN chmod +x mhpgeez translators
 
 
 
 
-ENTRYPOINT ["/bin/bash", "-c", "tail -f /dev/null"]
+ENTRYPOINT ["/code/mhpgeez"]
