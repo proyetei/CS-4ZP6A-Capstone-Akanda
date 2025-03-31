@@ -352,6 +352,11 @@ Allows users to test the translator for a selected testcase at a size between 1 
 
 ## CLI <a id='ssCLI'></a>
 
+### Local Installation Instructions
+1. Install Docker https://docs.docker.com/engine/install/
+2. Pull Docker image `docker pull mhpgeez/mhpg`
+3. For CLI instructions run the Docker container using the following command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest help`
+4. CLI example Run: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v `
 
 ## Sources <a id='ssSources'></a>
 - https://www.youtube.com/watch?v=U7TY_qUD8yA
