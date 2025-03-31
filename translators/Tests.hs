@@ -255,7 +255,7 @@ _tests =
        in Module "IndicesConstructors_Datatypes"  $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
-        iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("p" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))] (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
