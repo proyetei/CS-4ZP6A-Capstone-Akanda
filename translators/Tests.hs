@@ -244,7 +244,7 @@ _tests =
         Module "ConstructorsParameters_Datatypes" [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) (Con "Type")]
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         iszero 0 = []
-        iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (Con "D"))) [1 .. n]) (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\k -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
@@ -252,7 +252,7 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndexName m : genIndex (m-1)
-       in Module "IndicesConstructors_Datatypes" [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (Con "D"))) [1 .. n]) (Arr (genType n) (Con "Type"))]
+       in Module "IndicesConstructors_Datatypes"  $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
         iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" (map (\i -> Con ("p" ++ show i))  [1 .. n])))] (Arr (genType n) (Con "Type"))]
