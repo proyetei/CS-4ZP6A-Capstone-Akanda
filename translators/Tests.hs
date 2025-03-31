@@ -147,7 +147,8 @@ _tests =
     -- Generate a file with n newlines where n = user input
     newlines = replicate n '\n'
     in File "NewlineFile" newlines -- Use the file constructor defined in Grammar.hs
-    , \n -> let -- 10
+
+    , \n -> let -- 10 Description: A record declaration with N independent fields
         iszero 0 = []
         iszero _ = [xDef,exampleInit]
         -- Generate field definitions dynamically
@@ -161,7 +162,8 @@ _tests =
         -- Define the example initialization
         exampleInit = DefRec "example" (Con "X") "Const" (genExample n) 
     in Module "Fields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
-    , \n -> let -- 11
+    
+    , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
         iszero 0 = []
         iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
