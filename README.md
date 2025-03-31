@@ -310,6 +310,10 @@ N = let
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
+### Writing Dynamic Test Cases in MHPG
+
+
+
 ### Extending MHPG
 
 ### Extending CI Workflows
