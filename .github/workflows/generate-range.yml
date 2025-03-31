@@ -53,13 +53,18 @@ on:
       
 
 jobs:
+  set-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      docker_tag: ${{ steps.branch.outputs.tag }}
+    steps:
+      - id: branch
+        run: if [[ "${GITHUB_REF_NAME}" == "main" ]]; then echo "tag=latest" >> "$GITHUB_OUTPUT"; else echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"; fi
   generate-range:
     runs-on: ubuntu-latest
+    needs: set-tag
     container:
-      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
-      credentials:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:${{needs.set-tag.outputs.docker_tag}}
     steps:
       - name: Run Test
         run: |

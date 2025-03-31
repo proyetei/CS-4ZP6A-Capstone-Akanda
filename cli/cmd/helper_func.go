@@ -162,7 +162,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
 		time_str := `/usr/bin/time -o time.json --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
 		cmd_str := fmt.Sprintf("%s %s ./%s%s", time_str, Language_list[i].cmd, test.file_name, Language_list[i].file_extension)
-		cmd := exec.Command("timeout", "-v", "--signal=SIGINT", "110s", "bash", "-c", cmd_str)
+		cmd := exec.Command("timeout", "-v", "--signal=SIGINT", "120s", "bash", "-c", cmd_str)
 		// Could cause memory issues if output size is large
 		var outb, errb bytes.Buffer
 		cmd.Stdout = &outb
