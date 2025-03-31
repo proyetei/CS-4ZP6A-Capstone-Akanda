@@ -24,6 +24,7 @@ on:
           - 10 [Fields_NonDependentRecordModule]
           - 11 [ChainDefFields_NonDependentRecordModule]
           - 12 [Constructors_Datatypes]
+          - 13 [Parameters_Datatypes]
           - 14 [FirstLast_VariableModule]
           - 15 [DeepDependency_VariableModule]
           - 16 [DataImplicitIndices]
