@@ -82,10 +82,10 @@ _tests =
         buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))
 
         -- Define the record structure
-        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type")
+        xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type")
 
         -- Define the example initialization
-        exampleInit = DefRec "example" (Con "X") "Const" (genExample n)
+        exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
 
         in Module "Fields_DependentRecordModule" [ImportLib "Nat", ImportLib "Vec"] $ iszero n
 

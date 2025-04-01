@@ -9,8 +9,8 @@ printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
 
 printType (Con "Type") = "Type"
-printType (Con t) =
-  (if "Record" `isPrefixOf` t then t else (map toLower t)) --Rec type should stay cap
+printType (Con "Record") = "Record"
+printType (Con t) = if "Cap_" `isPrefixOf` t then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
 --printType (Con t) = map toLower t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
