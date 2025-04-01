@@ -113,7 +113,7 @@ var Case_list = map[int]Testcase{
 		11,
 		"A very long chain (N) of independent record definitions",
 		"ChainDefFields_NonDependentRecordModule",
-		5000,
+		20000,
 	},
 	12: {
 		12,
