@@ -196,7 +196,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Constructors_Datatypes (ID = 12)</td>
+        <td>Constructors_Datatypes (ID = 12)<br>defines a datatype with N simple constructors</td>
         <td>
             <pre><code>data d : Set where
  c1 : d 
@@ -205,7 +205,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Parameters_Datatypes (ID = 13)</td>
+        <td>Parameters_Datatypes (ID = 13)<br>defines a datatype with a single constructor accepting N parameters</td>
         <td>
             <pre><code>data d (p1: Type)  (p2: Type)  (p3: Type) : Set where
  c : d p1 p2 p3</code></pre>
@@ -274,19 +274,21 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, all needed for N constructors</td>
+        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, with N constructors that each use a different number of indices</td>
         <td>
-            <pre><code>data D : Nat -> Nat -> Nat -> Set where
- C1 : {X1 : Nat} -> D 
- C2 : {X2 X1 : Nat} -> D 
- C3 : {X3 X2 X1 : Nat} -> D</code></pre>
+            <pre><code>data D : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
+ C1 : {X1 : Nat} -> D X1 0 0 0 0 
+ C2 : {X2 X1 : Nat} -> D X1 X2 0 0 0 
+ C3 : {X3 X2 X1 : Nat} -> D X1 X2 X3 0 0 
+ C4 : {X4 X3 X2 X1 : Nat} -> D X1 X2 X3 X4 0 
+ C5 : {X5 X4 X3 X2 X1 : Nat} -> D X1 X2 X3 X4 X5 </code></pre>
         </td>
     </tr>
     <tr>
         <td>IndicesParameters_Datatypes (ID = 20)<br>A single datatype where N represents the number of 'Type' parameters as well as the number of indices</td>
         <td>
-            <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
- C : {X3 X2 X1 : Nat} -> D P1 P2 P3</code></pre>
+            <pre><code>data D (p1 : Set)  (p2 : Set)  (p3 : Set)  : Nat -> Nat -> Nat -> Set where
+ C : {X3 X2 X1 : Nat} -> D p1 p2 p3 X1 X2 X3</code></pre>
         </td>
     </tr>
     <tr>
