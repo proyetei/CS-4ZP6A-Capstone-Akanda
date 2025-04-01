@@ -45,11 +45,11 @@ jobs:
         run: |
           if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
           cd translators
-          ghc -o main main.hs
-          chmod +x main
+          ghc -o translators main.hs
+          chmod +x translators
           mkdir out
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
-          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./main
+          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./translators
           cd out 
           GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
