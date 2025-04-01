@@ -134,8 +134,7 @@ func translateTest(test Testcase, operations int) {
 
 }
 
-func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, operations int) (map[string][]Data, map[string]string, int) {
-	exit_point := -1
+func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, exit_point map[string]int, operations int) (map[string][]Data, map[string]string, map[string]int) {
 	originalDir, err := os.Getwd()
 	if err != nil {
 		if !verbose {
@@ -184,14 +183,14 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 			log.Println("Process killed, context deadline exceeded")
 			exit_status[Language_list[i].name] = "time"
-			exit_point = operations
+			exit_point[Language_list[i].name] = operations
 			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
 		case result := <-cmdDone:
 			final_result = result
 		}
 
 		if final_result.err != nil && test.id != 17 {
-			exit_point = operations
+			exit_point[Language_list[i].name] = operations
 			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
 			exit_status[Language_list[i].name] = "memory"
 

@@ -41,8 +41,14 @@ var StartTimeCmd = &cobra.Command{
 					"Idris": "OK",
 					"Lean":  "OK",
 				}
+				exit_point := map[string]int{
+					"Rocq":  -1,
+					"Agda":  -1,
+					"Idris": -1,
+					"Lean":  -1,
+				}
 
-				dataMap, _, _ = run_test(test, dataMap, exit_status, 0)
+				dataMap, _, _ = run_test(test, dataMap, exit_status, exit_point, 0)
 				for language, data := range dataMap {
 					if len(data) != 0 {
 						if i == 0 {
