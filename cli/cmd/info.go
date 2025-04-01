@@ -31,6 +31,7 @@ type LanguageJSON struct {
 	Name        string `json:"name"`
 	Tests       []Data `json:"tests"`
 	Exit_status string `json:"exit_status"`
+	Exit_point  int    `json:"exit_point"`
 }
 
 type Data struct {
@@ -104,13 +105,13 @@ var Case_list = map[int]Testcase{
 	},
 	10: {
 		10,
-		"<TODO>",
+		"A record declaration with N independent fields",
 		"Fields_NonDependentRecordModule",
 		5000,
 	},
 	11: {
 		11,
-		"<TODO>",
+		"Generate a very long chain (N) of independent record definitions",
 		"ChainDefFields_NonDependentRecordModule",
 		5000,
 	},
@@ -122,7 +123,7 @@ var Case_list = map[int]Testcase{
 	},
 	13: {
 		13,
-		"<TODO>",
+		"creates a datatype with a single constructor accepting N parameters",
 		"Parameters_Datatypes",
 		5000,
 	},

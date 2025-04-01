@@ -21,6 +21,7 @@ var generateListCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
+		var exit_point int
 		set_agda_memory()
 		starting_time = startupTimes()
 		testcase := listInputValidation(caseID)
@@ -37,7 +38,7 @@ var generateListCmd = &cobra.Command{
 			"Idris": "OK",
 			"Lean":  "OK",
 		}
-
+		datapoints = remove_duplicate_int(datapoints)
 		slices.Sort(datapoints)
 		data.Testcases[0].LowerBound = datapoints[0]
 		for i := 0; i < len(datapoints); i++ {
@@ -49,11 +50,12 @@ var generateListCmd = &cobra.Command{
 			if i == 0 {
 				loadAgdalib(testcase)
 			}
-			dataMap, exit_status = run_test(testcase, dataMap, exit_status, datapoints[i])
+			dataMap, exit_status, exit_point = run_test(testcase, dataMap, exit_status, datapoints[i])
 		}
 		for j := 0; j < len(data.Testcases[0].Languages); j++ {
 			data.Testcases[0].Languages[j].Tests = append(data.Testcases[0].Languages[j].Tests, dataMap[data.Testcases[0].Languages[j].Name]...)
 			data.Testcases[0].Languages[j].Exit_status = exit_status[data.Testcases[0].Languages[j].Name]
+			data.Testcases[0].Languages[j].Exit_point = exit_point
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {

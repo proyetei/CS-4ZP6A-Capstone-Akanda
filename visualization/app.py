@@ -26,6 +26,8 @@ except FileNotFoundError:
     print(f"Error: The file {json_path} does not exist. Please ensure 'data.json' is in the correct location.")
     exit(1)
 
+# Setting colors for each language
+colors = {"Rocq": "blue", "Agda": "orange", "Lean": "purple", "Idris":"green"}
 
 # METHOD CHECK EXIT STATUS LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
 
@@ -44,6 +46,44 @@ def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
         else:
             plt.plot(max_size, y_value, marker='x', markersize=12, color='blue', markeredgewidth=2)
 
+def plotArtificialZeros(plt, artificial_zero_x, artificial_zero):
+    for i in range(0, len(artificial_zero_x)):
+        plt.plot(artificial_zero_x[i], artificial_zero, marker='s', markersize=8, color='cyan', markeredgewidth=1.5)
+
+def get_label_position(plt, end_y_values):
+    min_y, max_y = plt.ylim()
+    ratio_denominator = max_y - min_y
+    label_positions = {}
+    last_position = 0
+    ratio_dict = {key: (value - min_y) / ratio_denominator for key, value in end_y_values.items()}
+    ratio_dict_sorted = {k: v for k, v in sorted(ratio_dict.items(), key=lambda item: item[1], reverse=False)}
+    for i, (key, value) in enumerate(ratio_dict_sorted.items()):
+        if i == 0:
+            label_positions[key] = value
+            last_position = value
+        else:
+            difference = value - last_position
+            if  difference < 0.03:
+                offset = 0.04 - difference
+                label_positions[key] = value + offset
+                last_position = value + offset
+            else:
+                label_positions[key] = value
+                last_position = value
+
+
+    return label_positions
+
+    
+
+def adding_annotations(plt, all_points, field, lower_bound, end_values):
+    label_positions = get_label_position(plt, end_values)
+    print(field)
+    for language_data in all_points:
+        language = language_data["name"]
+        plt.text(1.01, label_positions[language], language, color = colors[language], transform=plt.gca().transAxes)
+
+
 
 # Function to plot size vs real time
 def plot_size_vs_real_time(test_case):
@@ -54,9 +94,11 @@ def plot_size_vs_real_time(test_case):
     if test_case["interval"] == "log":
         xlabel = "Log(Size)"
         ylabel = "Log(Real Time [s])"
+        artificial_zero = -6.64
     else:
         xlabel = "Size"
         ylabel = "Real Time [s]"
+        artificial_zero = 0
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
@@ -66,22 +108,36 @@ def plot_size_vs_real_time(test_case):
 
     # Set y-axis scale based on test case interval
 
+    max_y_values = {}
     # Plot each language's data for real time complexity vs size
     for language_data in languages:
+        artificial_zero_x = []
         language = language_data["name"]
         points = language_data["tests"] 
         x_values = [point["size"] for point in points] 
         real_time_values = [point["real_time"] for point in points] 
-
-        # To avoid confusion with the red marker, change leans pointer to purple
-        color = 'purple' if language == "Lean" else None
         
+        if len(x_values) == 0:
+            max_y_values[language] = 0
+        else:
+            end_value = real_time_values[x_values.index(max(x_values))]
+            if end_value == -10:
+                max_y_values[language] = 0
+            else:
+                max_y_values[language] = end_value
+
+        for i in range(0, len(real_time_values)):
+            if real_time_values[i] == -10:
+                real_time_values[i] = 0
+                artificial_zero_x += [x_values[i]]
         # Plot real time complexity marked by solid line and o
-        plt.plot(x_values, real_time_values, marker='o', label=f'{language} - Real Time', color = color)
+        plt.plot(x_values, real_time_values, marker='o', label=f'{language} - Real Time', color = colors[language])
+        plotArtificialZeros(plt, artificial_zero_x, artificial_zero)
 
         # Call exit status marker
         checkExitStatus(plt, language_data, test_case_lower, x_values, real_time_values)
     
+    adding_annotations(plt, languages, "real_time", test_case_lower, max_y_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
@@ -109,9 +165,11 @@ def plot_size_vs_user_time(test_case):
     if test_case["interval"] == "log":
         xlabel = "Log(Size)"
         ylabel = "Log(User Time [s])"
+        artificial_zero = -6.64
     else:
         xlabel = "Size"
         ylabel = "User Time [s]"
+        artificial_zero = 0
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
@@ -120,20 +178,36 @@ def plot_size_vs_user_time(test_case):
     plt.ylabel(ylabel)
 
 
+    max_y_values = {}
+
     # Plot each language's data for user time complexity vs size
     for language_data in languages:
+        artificial_zero_x = []
         language = language_data["name"]  
         points = language_data["tests"]  
         x_values = [point["size"] for point in points]  
         user_time_values = [point["user_time"] for point in points]
 
-        color = 'purple' if language == "Lean" else None
+        if len(x_values) == 0:
+            max_y_values[language] = 0
+        else:
+            end_value = user_time_values[x_values.index(max(x_values))]
+            if end_value == -10:
+                max_y_values[language] = 0
+            else:
+                max_y_values[language] = end_value
         
+        for i in range(0, len(user_time_values)):
+            if user_time_values[i] == -10:
+                user_time_values[i] = 0
+                artificial_zero_x += [x_values[i]]
         # Plot user time complexity marked by dotted line and x
-        plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time', color = color)
+        plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time', color = colors[language])
+        plotArtificialZeros(plt, artificial_zero_x, artificial_zero)
         # Check exit status and plot marker if not OK
         checkExitStatus(plt, language_data, test_case_lower, x_values, user_time_values)
         
+    adding_annotations(plt, languages, "user_time", test_case_lower, max_y_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
@@ -161,9 +235,11 @@ def plot_size_vs_system_time(test_case):
     if test_case["interval"] == "log":
         xlabel = "Log(Size)"
         ylabel = "Log(System Time [s])"
+        artificial_zero = -6.64
     else:
         xlabel = "Size"
         ylabel = "System Time [s]"
+        artificial_zero = 0
 
     # Create a new figure
     plt.figure(figsize=(7, 5))
@@ -171,22 +247,37 @@ def plot_size_vs_system_time(test_case):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-
+    max_y_values = {}
     # Plot each language's data for system time complexity vs size
     for language_data in languages:
+        artificial_zero_x = []
         language = language_data["name"]  
         points = language_data["tests"]  
         x_values = [point["size"] for point in points]  
         system_time_values = [point["system_time"] for point in points]
 
-        color = 'purple' if language == "Lean" else None
+        if len(x_values) == 0:
+            max_y_values[language] = 0
+        else:
+            end_value = system_time_values[x_values.index(max(x_values))]
+            if end_value == -10:
+                max_y_values[language] = 0
+            else:
+                max_y_values[language] = end_value
+
+        for i in range(0, len(system_time_values)):
+            if system_time_values[i] == -10:
+                system_time_values[i] = 0
+                artificial_zero_x += [x_values[i]]
         
         # Plot system time complexity marked by dotted line and x
-        plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time', color = color)
+        plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time', color = colors[language])
+        plotArtificialZeros(plt, artificial_zero_x, artificial_zero)
 
         # Check exit status and plot marker if not OK
         checkExitStatus(plt, language_data, test_case_lower, x_values, system_time_values)
-        
+    
+    adding_annotations(plt, languages, "system_time", test_case_lower, max_y_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
@@ -225,7 +316,7 @@ def plot_size_vs_memory(test_case):
     plt.ylabel(ylabel)
 
 
-
+    max_y_values = {}
     # Plot each language's data for memory usage vs size
     for language_data in languages:
         language = language_data["name"]  
@@ -233,13 +324,22 @@ def plot_size_vs_memory(test_case):
         x_values = [point["size"] for point in points]  
         memory_values = [point["memory"] for point in points]
 
-        color = 'purple' if language == "Lean" else None
+        if len(x_values) == 0:
+            max_y_values[language] = 0
+        else:
+            end_value = memory_values[x_values.index(max(x_values))]
+            if end_value == -10:
+                max_y_values[language] = 0
+            else:
+                max_y_values[language] = end_value
         
         # Plot memory usage marked by dotted line and x
-        plt.plot(x_values, memory_values, marker='x', linestyle='--', label=f'{language} - Memory', color = color )
+        plt.plot(x_values, memory_values, marker='x', linestyle='--', label=f'{language} - Memory', color = colors[language] )
         
         # Check exit status and plot marker if not OK
         checkExitStatus(plt, language_data, test_case_lower, x_values, memory_values)
+
+    adding_annotations(plt, languages, "memory", test_case_lower, max_y_values)
     # Add legend
     plt.legend(loc='upper left')
     plt.grid(True)
@@ -285,10 +385,11 @@ def get_error_messages(language_data, interval, lower_bound, x_values, y_values)
             
         errors.append({
             "language": language_data["name"],
-            "size": max_size,
+            "size": language_data["exit_point"],
             "type_of_error": "memory" if language_data["exit_status"] == "memory" else "time"
         })
     return errors
+
 
 # Route to serve the images
 @app.route('/')
