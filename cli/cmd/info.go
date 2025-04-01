@@ -95,7 +95,7 @@ var Case_list = map[int]Testcase{
 		8,
 		"A record with N parameters",
 		"Parameters_DependentRecordModule",
-		5000,
+		15000,
 	},
 	9: {
 		9,

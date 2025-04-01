@@ -308,7 +308,7 @@ func loadAgdalib(test Testcase) {
 	}()
 
 	select {
-	case <-time.After(30 * time.Second):
+	case <-time.After(40 * time.Second):
 		syscall.Kill(-agda_cmd.Process.Pid, syscall.SIGKILL)
 		log.Println("Process killed, context deadline exceeded")
 	case <-cmdDone:
