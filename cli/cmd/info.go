@@ -137,7 +137,7 @@ var Case_list = map[int]Testcase{
 		15,
 		"Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression",
 		"DeepDependency_VariableModule",
-		5000,
+		10000,
 	},
 	16: {
 		16,
