@@ -156,12 +156,12 @@ _tests =
         genFields 1 = [("f1", Con "Nat")]
         genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
         -- Define the record structure
-        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type") 
+        xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type") 
         -- Generate example initialization dynamically
         genExample 1 = [("f1", Int 1)]
         genExample p = genExample (p - 1) ++ [("f" ++ show p, Int 1)] 
         -- Define the example initialization
-        exampleInit = DefRec "example" (Con "X") "Const" (genExample n) 
+        exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n) 
     in Module "Fields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
     
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
