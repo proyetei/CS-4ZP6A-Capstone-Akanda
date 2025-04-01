@@ -42,7 +42,7 @@ var StartTimeCmd = &cobra.Command{
 					"Lean":  "OK",
 				}
 
-				dataMap, _ = run_test(test, dataMap, exit_status, 0)
+				dataMap, _, _ = run_test(test, dataMap, exit_status, 0)
 				for language, data := range dataMap {
 					if len(data) != 0 {
 						if i == 0 {
