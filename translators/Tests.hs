@@ -103,6 +103,7 @@ _tests =
             in genRecords (level - 1) ++ [DefRecType curr [] constructor [(field, Con prev)] (Con "Type")]
 
         -- Generate Example Init
+        genExample 0 = Int 10 
         genExample 1 = Paren $ FunCall "Const1" [Int 10] 
         genExample level =
             let prevExample = genExample (level - 1)
