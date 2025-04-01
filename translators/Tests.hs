@@ -170,7 +170,7 @@ _tests =
         --just "" to prevent inheretence of DefRecType
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Int 1)] 
     in Module "ChainDefFields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
-    , \n -> --12
+    , \n -> --12 Description: create a simple datatype with N constructors accepting no parameters
         let
             iszero 0 = [] 
             iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
@@ -253,7 +253,7 @@ _tests =
         genIndexName i = 'X' : show i
         
         genIndex 1 = [genIndexName 1]
-        genIndex m = genIndexName m : genIndex (m-1)
+        genIndex m = genIndex (m-1) ++ [genIndexName m]
        in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
@@ -264,7 +264,7 @@ _tests =
         genIndexName i = 'X' : show i
         
         genIndex 1 = [genIndexName 1]
-        genIndex m = genIndexName m : genIndex (m-1)
+        genIndex m = genIndex (m-1) ++ [genIndexName m]
        in Module "IndicesParameters_Datatypes" [ImportLib "Nat"] $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     let 
