@@ -131,7 +131,7 @@ var Case_list = map[int]Testcase{
 		14,
 		"defines N variables, and uses both the first and last one in a declaration, N>=2",
 		"FirstLast_VariableModule",
-		5000,
+		12000,
 	},
 	15: {
 		15,
@@ -149,7 +149,7 @@ var Case_list = map[int]Testcase{
 		17,
 		"A file consisting of a single long line with N characters",
 		"SingleLongLine",
-		5000,
+		100000,
 	},
 	18: {
 		18,
