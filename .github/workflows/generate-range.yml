@@ -61,6 +61,22 @@ jobs:
     steps:
       - id: branch
         run: if [[ "${GITHUB_REF_NAME}" == "main" ]]; then echo "tag=latest" >> "$GITHUB_OUTPUT"; else echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"; fi
+  workflow-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Adding workflow inputs to job summary
+        run: |
+            testcase=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
+            {
+            echo "### Workflow Inputs"
+            echo "| Arg                           | Value |"
+            echo "| ----------------------------- | ----- |"
+            echo "| Testcase                      | $testcase |"
+            echo "| Lower Bound                   | ${{ github.event.inputs.lower_bound }} |"
+            echo "| Upper Bound                   | ${{ github.event.inputs.upper_bound }} |"
+            echo "| Interval Type                 | ${{ github.event.inputs.interval }} |"
+            echo "| Number of Datapoints          | ${{ github.event.inputs.datapoints }} |"
+            } >> $GITHUB_STEP_SUMMARY
   generate-range:
     runs-on: ubuntu-latest
     needs: set-tag
@@ -129,17 +145,6 @@ jobs:
 
         - name: Adding URL to job summary
           run: |
-            testcase=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
-            {
-            echo "### Workflow Inputs"
-            echo "| Arg                           | Value |"
-            echo "| ----------------------------- | ----- |"
-            echo "| Testcase                      | $testcase |"
-            echo "| Lower Bound                   | ${{ github.event.inputs.lower_bound }} |"
-            echo "| Upper Bound                   | ${{ github.event.inputs.upper_bound }} |"
-            echo "| Interval Type                 | ${{ github.event.inputs.interval }} |"
-            echo "| Number of Datapoints          | ${{ github.event.inputs.datapoints }} |"
-            } >> $GITHUB_STEP_SUMMARY
             URL=$(cat deployment-url.txt)
             echo "### Deployment: " >> $GITHUB_STEP_SUMMARY
             echo "${URL}" >> $GITHUB_STEP_SUMMARY
