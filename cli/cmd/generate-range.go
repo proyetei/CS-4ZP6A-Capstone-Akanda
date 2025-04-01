@@ -26,7 +26,6 @@ var generateRangeCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
-		var exit_point int
 		set_agda_memory()
 		starting_time = startupTimes()
 		testcase := rangeInputValidation(caseID)
@@ -42,6 +41,12 @@ var generateRangeCmd = &cobra.Command{
 			"Agda":  "OK",
 			"Idris": "OK",
 			"Lean":  "OK",
+		}
+		exit_point := map[string]int{
+			"Rocq":  -1,
+			"Agda":  -1,
+			"Idris": -1,
+			"Lean":  -1,
 		}
 		i, point, linear_inc := lowerBound, 1, 1
 		if num_points != 1 {
@@ -68,7 +73,7 @@ var generateRangeCmd = &cobra.Command{
 			if point == 1 {
 				loadAgdalib(testcase)
 			}
-			dataMap, exit_status, exit_point = run_test(testcase, dataMap, exit_status, i)
+			dataMap, exit_status, exit_point = run_test(testcase, dataMap, exit_status, exit_point, i)
 
 			if interval == "linear" {
 				i += linear_inc
@@ -86,7 +91,7 @@ var generateRangeCmd = &cobra.Command{
 		for j := 0; j < len(data.Testcases[0].Languages); j++ {
 			data.Testcases[0].Languages[j].Tests = append(data.Testcases[0].Languages[j].Tests, dataMap[data.Testcases[0].Languages[j].Name]...)
 			data.Testcases[0].Languages[j].Exit_status = exit_status[data.Testcases[0].Languages[j].Name]
-			data.Testcases[0].Languages[j].Exit_point = exit_point
+			data.Testcases[0].Languages[j].Exit_point = exit_point[data.Testcases[0].Languages[j].Name]
 		}
 		json_data, err := json.MarshalIndent(data, "", "  ")
 		if err != nil {
