@@ -34,6 +34,19 @@ on:
         required: true
 
 jobs:
+  workflow-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Adding workflow inputs to job summary
+        run: |
+            testcase=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
+            {
+            echo "### Workflow Inputs"
+            echo "| Arg                 | Value |"
+            echo "| ------------------- | ----- |"
+            echo "| Testcase            | $testcase |"
+            echo "| Size          | ${{ github.event.inputs.size }} |"
+            } >> $GITHUB_STEP_SUMMARY
   generate-test:
     runs-on: ubuntu-latest
     container:
