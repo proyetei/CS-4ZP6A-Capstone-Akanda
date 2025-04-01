@@ -111,19 +111,19 @@ var Case_list = map[int]Testcase{
 	},
 	11: {
 		11,
-		"Generate a very long chain (N) of independent record definitions",
+		"A very long chain (N) of independent record definitions",
 		"ChainDefFields_NonDependentRecordModule",
 		5000,
 	},
 	12: {
 		12,
-		"<TODO>",
+		"A simple datatype with N constructors accepting no parameters",
 		"Constructors_Datatypes",
 		5000,
 	},
 	13: {
 		13,
-		"creates a datatype with a single constructor accepting N parameters",
+		"A datatype with a single constructor accepting N parameters",
 		"Parameters_Datatypes",
 		5000,
 	},
