@@ -168,11 +168,13 @@ _tests =
         iszero 0 = []
         iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
+        genRecords 0 = []
         genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] (Con "Type")]
         genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) [] ("Const" ++ show p) [("f" ++ show p, Con "Nat")] (Con "Type")]
         --just "" to prevent inheretence of DefRecType
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Int 1)] 
     in Module "ChainDefFields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
+    
     , \n -> --12 Description: create a simple datatype with N constructors accepting no parameters
         let
             iszero 0 = [] 
