@@ -15,7 +15,8 @@ var datapoints []int
 
 var generateListCmd = &cobra.Command{
 	Use:   "generate-list [flags]",
-	Short: "generates and type checks a selected test case at specific sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
+	Short: "Generates + translates + type checks a testcase at specific sizes, returns URL to webpage with results",
+	Long:  "Generates and type checks a selected test case at specific sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			log.SetOutput(io.Discard)
@@ -122,8 +123,8 @@ func listInputValidation(input int) Testcase {
 		fmt.Println("datapoints list empty")
 		os.Exit(1)
 	}
-	if max_memory < 1 || max_memory > 12 {
-		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 12GB \n")
+	if max_memory < 1 || max_memory > 15 {
+		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 15GB \n")
 		os.Exit(1)
 
 	}
@@ -138,5 +139,5 @@ func init() {
 	generateListCmd.PersistentFlags().IntSliceVarP(&datapoints, "datapoints", "d", []int{}, "List of up to 150 sizes (≥ 1) in comma-separated format (eg 1,2,3)")
 	generateListCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates webpage with graph visualizations")
 	generateListCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
-	generateListCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 12)")
+	generateListCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 15)")
 }

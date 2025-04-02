@@ -20,7 +20,8 @@ var steps []string = []string{"linear", "log", "quadratic"}
 
 var generateRangeCmd = &cobra.Command{
 	Use:   "generate-range [flags]",
-	Short: "generates and type checks a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
+	Short: "Generates + translates + type checks a testcase over a range of sizes, returns URL to webpage with results",
+	Long:  "generates and type checks a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			log.SetOutput(io.Discard)
@@ -153,8 +154,8 @@ func rangeInputValidation(input int) Testcase {
 		fmt.Printf("Please provide a valid interval. Options are: %v\n", steps)
 		os.Exit(1)
 	}
-	if max_memory < 1 || max_memory > 12 {
-		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 12GB \n")
+	if max_memory < 1 || max_memory > 15 {
+		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 15GB \n")
 		os.Exit(1)
 
 	}
@@ -172,6 +173,6 @@ func init() {
 	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "The number of generated datapoints (must be an integer between 1 and 150)")
 	generateRangeCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates a webpage with graph visualizations")
 	generateRangeCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
-	generateRangeCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 12)")
+	generateRangeCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 15)")
 
 }
