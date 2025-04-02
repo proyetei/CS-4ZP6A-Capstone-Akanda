@@ -147,10 +147,9 @@ example =  Const3 (Const2 (Const1 10) )</code></pre>
     constructor Const
     field
         sums : Nat
-        values : List Nat
 
 example : X 1 2 3
-example = Const (1 + 2 + 3)  (1 ∷ 2 ∷ 3 ∷ [])</code></pre>
+example = Const (1 + 2 + 3)</code></pre>
         </td>
     </tr>
     <tr>
@@ -196,7 +195,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Constructors_Datatypes (ID = 12)</td>
+        <td>Constructors_Datatypes (ID = 12)<br>defines a datatype with N simple constructors</td>
         <td>
             <pre><code>data d : Set where
  c1 : d 
@@ -205,7 +204,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Parameters_Datatypes (ID = 13)</td>
+        <td>Parameters_Datatypes (ID = 13)<br>defines a datatype with a single constructor accepting N parameters</td>
         <td>
             <pre><code>data d (p1: Type)  (p2: Type)  (p3: Type) : Set where
  c : d p1 p2 p3</code></pre>
@@ -274,19 +273,21 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, all needed for N constructors</td>
+        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, with N constructors that each use a different number of indices</td>
         <td>
-            <pre><code>data D : Nat -> Nat -> Nat -> Set where
- C1 : {X1 : Nat} -> D 
- C2 : {X2 X1 : Nat} -> D 
- C3 : {X3 X2 X1 : Nat} -> D</code></pre>
+            <pre><code>data D : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
+ C1 : {X1 : Nat} -> D X1 0 0 0 0 
+ C2 : {X2 X1 : Nat} -> D X1 X2 0 0 0 
+ C3 : {X3 X2 X1 : Nat} -> D X1 X2 X3 0 0 
+ C4 : {X4 X3 X2 X1 : Nat} -> D X1 X2 X3 X4 0 
+ C5 : {X5 X4 X3 X2 X1 : Nat} -> D X1 X2 X3 X4 X5 </code></pre>
         </td>
     </tr>
     <tr>
         <td>IndicesParameters_Datatypes (ID = 20)<br>A single datatype where N represents the number of 'Type' parameters as well as the number of indices</td>
         <td>
-            <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
- C : {X3 X2 X1 : Nat} -> D P1 P2 P3</code></pre>
+            <pre><code>data D (p1 : Set)  (p2 : Set)  (p3 : Set)  : Nat -> Nat -> Nat -> Set where
+ C : {X3 X2 X1 : Nat} -> D p1 p2 p3 X1 X2 X3</code></pre>
         </td>
     </tr>
     <tr>
@@ -322,7 +323,7 @@ N = let
 
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
-The CI implemented in github actions consists of 4 workflows (Build, Generate-List Testcases, Generate-Range Testcases, Tests). 
+The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). 
 
 ### Build Workflow
 Allows users to build the CLI and the translator as well as creating and pushing the docker image. 
@@ -341,7 +342,7 @@ Allows users to generate and type check a selected test case at specific sizes i
 
 <img src="images/generate-range.png">
 
-
+### Startup-Time Workflow
 
 ### Tests Workflow
 Allows users to test the translator for a selected testcase at a size between 1 and 20.
@@ -359,8 +360,8 @@ Allows users to test the translator for a selected testcase at a size between 1 
 ### Local Installation Instructions
 1. Install Docker https://docs.docker.com/engine/install/
 2. Pull Docker image `docker pull mhpgeez/mhpg`
-3. For CLI instructions run the Docker container using the following command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest help`
-4. CLI example Run: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v `
+3. For CLI usage information run the Docker container using the command: `docker run -it --rm mhpgeez/mhpg:latest help` (**note** In the help command output, ignore 'mhpgeez' since it is the entrypoint of the Docker container, use the commands listed after 'mhpgeez')
+4. To run a test use the command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` (eg `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v`)
 
 ## Sources <a id='ssSources'></a>
 - https://www.youtube.com/watch?v=U7TY_qUD8yA

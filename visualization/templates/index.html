@@ -42,7 +42,7 @@
 
     <div class="bg-white shadow-md p-4 border border-gray-300 text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
       <div class="text-base font-sans text-[#7795be]">
-        For each proof assistant, if there is a red 'X' marker it indicates that the test case exceeded memory, and a blue 'X' marker indicates a time limit exceeded. <br/>
+        For each proof assistant, if there is a red 'X' marker it indicates that the test case exceeded memory, and a blue 'X' marker indicates a time limit exceeded. A bright blue square marker indicates that there is an artificial zero (startup time is larger than type check time) at that point. <br/>
         {% if errors %}
           <p class="mt-4 font-bold">TIMEOUT INFO:</p>
           <ul class="list-disc ml-4">

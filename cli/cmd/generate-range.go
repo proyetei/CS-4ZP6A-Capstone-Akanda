@@ -19,14 +19,13 @@ var num_points int
 var steps []string = []string{"linear", "log", "quadratic"}
 
 var generateRangeCmd = &cobra.Command{
-	Use:   "generate-range -t [testcase] -l [lower-bound] -u [upper-bound] -i [interval]",
-	Short: "translate + run test cases + generate graphs",
-	Long:  `allow the user to select a test case and a range to control the number of operations.....`,
+	Use:   "generate-range [flags]",
+	Short: "generates and type checks a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
-		set_agda_memory()
+		set_max_memory()
 		starting_time = startupTimes()
 		testcase := rangeInputValidation(caseID)
 		data := dataTemplate(testcase)
@@ -154,8 +153,8 @@ func rangeInputValidation(input int) Testcase {
 		fmt.Printf("Please provide a valid interval. Options are: %v\n", steps)
 		os.Exit(1)
 	}
-	if agda_memory < 1 || agda_memory > 10 {
-		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 10GB \n")
+	if max_memory < 1 || max_memory > 12 {
+		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 12GB \n")
 		os.Exit(1)
 
 	}
@@ -166,13 +165,13 @@ func rangeInputValidation(input int) Testcase {
 
 func init() {
 	rootCmd.AddCommand(generateRangeCmd)
-	generateRangeCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "generates data for selected testcase")
-	generateRangeCmd.PersistentFlags().IntVarP(&lowerBound, "lower", "l", 1, "The lower bound for the generated datapoints")
-	generateRangeCmd.PersistentFlags().IntVarP(&upperBound, "upper", "u", 500, "the upper bound for the generated datapoints")
-	generateRangeCmd.PersistentFlags().StringVarP(&interval, "interval", "i", "linear", "the interval between the generated datapoints")
-	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "the number of generated datapoints")
-	generateRangeCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "generates webpage with graph visualizations")
+	generateRangeCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "Specifies which test case the data is generated for")
+	generateRangeCmd.PersistentFlags().IntVarP(&lowerBound, "lower", "l", 1, "The lower bound for the generated sizes of the test case (must be an integer >= 1)")
+	generateRangeCmd.PersistentFlags().IntVarP(&upperBound, "upper", "u", 500, "The upper bound for the generated sizes of the test case")
+	generateRangeCmd.PersistentFlags().StringVarP(&interval, "interval", "i", "linear", "The interval between the generated datapoints (log, linear, or quadratic)")
+	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "The number of generated datapoints (must be an integer between 1 and 150)")
+	generateRangeCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates a webpage with graph visualizations")
 	generateRangeCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
-	generateRangeCmd.PersistentFlags().IntVarP(&agda_memory, "agda-memory", "m", 3, "Setting the maximum heap size for Agda programs in GB")
+	generateRangeCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 12)")
 
 }

@@ -117,11 +117,12 @@ func translateTest(test Testcase, operations int) {
 	}()
 
 	select {
-	case <-time.After(20 * time.Second):
+	case <-time.After(60 * time.Second):
 		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
 		if !verbose {
 			fmt.Println(StdMsg)
 		}
+		log.Println("Translation timed out")
 		log.Fatalln("Process killed, context deadline exceeded")
 	case result := <-cmdDone:
 		if result != nil {
@@ -184,6 +185,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			log.Println("Process killed, context deadline exceeded")
 			exit_status[Language_list[i].name] = "time"
 			exit_point[Language_list[i].name] = operations
+			active_languages -= 1
 			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
 		case result := <-cmdDone:
 			final_result = result
@@ -193,6 +195,8 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			exit_point[Language_list[i].name] = operations
 			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
 			exit_status[Language_list[i].name] = "memory"
+			exit_point[Language_list[i].name] = operations
+			active_languages -= 1
 
 		}
 		if exit_status[Language_list[i].name] == "OK" {
@@ -204,9 +208,18 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			jsonstr := fmt.Sprintf(`{"size": %d, `, operations) + matches[0]
 			err = json.Unmarshal([]byte(jsonstr), &test_data)
 			if err != nil {
-				log.Println("Could not unmarshal test data", err)
+				if !verbose {
+					fmt.Println(StdMsg)
+				}
+				log.Fatalln("Could not unmarshal test data", err)
+			}
+			if (test_data.Memory / 1024) >= (float64(max_memory) * 1024) {
+				exit_status[Language_list[i].name] = "memory"
+				exit_point[Language_list[i].name] = operations
+				active_languages -= 1
+
 			} else {
-				test_data.Memory = test_data.Memory / 1000
+				test_data.Memory = test_data.Memory / 1024
 				if starting_time != nil {
 					test_data.Real_time = safe_time(test_data.Real_time, starting_time[test.id][Language_list[i].name][0].Real_time)
 					test_data.System_time = safe_time(test_data.System_time, starting_time[test.id][Language_list[i].name][0].System_time)
@@ -307,7 +320,7 @@ func loadAgdalib(test Testcase) {
 	}()
 
 	select {
-	case <-time.After(30 * time.Second):
+	case <-time.After(20 * time.Second):
 		syscall.Kill(-agda_cmd.Process.Pid, syscall.SIGKILL)
 		log.Println("Process killed, context deadline exceeded")
 	case <-cmdDone:
@@ -338,11 +351,13 @@ func safe_log(value float64) float64 {
 
 }
 
-func set_agda_memory() {
-	if agda_memory != 3 {
-		agda_cmd := fmt.Sprintf("agda +RTS -M%dG -RTS", agda_memory)
-		Language_list[1].cmd = agda_cmd
-	}
+func set_max_memory() {
+	memory_in_mb := max_memory * 1024
+	agda_cmd := fmt.Sprintf("agda +RTS -M%dG -RTS", max_memory)
+	lean_cmd := fmt.Sprintf("lean --timeout=0 --memory=%d", memory_in_mb)
+	Language_list[1].cmd = agda_cmd
+	Language_list[3].cmd = lean_cmd
+
 }
 
 func generateGraphs() {

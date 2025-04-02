@@ -156,24 +156,26 @@ _tests =
         genFields 1 = [("f1", Con "Nat")]
         genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
         -- Define the record structure
-        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type") 
+        xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type") 
         -- Generate example initialization dynamically
         genExample 1 = [("f1", Int 1)]
         genExample p = genExample (p - 1) ++ [("f" ++ show p, Int 1)] 
         -- Define the example initialization
-        exampleInit = DefRec "example" (Con "X") "Const" (genExample n) 
+        exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n) 
     in Module "Fields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
     
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
         iszero 0 = []
         iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
+        genRecords 0 = []
         genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] (Con "Type")]
         genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) [] ("Const" ++ show p) [("f" ++ show p, Con "Nat")] (Con "Type")]
         --just "" to prevent inheretence of DefRecType
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Int 1)] 
     in Module "ChainDefFields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
-    , \n -> --12
+    
+    , \n -> --12 Description: create a simple datatype with N constructors accepting no parameters
         let
             iszero 0 = [] 
             iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type")]
@@ -256,7 +258,7 @@ _tests =
         genIndexName i = 'X' : show i
         
         genIndex 1 = [genIndexName 1]
-        genIndex m = genIndexName m : genIndex (m-1)
+        genIndex m = genIndex (m-1) ++ [genIndexName m]
        in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
@@ -267,7 +269,7 @@ _tests =
         genIndexName i = 'X' : show i
         
         genIndex 1 = [genIndexName 1]
-        genIndex m = genIndexName m : genIndex (m-1)
+        genIndex m = genIndex (m-1) ++ [genIndexName m]
        in Module "IndicesParameters_Datatypes" [ImportLib "Nat"] $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
     let 
