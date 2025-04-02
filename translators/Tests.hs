@@ -276,7 +276,7 @@ _tests =
         iszero 0 = []
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
           OpenName "D",
-          DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], String (show i))) [1..n]),
+          DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], Int i)) [1..n]),
           DefVar "N" (Just $ Con "Nat") (genCall n)]
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
