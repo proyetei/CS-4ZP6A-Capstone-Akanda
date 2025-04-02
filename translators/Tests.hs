@@ -211,7 +211,7 @@ _tests =
     -- Define expressions for each variable
     genExpr :: Int -> Int -> Expr
     genExpr 1 idx = Int idx  
-    genExpr level idx = Bin "+" (Var $ varName (level - 1) idx) (Int idx) 
+    genExpr level idx = Bin "+" (Var $ varName (level - 1) idx) (Int idx)  
 
     -- Generate DefVar for each level
     genLevelDefs :: Int -> [Definition]
