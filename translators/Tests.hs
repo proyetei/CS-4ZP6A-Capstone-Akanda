@@ -49,8 +49,8 @@ _tests =
         in Module "NestedFunction" [ImportLib "Nat"] $ iszero n
     , \n -> let --4 A specified number of simple datatype declarations.
         genData 0 = []
-        genData 1 = [DefDataType "X1" [("Y", Con "X1")] (Con "Type")]
-        genData m = DefDataType ("X" ++ show m) [("Y", Con ("X" ++ show m))] (Con "Type") : genData (m-1)
+        genData 1 = [DefDataType "X1" [("Y1", Con "X1")] (Con "Type")]
+        genData m = DefDataType ("X" ++ show m) [("Y" ++ show m, Con ("X" ++ show m))] (Con "Type") : genData (m-1)
         in Module "DataSimpleDeclarations" [ImportLib "Nat"]  $ genData n
     , \n -> let --5 Variable declaration with an identifier of a specified length.
         iszero 0 = []
