@@ -49,8 +49,8 @@ _tests =
         in Module "NestedFunction" [ImportLib "Nat"] $ iszero n
     , \n -> let --4 A specified number of simple datatype declarations.
         genData 0 = []
-        genData 1 = [DefDataType "X1" [("Y", Con "X1")] (Con "Type")]
-        genData m = DefDataType ("X" ++ show m) [("Y", Con ("X" ++ show m))] (Con "Type") : genData (m-1)
+        genData 1 = [DefDataType "X1" [("Y1", Con "X1")] (Con "Type")]
+        genData m = DefDataType ("X" ++ show m) [("Y" ++ show m, Con ("X" ++ show m))] (Con "Type") : genData (m-1)
         in Module "DataSimpleDeclarations" [ImportLib "Nat"]  $ genData n
     , \n -> let --5 Variable declaration with an identifier of a specified length.
         iszero 0 = []
@@ -82,10 +82,10 @@ _tests =
         buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))
 
         -- Define the record structure
-        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type")
+        xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type")
 
         -- Define the example initialization
-        exampleInit = DefRec "example" (Con "X") "Const" (genExample n)
+        exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
 
         in Module "Fields_DependentRecordModule" [ImportLib "Nat", ImportLib "Vec"] $ iszero n
 
@@ -103,6 +103,7 @@ _tests =
             in genRecords (level - 1) ++ [DefRecType curr [] constructor [(field, Con prev)] (Con "Type")]
 
         -- Generate Example Init
+        genExample 0 = Int 10 
         genExample 1 = Paren $ FunCall "Const1" [Int 10] 
         genExample level =
             let prevExample = genExample (level - 1)
@@ -147,29 +148,33 @@ _tests =
     -- Generate a file with n newlines where n = user input
     newlines = replicate n '\n'
     in File "NewlineFile" newlines -- Use the file constructor defined in Grammar.hs
-    , \n -> let -- 10
+
+    , \n -> let -- 10 Description: A record declaration with N independent fields
         iszero 0 = []
         iszero _ = [xDef,exampleInit]
         -- Generate field definitions dynamically
         genFields 1 = [("f1", Con "Nat")]
         genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
         -- Define the record structure
-        xDef = DefRecType "X" [] "Const" (genFields n) (Con "Type") 
+        xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type") 
         -- Generate example initialization dynamically
         genExample 1 = [("f1", Int 1)]
         genExample p = genExample (p - 1) ++ [("f" ++ show p, Int 1)] 
         -- Define the example initialization
-        exampleInit = DefRec "example" (Con "X") "Const" (genExample n) 
+        exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n) 
     in Module "Fields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
-    , \n -> let -- 11
+    
+    , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
         iszero 0 = []
         iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
+        genRecords 0 = []
         genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] (Con "Type")]
         genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) [] ("Const" ++ show p) [("f" ++ show p, Con "Nat")] (Con "Type")]
         --just "" to prevent inheretence of DefRecType
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Int 1)] 
     in Module "ChainDefFields_NonDependentRecordModule" [ImportLib "Nat"] $ iszero n
+    
     , \n -> --12 Description: create a simple datatype with N constructors accepting no parameters
         let
             iszero 0 = [] 

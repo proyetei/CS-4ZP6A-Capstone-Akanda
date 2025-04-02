@@ -31,6 +31,7 @@ type LanguageJSON struct {
 	Name        string `json:"name"`
 	Tests       []Data `json:"tests"`
 	Exit_status string `json:"exit_status"`
+	Exit_point  int    `json:"exit_point"`
 }
 
 type Data struct {
@@ -58,19 +59,19 @@ var Case_list = map[int]Testcase{
 		2,
 		"A series of N nested let statements that define and use sequential variables based on previous definitions",
 		"LetAddExample",
-		5000,
+		1000,
 	},
 	3: {
 		3,
 		"A series of N nested functions",
 		"NestedFunction",
-		5000,
+		500,
 	},
 	4: {
 		4,
 		"A specified number of simple datatype declarations",
 		"DataSimpleDeclarations",
-		5000,
+		4000,
 	},
 	5: {
 		5,
@@ -82,19 +83,19 @@ var Case_list = map[int]Testcase{
 		6,
 		"A record declaration with N dependent fields",
 		"Fields_DependentRecordModule",
-		5000,
+		250,
 	},
 	7: {
 		7,
 		"A very long chain (N) of dependent record definitions",
 		"ChainDef_DependentRecordModule",
-		100000,
+		50000,
 	},
 	8: {
 		8,
 		"A record with N parameters",
 		"Parameters_DependentRecordModule",
-		5000,
+		20000,
 	},
 	9: {
 		9,
@@ -104,39 +105,39 @@ var Case_list = map[int]Testcase{
 	},
 	10: {
 		10,
-		"<TODO>",
+		"A record declaration with N independent fields",
 		"Fields_NonDependentRecordModule",
 		5000,
 	},
 	11: {
 		11,
-		"<TODO>",
+		"A very long chain (N) of independent record definitions",
 		"ChainDefFields_NonDependentRecordModule",
-		5000,
+		20000,
 	},
 	12: {
 		12,
-		"<TODO>",
+		"A simple datatype with N constructors accepting no parameters",
 		"Constructors_Datatypes",
-		5000,
+		10000,
 	},
 	13: {
 		13,
-		"<TODO>",
+		"A datatype with a single constructor accepting N parameters",
 		"Parameters_Datatypes",
-		5000,
+		7000,
 	},
 	14: {
 		14,
 		"defines N variables, and uses both the first and last one in a declaration, N>=2",
 		"FirstLast_VariableModule",
-		5000,
+		12000,
 	},
 	15: {
 		15,
 		"Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression",
 		"DeepDependency_VariableModule",
-		5000,
+		10000,
 	},
 	16: {
 		16,
@@ -148,25 +149,25 @@ var Case_list = map[int]Testcase{
 		17,
 		"A file consisting of a single long line with N characters",
 		"SingleLongLine",
-		5000,
+		100000,
 	},
 	18: {
 		18,
 		"A single datatype where N represents the number of 'Type' parameters, all needed for N constructors",
 		"ConstructorsParameters_Datatypes",
-		5000,
+		4000,
 	},
 	19: {
 		19,
 		"A single datatype where N represents the number of indices, all needed for N constructors",
 		"IndicesConstructors_Datatypes",
-		5000,
+		500,
 	},
 	20: {
 		20,
 		"A single datatype where N represents the number of 'Type' parameters as well as the number of indices",
 		"IndicesParameters_Datatypes",
-		5000,
+		2000,
 	},
 	21: {
 		21,
@@ -195,7 +196,7 @@ var Language_list = []Language{
 	{
 		"Lean",
 		".lean",
-		"lean",
+		"lean --timeout=0",
 	},
 }
 

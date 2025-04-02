@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strings"
 	"syscall"
 	"time"
 
@@ -55,21 +54,25 @@ func dataTemplate(test Testcase) Overview {
 						Name:        "Rocq",
 						Tests:       []Data{},
 						Exit_status: "OK",
+						Exit_point:  -1,
 					},
 					{
 						Name:        "Agda",
 						Tests:       []Data{},
 						Exit_status: "OK",
+						Exit_point:  -1,
 					},
 					{
 						Name:        "Idris",
 						Tests:       []Data{},
 						Exit_status: "OK",
+						Exit_point:  -1,
 					},
 					{
 						Name:        "Lean",
 						Tests:       []Data{},
 						Exit_status: "OK",
+						Exit_point:  -1,
 					},
 				},
 			},
@@ -94,44 +97,29 @@ func translateTest(test Testcase, operations int) {
 
 	translate_cmd := exec.Command("bash", "-c", "./translators")
 	translate_cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-
-	cmdDone := make(chan error, 1)
-	go func() {
-		stdin, err := translate_cmd.StdinPipe()
-		if err != nil {
-			if !verbose {
-				fmt.Println(StdMsg)
-			}
-			log.Fatalln("Could not create Stdin pipe", err)
-		}
-		stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
-		io.WriteString(stdin, stdin_string)
-		stdin.Close()
-		log.Printf("translating test case %d into the 4 proof assistant languages", test.id)
-		_, err = translate_cmd.CombinedOutput()
-		cmdDone <- err
-		close(cmdDone)
-	}()
-
-	select {
-	case <-time.After(20 * time.Second):
-		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
+	stdin, err := translate_cmd.StdinPipe()
+	if err != nil {
 		if !verbose {
 			fmt.Println(StdMsg)
 		}
-		log.Fatalln("Process killed, context deadline exceeded")
-	case result := <-cmdDone:
-		if result != nil {
-			if !verbose {
-				fmt.Println(StdMsg)
-			}
-			log.Fatalln("Could not translate the testcase", result)
+		log.Fatalln("Could not create Stdin pipe", err)
+	}
+	stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
+	io.WriteString(stdin, stdin_string)
+	stdin.Close()
+	log.Printf("translating test case %d into the 4 proof assistant languages", test.id)
+	_, err = translate_cmd.CombinedOutput()
+
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
 		}
+		log.Fatalln("Could not translate the testcase", err)
 	}
 
 }
 
-func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, operations int) (map[string][]Data, map[string]string) {
+func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]string, exit_point map[string]int, operations int) (map[string][]Data, map[string]string, map[string]int) {
 	originalDir, err := os.Getwd()
 	if err != nil {
 		if !verbose {
@@ -154,7 +142,6 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		var test_data Data
 		var final_result cmdResult
 		var type_check_time string
-		exit := "OK"
 		if exit_status[Language_list[i].name] != "OK" {
 			continue
 		}
@@ -162,14 +149,40 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 		log.Printf("Type-checking %s file: testcase %d, size %d\n", Language_list[i].name, test.id, operations)
 		time_str := `/usr/bin/time -o time.json --format='"real_time": %e, "user_time": %U, "system_time": %S, "memory": %M}' `
 		cmd_str := fmt.Sprintf("%s %s ./%s%s", time_str, Language_list[i].cmd, test.file_name, Language_list[i].file_extension)
-		cmd := exec.Command("timeout", "-v", "--signal=SIGINT", "110s", "bash", "-c", cmd_str)
-		// Could cause memory issues if output size is large
-		var outb, errb bytes.Buffer
-		cmd.Stdout = &outb
-		cmd.Stderr = &errb
-		err = cmd.Run()
+		cmd := exec.Command("bash", "-c", cmd_str)
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
-		final_result = cmdResult{outb, errb, err}
+		cmdDone := make(chan cmdResult, 1)
+		go func() {
+			// Could cause memory issues if output size is large
+			var outb, errb bytes.Buffer
+			cmd.Stdout = &outb
+			cmd.Stderr = &errb
+			err = cmd.Run()
+			cmdDone <- cmdResult{outb, errb, err}
+			close(cmdDone)
+		}()
+
+		select {
+		case <-time.After(120 * time.Second):
+			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+			log.Println("Process killed, context deadline exceeded")
+			exit_status[Language_list[i].name] = "time"
+			exit_point[Language_list[i].name] = operations
+			active_languages -= 1
+			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
+		case result := <-cmdDone:
+			final_result = result
+		}
+
+		if final_result.err != nil && test.id != 17 {
+			exit_point[Language_list[i].name] = operations
+			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
+			exit_status[Language_list[i].name] = "memory"
+			exit_point[Language_list[i].name] = operations
+			active_languages -= 1
+
+		}
 		if exit_status[Language_list[i].name] == "OK" {
 			type_check_time = get_time()
 			matches := re.FindStringSubmatch(type_check_time)
@@ -179,9 +192,18 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			jsonstr := fmt.Sprintf(`{"size": %d, `, operations) + matches[0]
 			err = json.Unmarshal([]byte(jsonstr), &test_data)
 			if err != nil {
-				log.Println("Could not unmarshal test data", err)
+				if !verbose {
+					fmt.Println(StdMsg)
+				}
+				log.Fatalln("Could not unmarshal test data", err)
+			}
+			if (test_data.Memory / 1024) >= (float64(max_memory) * 1024) {
+				exit_status[Language_list[i].name] = "memory"
+				exit_point[Language_list[i].name] = operations
+				active_languages -= 1
+
 			} else {
-				test_data.Memory = test_data.Memory / 1000
+				test_data.Memory = test_data.Memory / 1024
 				if starting_time != nil {
 					test_data.Real_time = safe_time(test_data.Real_time, starting_time[test.id][Language_list[i].name][0].Real_time)
 					test_data.System_time = safe_time(test_data.System_time, starting_time[test.id][Language_list[i].name][0].System_time)
@@ -201,19 +223,6 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			}
 
 		}
-		if final_result.err != nil && test.id != 17 {
-			active_languages -= 1
-			if strings.Contains(final_result.errb.String(), "timeout") {
-				exit = "time"
-				log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
-			} else {
-				log.Printf("Type-checking stdout message:\n%s\nType-checking stderr message:\n%s\n", final_result.outb.String(), final_result.errb.String())
-				exit = "memory"
-
-			}
-
-		}
-		exit_status[Language_list[i].name] = exit
 
 	}
 	err = os.Chdir(originalDir)
@@ -225,8 +234,20 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 
 	}
 
-	return dataMap, exit_status
+	return dataMap, exit_status, exit_point
 
+}
+
+func remove_duplicate_int(intSlice []int) []int {
+	allKeys := make(map[int]bool)
+	list := []int{}
+	for _, item := range intSlice {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
 }
 
 func get_time() string {
@@ -245,7 +266,7 @@ func safe_time(type_check float64, start_time float64) float64 {
 	real_time := type_check - start_time
 	if real_time < 0 {
 		log.Println("There is an artificial 0 at this point")
-		return 0
+		return -10
 	} else {
 		return real_time
 	}
@@ -283,7 +304,7 @@ func loadAgdalib(test Testcase) {
 	}()
 
 	select {
-	case <-time.After(30 * time.Second):
+	case <-time.After(20 * time.Second):
 		syscall.Kill(-agda_cmd.Process.Pid, syscall.SIGKILL)
 		log.Println("Process killed, context deadline exceeded")
 	case <-cmdDone:
@@ -303,18 +324,24 @@ func loadAgdalib(test Testcase) {
 
 func safe_log(value float64) float64 {
 	if value <= 0 {
-		return math.Log2(0.01)
+		if value == -10 {
+			return -10
+		} else {
+			return math.Log2(0.01)
+		}
 	} else {
 		return math.Log2(value)
 	}
 
 }
 
-func set_agda_memory() {
-	if agda_memory != 3 {
-		agda_cmd := fmt.Sprintf("agda +RTS -M%dG -RTS", agda_memory)
-		Language_list[1].cmd = agda_cmd
-	}
+func set_max_memory() {
+	memory_in_mb := max_memory * 1024
+	agda_cmd := fmt.Sprintf("agda +RTS -M%dG -RTS", max_memory)
+	lean_cmd := fmt.Sprintf("lean --timeout=0 --memory=%d", memory_in_mb)
+	Language_list[1].cmd = agda_cmd
+	Language_list[3].cmd = lean_cmd
+
 }
 
 func generateGraphs() {

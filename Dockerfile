@@ -49,4 +49,4 @@ RUN chmod +x mhpgeez translators
 
 
 
-ENTRYPOINT ["/bin/bash", "-c", "tail -f /dev/null"]
+ENTRYPOINT ["/code/mhpgeez"]

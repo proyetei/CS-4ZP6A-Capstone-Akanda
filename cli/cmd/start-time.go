@@ -11,8 +11,8 @@ import (
 )
 
 var StartTimeCmd = &cobra.Command{
-	Use:   "startup-time",
-	Short: "Gets the startup time for each testcase and each language and returns a JSON file",
+	Use:   "startup-time [flags]",
+	Short: "Records the startup time for each test case in Agda, Idris, Lean, and Rocq, saving the data to a JSON file",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			log.SetOutput(io.Discard)
@@ -41,8 +41,14 @@ var StartTimeCmd = &cobra.Command{
 					"Idris": "OK",
 					"Lean":  "OK",
 				}
+				exit_point := map[string]int{
+					"Rocq":  -1,
+					"Agda":  -1,
+					"Idris": -1,
+					"Lean":  -1,
+				}
 
-				dataMap, _ = run_test(test, dataMap, exit_status, 0)
+				dataMap, _, _ = run_test(test, dataMap, exit_status, exit_point, 0)
 				for language, data := range dataMap {
 					if len(data) != 0 {
 						if i == 0 {

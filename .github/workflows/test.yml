@@ -34,34 +34,35 @@ on:
         required: true
 
 jobs:
-  set-tag:
+  workflow-inputs:
     runs-on: ubuntu-latest
-    outputs:
-      docker_tag: ${{ steps.branch.outputs.tag }}
     steps:
-      - id: branch
-        run: if [[ "${GITHUB_REF_NAME}" == "main" ]]; then echo "tag=latest" >> "$GITHUB_OUTPUT"; else echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"; fi
+      - name: Adding workflow inputs to job summary
+        run: |
+            testcase=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
+            {
+            echo "### Workflow Inputs"
+            echo "| Arg                 | Value |"
+            echo "| ------------------- | ----- |"
+            echo "| Testcase            | $testcase |"
+            echo "| Size          | ${{ github.event.inputs.size }} |"
+            } >> $GITHUB_STEP_SUMMARY
   generate-test:
     runs-on: ubuntu-latest
-    needs: set-tag
     container:
       image: docker.io/${{ vars.DOCKERHUB_USERNAME }}/mhpg:latest
-      credentials:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2 
       - name: Run Test
         run: |
-          echo ${{needs.set-tag.outputs.docker_tag}}
           if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
           cd translators
-          ghc -o main main.hs
-          chmod +x main
+          ghc -o translators main.hs
+          chmod +x translators
           mkdir out
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
-          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./main
+          printf '%s\n%s\n' "$testcase" ${{ github.event.inputs.size }} | ./translators
           cd out 
           GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
