@@ -83,7 +83,7 @@ var Case_list = map[int]Testcase{
 		6,
 		"A record declaration with N dependent fields",
 		"Fields_DependentRecordModule",
-		500,
+		250,
 	},
 	7: {
 		7,
