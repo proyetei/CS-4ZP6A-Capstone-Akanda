@@ -18,8 +18,9 @@ var active_languages int = 4
 var max_memory int = 3
 
 var rootCmd = &cobra.Command{
-	Use:   "mhpgeez [sub_command] [flags]",
-	Short: "CLI tool for generating and analyzing test cases of varying sizes across Lean, Idris, Agda, and Rocq. *If running with docker, ignore mhppgeez in help section run as eg 'generate-list --help'",
+	Use: "mhpgeez [sub_command] [flags]",
+	Short: "CLI tool for generating and analyzing test cases of varying sizes across Lean, Idris, Agda, and Rocq. " +
+		"Note: If you are running the tool with Docker, ignore the 'mhpgeez' prefix when using the help section. For example, you can get the help section for generate-list by appending 'generate-list --help' to the end of the docker run command",
 	CompletionOptions: cobra.CompletionOptions{
 		HiddenDefaultCmd: true, // hides cmd
 	},
@@ -37,6 +38,7 @@ func Execute() {
 }
 
 func init() {
-	//rootCmd.PersistentFlags().StringVar(&testcase, "testcase", "LetExample", "Select a test case to translate")
 
 }
+
+//-D maxRecDepth=50

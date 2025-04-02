@@ -97,40 +97,24 @@ func translateTest(test Testcase, operations int) {
 
 	translate_cmd := exec.Command("bash", "-c", "./translators")
 	translate_cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-
-	cmdDone := make(chan error, 1)
-	go func() {
-		stdin, err := translate_cmd.StdinPipe()
-		if err != nil {
-			if !verbose {
-				fmt.Println(StdMsg)
-			}
-			log.Fatalln("Could not create Stdin pipe", err)
-		}
-		stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
-		io.WriteString(stdin, stdin_string)
-		stdin.Close()
-		log.Printf("translating test case %d into the 4 proof assistant languages", test.id)
-		_, err = translate_cmd.CombinedOutput()
-		cmdDone <- err
-		close(cmdDone)
-	}()
-
-	select {
-	case <-time.After(60 * time.Second):
-		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
+	stdin, err := translate_cmd.StdinPipe()
+	if err != nil {
 		if !verbose {
 			fmt.Println(StdMsg)
 		}
-		log.Println("Translation timed out")
-		log.Fatalln("Process killed, context deadline exceeded")
-	case result := <-cmdDone:
-		if result != nil {
-			if !verbose {
-				fmt.Println(StdMsg)
-			}
-			log.Fatalln("Could not translate the testcase", result)
+		log.Fatalln("Could not create Stdin pipe", err)
+	}
+	stdin_string := fmt.Sprintf("%d\n%d\n", test.id, operations)
+	io.WriteString(stdin, stdin_string)
+	stdin.Close()
+	log.Printf("translating test case %d into the 4 proof assistant languages", test.id)
+	_, err = translate_cmd.CombinedOutput()
+
+	if err != nil {
+		if !verbose {
+			fmt.Println(StdMsg)
 		}
+		log.Fatalln("Could not translate the testcase", err)
 	}
 
 }
