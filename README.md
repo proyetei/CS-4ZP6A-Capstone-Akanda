@@ -147,10 +147,9 @@ example =  Const3 (Const2 (Const1 10) )</code></pre>
     constructor Const
     field
         sums : Nat
-        values : List Nat
 
 example : X 1 2 3
-example = Const (1 + 2 + 3)  (1 ∷ 2 ∷ 3 ∷ [])</code></pre>
+example = Const (1 + 2 + 3)</code></pre>
         </td>
     </tr>
     <tr>
