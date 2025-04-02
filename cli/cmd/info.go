@@ -196,7 +196,7 @@ var Language_list = []Language{
 	{
 		"Lean",
 		".lean",
-		"lean",
+		"lean --timeout 0",
 	},
 }
 
