@@ -259,7 +259,7 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndex (m-1) ++ [genIndexName m]
-       in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
+        in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
         iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))] (Arr (genType n) (Con "Type"))]
@@ -270,9 +270,9 @@ _tests =
         
         genIndex 1 = [genIndexName 1]
         genIndex m = genIndex (m-1) ++ [genIndexName m]
-       in Module "IndicesParameters_Datatypes" [ImportLib "Nat"] $ iszero n
+        in Module "IndicesParameters_Datatypes" [ImportLib "Nat"] $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
-    let 
+        let 
         iszero 0 = []
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) (Con "Type"), --create datatype
           OpenName "D",
