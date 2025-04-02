@@ -117,7 +117,7 @@ func translateTest(test Testcase, operations int) {
 	}()
 
 	select {
-	case <-time.After(30 * time.Second):
+	case <-time.After(60 * time.Second):
 		syscall.Kill(-translate_cmd.Process.Pid, syscall.SIGKILL)
 		if !verbose {
 			fmt.Println(StdMsg)
@@ -317,7 +317,7 @@ func loadAgdalib(test Testcase) {
 	}()
 
 	select {
-	case <-time.After(40 * time.Second):
+	case <-time.After(20 * time.Second):
 		syscall.Kill(-agda_cmd.Process.Pid, syscall.SIGKILL)
 		log.Println("Process killed, context deadline exceeded")
 	case <-cmdDone:

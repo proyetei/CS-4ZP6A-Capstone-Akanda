@@ -14,9 +14,8 @@ import (
 var datapoints []int
 
 var generateListCmd = &cobra.Command{
-	Use:   "generate-list -t [testcase] -d [datapoints]",
-	Short: "translate + run test cases + generate graphs",
-	Long:  `allow the user to select a test case and a range to control the number of operations.....`,
+	Use:   "generate-list [flags]",
+	Short: "generates and type checks a selected test case at specific sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			log.SetOutput(io.Discard)

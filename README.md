@@ -323,7 +323,7 @@ N = let
 
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
-The CI implemented in github actions consists of 4 workflows (Build, Generate-List Testcases, Generate-Range Testcases, Tests). 
+The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). 
 
 ### Build Workflow
 Allows users to build the CLI and the translator as well as creating and pushing the docker image. 
@@ -342,7 +342,7 @@ Allows users to generate and type check a selected test case at specific sizes i
 
 <img src="images/generate-range.png">
 
-
+### Startup-Time Workflow
 
 ### Tests Workflow
 Allows users to test the translator for a selected testcase at a size between 1 and 20.
@@ -360,8 +360,8 @@ Allows users to test the translator for a selected testcase at a size between 1 
 ### Local Installation Instructions
 1. Install Docker https://docs.docker.com/engine/install/
 2. Pull Docker image `docker pull mhpgeez/mhpg`
-3. For CLI instructions run the Docker container using the following command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest help`
-4. CLI example Run: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v `
+3. For CLI usage information run the Docker container using the command: `docker run -it --rm mhpgeez/mhpg:latest help` (**note** In the help command output, ignore 'mhpgeez' since it is the entrypoint of the Docker container, use the commands listed after 'mhpgeez')
+4. To run a test use the command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` (eg `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v`)
 
 ## Sources <a id='ssSources'></a>
 - https://www.youtube.com/watch?v=U7TY_qUD8yA
