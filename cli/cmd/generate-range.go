@@ -19,9 +19,8 @@ var num_points int
 var steps []string = []string{"linear", "log", "quadratic"}
 
 var generateRangeCmd = &cobra.Command{
-	Use:   "generate-range -t [testcase] -l [lower-bound] -u [upper-bound] -i [interval]",
-	Short: "translate + run test cases + generate graphs",
-	Long:  `allow the user to select a test case and a range to control the number of operations.....`,
+	Use:   "generate-range [flags]",
+	Short: "generates and type checks a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !verbose {
 			log.SetOutput(io.Discard)

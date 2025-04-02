@@ -18,9 +18,11 @@ var active_languages int = 4
 var max_memory int = 3
 
 var rootCmd = &cobra.Command{
-	Use:   "cli",
-	Short: "translate + run test cases + generate graphs",
-	Long:  `allow the user to select a test case and a range to control the number of operations.....`,
+	Use:   "mhpgeez [sub_command] [flags]",
+	Short: "CLI tool for generating and analyzing test cases of varying sizes across Lean, Idris, Agda, and Rocq. *If running with docker, ignore mhppgeez in help section run as eg 'generate-list --help'",
+	CompletionOptions: cobra.CompletionOptions{
+		HiddenDefaultCmd: true, // hides cmd
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 
