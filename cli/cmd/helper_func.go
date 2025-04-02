@@ -185,6 +185,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			log.Println("Process killed, context deadline exceeded")
 			exit_status[Language_list[i].name] = "time"
 			exit_point[Language_list[i].name] = operations
+			active_languages -= 1
 			final_result = cmdResult{bytes.Buffer{}, bytes.Buffer{}, nil}
 		case result := <-cmdDone:
 			final_result = result
@@ -195,6 +196,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
 			exit_status[Language_list[i].name] = "memory"
 			exit_point[Language_list[i].name] = operations
+			active_languages -= 1
 
 		}
 		if exit_status[Language_list[i].name] == "OK" {
@@ -214,6 +216,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			if (test_data.Memory / 1024) >= (float64(max_memory) * 1024) {
 				exit_status[Language_list[i].name] = "memory"
 				exit_point[Language_list[i].name] = operations
+				active_languages -= 1
 
 			} else {
 				test_data.Memory = test_data.Memory / 1024
