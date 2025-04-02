@@ -15,7 +15,7 @@ var webpage bool
 var verbose bool
 var starting_time map[int]map[string][]Data
 var active_languages int = 4
-var agda_memory int = 3
+var max_memory int = 3
 
 var rootCmd = &cobra.Command{
 	Use:   "cli",

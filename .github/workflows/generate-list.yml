@@ -34,7 +34,7 @@ on:
           - 20 [IndicesParameters_Datatypes]
           - 21 [Pattern_Matching_Datatypes]
       datapoints:
-        description: Enter a list of integer values following the format '1,5,7'
+        description: Enter a list of sizes for the test case as integer values following the format '1,5,7'
         required: true
       
 
@@ -71,7 +71,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }} -m 8
+          ./mhpgeez generate-list -v -w=false -t $testcase -d ${{ github.event.inputs.datapoints }} -m 10
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:

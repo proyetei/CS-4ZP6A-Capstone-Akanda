@@ -34,10 +34,10 @@ on:
           - 20 [IndicesParameters_Datatypes]
           - 21 [Pattern_Matching_Datatypes]
       lower_bound:
-        description: Select a lower bound (integer value between 1 and upper bound)
+        description: Select a lower bound for the size of the test case (integer value between 1 and upper bound)
         required: true
       upper_bound:
-        description: Select an upper bound (integer value greater than 1)
+        description: Select an upper bound for the size of the test case (integer value greater than 1)
         required: true
       interval: 
         type: choice
@@ -48,7 +48,7 @@ on:
           - log
           - quadratic
       datapoints: 
-        description: Enter the number of data points for the graph (integer value between 1 and 150)
+        description: Enter the number of datapoints for the graph (integer value between 1 and 150)
         required: true
 
       
@@ -89,7 +89,7 @@ jobs:
           touch data.json
           testcase=$(echo ${{ github.event.inputs.testcase }} | grep -o '^[0-9]\+')
           echo testcase
-          ./mhpgeez generate-range -v -w=false -t $testcase -m 8 -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }} -d ${{ github.event.inputs.datapoints }}
+          ./mhpgeez generate-range -v -w=false -t $testcase -m 10 -l ${{ github.event.inputs.lower_bound }} -u ${{ github.event.inputs.upper_bound }} -i ${{ github.event.inputs.interval }} -d ${{ github.event.inputs.datapoints }}
       - name: Store JSON file as artifact
         uses: actions/upload-artifact@v4
         with:

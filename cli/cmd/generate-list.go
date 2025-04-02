@@ -21,7 +21,7 @@ var generateListCmd = &cobra.Command{
 		if !verbose {
 			log.SetOutput(io.Discard)
 		}
-		set_agda_memory()
+		set_max_memory()
 		starting_time = startupTimes()
 		testcase := listInputValidation(caseID)
 		data := dataTemplate(testcase)
@@ -123,8 +123,8 @@ func listInputValidation(input int) Testcase {
 		fmt.Println("datapoints list empty")
 		os.Exit(1)
 	}
-	if agda_memory < 1 || agda_memory > 10 {
-		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 10GB \n")
+	if max_memory < 1 || max_memory > 12 {
+		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 12GB \n")
 		os.Exit(1)
 
 	}
@@ -135,9 +135,9 @@ func listInputValidation(input int) Testcase {
 
 func init() {
 	rootCmd.AddCommand(generateListCmd)
-	generateListCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "generates data for selected testcase")
-	generateListCmd.PersistentFlags().IntSliceVarP(&datapoints, "datapoints", "d", []int{}, "List of datapoints (comma separated no spaces) eg 1,2,3")
-	generateListCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "generates webpage with graph visualizations")
+	generateListCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "Specifies which test case the data is generated for")
+	generateListCmd.PersistentFlags().IntSliceVarP(&datapoints, "datapoints", "d", []int{}, "List of up to 150 sizes (≥ 1) in comma-separated format (eg 1,2,3)")
+	generateListCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates webpage with graph visualizations")
 	generateListCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
-	generateListCmd.PersistentFlags().IntVarP(&agda_memory, "agda-memory", "m", 3, "Setting the maximum heap size for Agda programs in GB")
+	generateListCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 12)")
 }
