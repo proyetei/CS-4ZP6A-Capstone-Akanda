@@ -380,8 +380,6 @@ on:
 2. Increase `maxID` variable in `cli/cmd/root.go` by 1.
 
 
-
-
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
 The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). 
@@ -480,15 +478,11 @@ Allows users to test the translator for a selected testcase at a size between 1 
 - **Artifact Retention:** Artifacts from each workflow have a retention period of **2 days**
 - **Docker Container Usage:** The Generate-Range, Generate-List, and Startup-Time workflows uses the Docker container associated with the branch the workflow is running on. For example, if the Generate-List workflow is running on a branch called `feature_branch`, it will use the Docker image `mphgeez/mhpg:feature_branch`. The main branch uses the `latest` tag.
 - **Workflow Failiure:** If a Generate-List or Generate-Range Worflow fails, Check the `generate-list/generate-range` job logs to ensure the provided inputs were valid (under `Run Tests` step).
-- **Vercel Deployment Management:** Before the Generate-List or Generate-Range Worflows deploy to vercel, a Python script is run to remove deployments older than **24 hours** and to ensure there are less than **15 active deployments**. If there are 15 ore more deployments, the oldest deployments  are removed until there are only **14**. 
+- **Vercel Deployment Management:** Before the Generate-List or Generate-Range Worflows deploy to vercel, a Python script is run to remove deployments older than **24 hours** and to ensure there are less than **15 active deployments**. If there are 15 ore more deployments, the oldest deployments  are removed until there are only **14** (the free version of Vercel has a limit of 100 preview deployments a day, max 100 tests a day).
 - **Workflow Inputs:** Any required inputs are stored the inputs in the job summary at the beginning of the workflow (`workflow-inputs` job). 
 
 ## CLI <a id='ssCLI'></a>
 CLI tool for generating and analyzing test cases of varying sizes across Lean, Idris, Agda, and Rocq.
-
-### Things TODO
-- Add upper bounds to available test cases table
-- Add Extending Sections
 
 ### Local Installation Instructions <a id='sssInstallation'></a>
 1. Install Docker https://docs.docker.com/engine/install/
