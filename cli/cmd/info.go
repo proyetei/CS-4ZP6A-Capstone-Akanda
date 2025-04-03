@@ -101,7 +101,7 @@ var Case_list = map[int]Testcase{
 		9,
 		"A file with N newlines",
 		"NewlineFile",
-		500000,
+		100000000,
 	},
 	10: {
 		10,
