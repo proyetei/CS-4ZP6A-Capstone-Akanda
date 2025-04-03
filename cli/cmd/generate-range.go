@@ -167,12 +167,12 @@ func rangeInputValidation(input int) Testcase {
 func init() {
 	rootCmd.AddCommand(generateRangeCmd)
 	generateRangeCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "Specifies which test case the data is generated for")
-	generateRangeCmd.PersistentFlags().IntVarP(&lowerBound, "lower", "l", 1, "The lower bound for the generated sizes of the test case (must be an integer >= 1)")
+	generateRangeCmd.PersistentFlags().IntVarP(&lowerBound, "lower", "l", 1, "The lower bound for the generated sizes of the test case (>= 1)")
 	generateRangeCmd.PersistentFlags().IntVarP(&upperBound, "upper", "u", 500, "The upper bound for the generated sizes of the test case")
-	generateRangeCmd.PersistentFlags().StringVarP(&interval, "interval", "i", "linear", "The interval between the generated datapoints (log, linear, or quadratic)")
-	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "The number of generated datapoints (must be an integer between 1 and 150)")
+	generateRangeCmd.PersistentFlags().StringVarP(&interval, "interval", "i", "linear", "The interval between datapoints (log, linear, quadratic)")
+	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "The number of generated datapoints (between 1 and 150)")
 	generateRangeCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates a webpage with graph visualizations")
 	generateRangeCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
-	generateRangeCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 15)")
+	generateRangeCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Memory limit for the type checking commands in GB (between 1 to 15)")
 
 }

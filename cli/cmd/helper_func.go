@@ -175,7 +175,7 @@ func run_test(test Testcase, dataMap map[string][]Data, exit_status map[string]s
 			final_result = result
 		}
 
-		if final_result.err != nil && test.id != 17 {
+		if final_result.err != nil {
 			exit_point[Language_list[i].name] = operations
 			log.Printf("Type-checking stderr message:\n%s\nType-checking stdout message:\n%s\n", final_result.errb.String(), final_result.outb.String())
 			exit_status[Language_list[i].name] = "memory"

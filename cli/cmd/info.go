@@ -65,19 +65,19 @@ var Case_list = map[int]Testcase{
 		3,
 		"A series of N nested functions",
 		"NestedFunction",
-		500,
+		250,
 	},
 	4: {
 		4,
 		"A specified number of simple datatype declarations",
 		"DataSimpleDeclarations",
-		4000,
+		1000,
 	},
 	5: {
 		5,
 		"Variable declaration with an identifier of a specified length",
 		"LongIdentifier",
-		1000000,
+		5000000,
 	},
 	6: {
 		6,
@@ -89,13 +89,13 @@ var Case_list = map[int]Testcase{
 		7,
 		"A very long chain (N) of dependent record definitions",
 		"ChainDef_DependentRecordModule",
-		50000,
+		20000,
 	},
 	8: {
 		8,
 		"A record with N parameters",
 		"Parameters_DependentRecordModule",
-		20000,
+		3500,
 	},
 	9: {
 		9,
@@ -107,13 +107,13 @@ var Case_list = map[int]Testcase{
 		10,
 		"A record declaration with N independent fields",
 		"Fields_NonDependentRecordModule",
-		5000,
+		2000,
 	},
 	11: {
 		11,
 		"A very long chain (N) of independent record definitions",
 		"ChainDefFields_NonDependentRecordModule",
-		20000,
+		5305,
 	},
 	12: {
 		12,
@@ -125,7 +125,7 @@ var Case_list = map[int]Testcase{
 		13,
 		"A datatype with a single constructor accepting N parameters",
 		"Parameters_Datatypes",
-		7000,
+		5000,
 	},
 	14: {
 		14,
@@ -137,13 +137,13 @@ var Case_list = map[int]Testcase{
 		15,
 		"Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression",
 		"DeepDependency_VariableModule",
-		10000,
+		5000,
 	},
 	16: {
 		16,
 		"A simple datatype declaration with a specified number of indices, defined implicitly",
 		"DataImplicitIndices",
-		5000,
+		1000,
 	},
 	17: {
 		17,
@@ -155,7 +155,7 @@ var Case_list = map[int]Testcase{
 		18,
 		"A single datatype where N represents the number of 'Type' parameters, all needed for N constructors",
 		"ConstructorsParameters_Datatypes",
-		4000,
+		1000,
 	},
 	19: {
 		19,
