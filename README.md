@@ -24,7 +24,8 @@
     - [generate-range Command](#sssRangeCommand)
     - [startup-time Command](#sssStartupCommand)
     - [print Command](#sssPrintCommand)
-- [Webpage](#ssWebpage)
+- [Graph Generation](#ssGraph)
+- [Website](#ssWebsite)
 - [Sources](#ssSources)
 
 ## Group Members <a id='ssGroupMembers'></a>
