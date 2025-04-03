@@ -9,6 +9,7 @@
 - [How To Add Test Cases](#ssAddCases)
 - [CI Workflows](#ssCIWorkflows)
 - [CLI](#ssCLI)
+- [Webpage](#ssWebpage)
 - [Sources](#ssSources)
 
 ## Group Members <a id='ssGroupMembers'></a>
@@ -381,6 +382,16 @@ Size: Specifies the size we want the translated test case to be (must be an inte
 
 ## CLI <a id='ssCLI'></a>
 
+### Things TODO
+- Docker cp commands to get startup and data files
+- add max memory limit behaviour to behaviour section
+- Add versioning
+- Add links
+- Add upper bounds to available test cases table
+- Format CI section better
+- Add Extending Sections
+- Update CI diagrams
+
 ### Local Installation Instructions
 1. Install Docker https://docs.docker.com/engine/install/
 2. Pull Docker image `docker pull mhpgeez/mhpg`
@@ -451,7 +462,7 @@ Flags:
 12. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
 13. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
 
-**Example Run:** `docker run -it --rm mhpgeez/mhpg:latest generate-range -t 1 -l 1 -u 500 -d 5 -v`
+**Example Run:** `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-range -t 1 -l 1 -u 500 -d 5 -v`
 
 ### startup-time command
 **Description:** Records the startup time for each test case in Agda, Idris, Lean, and Rocq, saving the data to a JSON file called startup.json.
@@ -491,6 +502,7 @@ Flags:
 
 **Example Run:** `docker run -it --rm mhpgeez/mhpg:latest print`
 
+## Webpage <a id='ssWebpage'></a>
 
 ## Sources <a id='ssSources'></a>
 - https://discourse.nixos.org/t/how-to-use-nix-only-in-docker-for-a-project/18043
