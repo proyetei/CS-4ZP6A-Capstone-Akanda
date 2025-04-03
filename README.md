@@ -343,6 +343,14 @@ Allows users to build the CLI and the translator as well as creating and pushing
 <img src="images/build.png">
 
 **Required Inputs**: None
+
+**Usage**: 
+1. Navigate to the 'Actions' tab.
+2. Select the 'Build Cases' tab.
+3. Click the 'Run Workflow' button.
+4. Fill in the required inputs.
+5. Click 'Run Workflow'.
+
 **Triggers**: On push + Manual
 
 ### Generate-List Test Cases Workflow <a id='sssListWorkflow'></a>
@@ -351,6 +359,16 @@ Allows users to generate and type check a selected test case at specific sizes i
 <img src="images/generate-list.png">
 
 **Required Inputs**: Test Case, Datapoint List
+- **Test Case:** Specifies which test case the data is generated for (select from provided list)
+- **Datapoint List:** The List of sizes for the test case, can include up to 150 values (≥ 1) in comma-separated format (eg 1,2,3).
+
+**Usage**: 
+1. Navigate to the 'Actions' tab.
+2. Select the 'Generate-Range Test Cases' tab.
+3. Click the 'Run Workflow' button.
+4. Fill in the required inputs.
+5. Click 'Run Workflow'.
+
 **Triggers**: Manual
 
 ### Generate-Range Test Cases Workflow <a id='sssRangeWorkflow'></a>
@@ -358,18 +376,33 @@ Allows users to generate and type check a selected test case at specific sizes i
 
 <img src="images/generate-range.png">
 
-**Required Inputs**: Test Case, Lower Bound, Upper Bound, Number of Datapoints, Interval Type
-Test Case: Specifies which test case the data is generated for (select from provided list)
-Lower Bound: The lower bound for the generated sizes of the test case (must be an integer >= 1) 
-Upper Bound: The upper bound for the generated sizes of the test case (must be an interger >= 1)
-Number of Datapoints: The number of generated datapoints (must be an integer between 1 and 150)
-Interval Type: The interval between the generated datapoints (select from provided list)
+**Required Inputs**:
+- **Test Case:** Specifies which test case the data is generated for (select from provided list)
+- **Lower Bound:** The lower bound for the generated sizes of the test case (must be an integer >= 1) 
+- **Upper Bound:** The upper bound for the generated sizes of the test case (must be an interger >= 1)
+- **Number of Datapoints:** The number of generated datapoints (must be an integer between 1 and 150)
+- **Interval Type:** The interval between the generated datapoints (select from provided list)
+
+**Usage**: 
+1. Navigate to the 'Actions' tab.
+2. Select the 'Generate-Range Test Cases' tab.
+3. Click the 'Run Workflow' button.
+4. Fill in the required inputs.
+5. Click 'Run Workflow'. 
 
 **Triggers**: Manual
 
 ### Startup-Time Workflow <a id='sssStartupWorkflow'></a>
 
 **Required Inputs**: None
+
+**Usage**: 
+1. Navigate to the 'Actions' tab.
+2. Select the 'Startup-Time' tab.
+3. Click the 'Run Workflow' button.
+4. Fill in the required inputs.
+5. Click 'Run Workflow'.
+
 **Triggers**: Manual
 
 ### Tests Workflow <a id='sssTestWorkflow'></a>
@@ -377,9 +410,17 @@ Allows users to test the translator for a selected testcase at a size between 1 
 
 <img src="images/tests.png">
 
-**Required Inputs**: Test Case, Size
-Test Case: Specifies which test case is translated and type checked (select from provided list)
-Size: Specifies the size we want the translated test case to be (must be an integer value >= 1)
+**Required Inputs**:
+- **Test Case:** Specifies which test case is translated and type checked (select from provided list)
+- **Size:** Specifies the size we want the translated test case to be (must be an integer value >= 1)
+
+**Usage**: 
+1. Navigate to the 'Actions' tab.
+2. Select the 'Tests' tab.
+3. Click the 'Run Workflow' button.
+4. Fill in the required inputs.
+5. Click 'Run Workflow'. 
+
 **Triggers**: Manual
 
 ### Additional Notes <a id='sssAddNotes'></a>
@@ -395,8 +436,8 @@ CLI tool for generating and analyzing test cases of varying sizes across Lean, I
 
 ### Things TODO
 - Add versioning
+- Add vercel deployment removal behaviour for generate-list and generate-range + 100 preview deployment limit per 24h
 - Add upper bounds to available test cases table
-- Format CI section better
 - Add Extending Sections
 - Update CI diagrams
 
