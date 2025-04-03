@@ -338,7 +338,7 @@ func safe_log(value float64) float64 {
 func set_max_memory() {
 	memory_in_mb := max_memory * 1024
 	agda_cmd := fmt.Sprintf("agda +RTS -M%dG -RTS", max_memory)
-	lean_cmd := fmt.Sprintf("lean --timeout=0 --memory=%d", memory_in_mb)
+	lean_cmd := fmt.Sprintf("lean -D maxRecDepth=2000 -D maxHeartbeats=0 --memory=%d", memory_in_mb)
 	Language_list[1].cmd = agda_cmd
 	Language_list[3].cmd = lean_cmd
 
