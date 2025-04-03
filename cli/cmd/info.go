@@ -77,7 +77,7 @@ var Case_list = map[int]Testcase{
 		5,
 		"Variable declaration with an identifier of a specified length",
 		"LongIdentifier",
-		5000000,
+		100000000,
 	},
 	6: {
 		6,
