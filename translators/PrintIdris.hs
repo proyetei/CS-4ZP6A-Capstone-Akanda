@@ -94,7 +94,7 @@ printModule (Module name imports defs) =
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
 
-printModule (File _ str) = str
+printModule (File name str) = "module Main\n" ++ str ++ "\nmain : IO()\nmain = putStrLn \"\""
 
 runIdris :: Module -> IO()
 runIdris m = do

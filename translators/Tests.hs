@@ -147,7 +147,7 @@ _tests =
     , \n -> let -- 9
     -- Generate a file with n newlines where n = user input
     newlines = replicate n '\n'
-    in File "NewlineFile" newlines -- Use the file constructor defined in Grammar.hs
+    in File "NewlineFile" newlines 
 
     , \n -> let -- 10 Description: A record declaration with N independent fields
         iszero 0 = []

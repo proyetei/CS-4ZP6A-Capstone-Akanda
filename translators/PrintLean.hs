@@ -91,7 +91,8 @@ printModule (Module name imports defs) =
         recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
         body = foldl (\x y -> x ++ "\n" ++ printDef recs y) "" defs
     in headers ++ "\n" ++ body
-printModule (File _ str) = str
+
+printModule (File name str) = str
 
 runLean :: Module -> IO()
 runLean m = do

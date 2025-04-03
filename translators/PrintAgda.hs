@@ -102,7 +102,7 @@ printAgda (Module name imports defs) =
 
     in headers ++ "\n" ++ body
 
-printAgda (File _ str) = str
+printAgda (File name str) = "module " ++ name ++ " where \n" ++ str
 
 runAgda :: Module -> IO()
 runAgda m = do
