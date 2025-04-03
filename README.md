@@ -384,8 +384,113 @@ Size: Specifies the size we want the translated test case to be (must be an inte
 ### Local Installation Instructions
 1. Install Docker https://docs.docker.com/engine/install/
 2. Pull Docker image `docker pull mhpgeez/mhpg`
-3. For CLI usage information run the Docker container using the command: `docker run -it --rm mhpgeez/mhpg:latest help` (**note** In the help command output, ignore 'mhpgeez' since it is the entrypoint of the Docker container, use the commands listed after 'mhpgeez')
-4. To run a test use the command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` (eg `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v`)
+3. For CLI usage information run the Docker container using the command: `docker run -it --rm mhpgeez/mhpg:latest help` (**note** In the help section, ignore the 'mhpgeez' prefix since it is the entrypoint of the Docker container)
+4. To run a test, use the command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` 
+
+### generate-list Command
+
+**Description:** Generates and type checks a selected test case at a provided list of sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results.
+
+```
+Usage:
+  mhpgeez generate-list [flags]
+
+Flags:
+  -d, --datapoints ints   List of up to 150 sizes (≥ 1) in comma-separated format (eg 1,2,3)
+  -h, --help              help for generate-list
+  -m, --max-memory int    Memory limit for the type checking commands in GB (between 1 to 15) (default 3)
+  -t, --testcase int      Specifies which test case the data is generated for (default 1)
+  -v, --verbose           Enable detailed output for debugging and progress tracking
+  -w, --webpage           Generates webpage with graph visualizations (default true)
+
+```
+**Behaviour:**
+1. **Validate Input:** Check if the input is valid. Exit the program with an error message if invalid.
+2. **Sort List:** Arrange the list of sizes in ascending order.
+3. **Initialize Exit Status:** Set the exit status for all languages to "OK."
+4. **Translate Test Case:** Translate the selected test case for the first size in the sorted list (no timeout set for translation)
+5. **Type Check Execution:** Execute the type check command on the translated files for all languages with an "OK" exit status. Record the time and memory usage using GNU time command (type check commands have 120s timeout).
+6. **Error Handling:** If a type check times out, record the exit status as a time error. For any other error, record it as a memory error (program assumes that translation is correct, with no parsing, import, or syntax errors).
+7. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artifical zero. 
+8. **Repeat Process:** Repeat steps 4-7 for all sizes in the sorted list unless all languages have a non "OK" exit status.
+9. **Store Data:** Save the time and memory usage data in a JSON file (data.json).
+10. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
+11. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
+
+**Example Run:** `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 1 -d 1,2,3 -v`
+
+### generate-range Command
+```
+Usage:
+  mhpgeez generate-range [flags]
+
+Flags:
+  -d, --datapoints int    The number of generated datapoints (between 1 and 150) (default 5)
+  -h, --help              help for generate-range
+  -i, --interval string   The interval between datapoints (log, linear, quadratic) (default "linear")
+  -l, --lower int         The lower bound for the generated sizes of the test case (>= 1) (default 1)
+  -m, --max-memory int    Memory limit for the type checking commands in GB (between 1 to 15) (default 3)
+  -t, --testcase int      Specifies which test case the data is generated for (default 1)
+  -u, --upper int         The upper bound for the generated sizes of the test case (default 500)
+  -v, --verbose           Enable detailed output for debugging and progress tracking
+  -w, --webpage           Generates a webpage with graph visualizations (default true)
+```
+
+**Behaviour:**
+1. **Validate Input:** Check if the input is valid. Exit the program with an error message if invalid.
+2. **Initialize Exit Status:** Set the exit status for all languages to "OK."
+3. Determine the first size based on the provided interval type. 
+4. **Translate Test Case:** Translate the selected test case for the first size (no timeout set for translation)
+5. **Type Check Execution:** Execute the type check command on the translated files for all languages with an "OK" exit status. Record the time and memory usage using GNU time command (type check commands have 120s timeout).
+6. **Error Handling:** If a type check times out, record the exit status as a time error. For any other error, record it as a memory error (program assumes that translation is correct, with no parsing, import, or syntax errors).
+7. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artificial zero. 
+8. **Log Interval Handling:** If the selected interval is 'log,' take the log of each time and memory value. If any data is equal to or less than 0, set the data to the log base 2 of 0.01. 
+9. **Increment Size:** Increment the size based on the interval type.
+10. **Repeat Process:** Repeat steps 4-9 for the next size unless all languages have a non "OK" exit status, the incremented size exceeds the upper bound, or the number of data points exceeds the user-defined limit.
+11. **Store Data:** Save the time and memory usage data in a JSON file (data.json).
+12. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
+13. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
+
+**Example Run:** `docker run -it --rm mhpgeez/mhpg:latest generate-range -t 1 -l 1 -u 500 -d 5 -v`
+
+### startup-time command
+**Description:** Records the startup time for each test case in Agda, Idris, Lean, and Rocq, saving the data to a JSON file called startup.json.
+
+```
+Usage:
+  mhpgeez startup-time [flags]
+
+Flags:
+  -h, --help      help for startup-time
+  -v, --verbose   Enable detailed output for debugging and progress tracking
+```
+
+**Behaviour**: 
+- Translates each test case of size 0 (files containing only import statements)
+- Type check each file in its respective languages
+- Record the real time, user time, and system time for the type check
+- Repeat 10 times
+- Fastest real, user, system times for each test case in each language is stored in the startup.json file
+
+
+**Example Run:** `docker run -it --rm mhpgeez/mhpg:latest startup-time -v`
+
+
+### print Command
+**Description:** Prints the available test cases (id, description) and their maximum upper bounds.
+```
+Usage:
+  mhpgeez print [flags]
+
+Flags:
+  -h, --help   help for print
+
+```
+**Behaviour:** 
+- Prints a table containing information about each test case. 
+
+**Example Run:** `docker run -it --rm mhpgeez/mhpg:latest print`
+
 
 ## Sources <a id='ssSources'></a>
 - https://discourse.nixos.org/t/how-to-use-nix-only-in-docker-for-a-project/18043
