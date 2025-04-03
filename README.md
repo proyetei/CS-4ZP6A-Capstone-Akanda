@@ -6,6 +6,7 @@
 - [Demo](#ssDemo) 
 - [Technology Stack](#ssTechnologyStack)
 - [Versions](#ssVersions)
+- [Language Considerations](#ssLanguageConsideration)
 - [Available Test Cases](#ssAvailableCases)
 - [How To Add Test Cases](#ssAddCases)
     - [Writing Dynamic Test Cases in MHPG](#sssExtendMHPG)
@@ -65,7 +66,10 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 - Cabal (3.8.1.0)
 - Go (1.23.6)
 
-
+## Language Considerations <a id='ssLanguageConsideration'></a>
+- Lean has maximum recursion depth set to 2000 and the maximum heartbeats disabled
+- Lean has a limit of fields in a record ()
+- Lean has a limit of parameters ...
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
 <table>
