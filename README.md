@@ -345,7 +345,42 @@ N = let
 
 ### Extending CI Workflows <a id='sssExtendCI'></a>
 
+Add the new test case to the workflows in `./github/workflows/test.yml`, `./github/workflows/generate.yml`, and `./github/workflows/generate-list.yml`  in the user input section:
+```
+on:
+  workflow_dispatch:
+    inputs:
+      testcase:
+        type: choice
+        required: true
+        description: Select the test case you would like to generate
+        options: 
+          - 1 [LetExample]
+          - 2 [LetAddExample]
+          .
+          .
+          . 
+          - <Test Case ID> [<File Name>] 
+```
+
+
 ### Extending CLI <a id='sssExtendCLI'></a>
+
+1. To add a test case in the CLI go to the `cli/cmd/info.go` file and find the `Case_list` variable. Add an item to this list in the following format:
+
+```
+<Test Case ID (int)>: {
+		<Test Case ID (int)>,
+		"<Test Case Description (string)>",
+		"<File Name (string)> ",
+		<Upper Bound For Size (int)>,
+	},
+```
+
+2. Increase `maxID` variable in `cli/cmd/root.go` by 1.
+
+
+
 
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
@@ -522,7 +557,7 @@ Flags:
 6. **Error Handling:** If a type check times out, record the exit status as a time error. For any other error, record it as a memory error (program assumes that translation is correct, with no parsing, import, or syntax errors).
 7. **Memory Limit Check:** For Idris and Rocq, which do not allow a memory limit to be set, check that the recorded memory is less than the memory limit provided by the user (Default 3GB). If it is greater than or equal to the memory limit, set the exit status of the language to indicate a memory error.
 8. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artificial zero. 
-9. **Log Interval Handling:** If the selected interval is 'log,' take the log of each time and memory value. If any data is equal to or less than 0, set the data to the log base 2 of 0.01. 
+9. **Log Interval Handling:** If the selected interval is 'log,' take the log of each time and memory value. If any time is equal to or less than 0, set the time to the log base 2 of 0.01. 
 10. **Increment Size:** Increment the size based on the interval type.
 11. **Repeat Process:** Repeat steps 4-10 for the next size unless all languages have a non "OK" exit status, the incremented size exceeds the upper bound, or the number of data points exceeds the user-defined limit.
 12. **Store Data:** Save the time and memory usage data in a JSON file (data.json).

@@ -44,7 +44,7 @@
       <div class="text-base font-sans text-[#7795be]">
         For each proof assistant, if there is a red 'X' marker it indicates that the test case exceeded memory, and a blue 'X' marker indicates a time limit exceeded. A bright blue square marker indicates that there is an artificial zero (startup time is larger than type check time) at that point. <br/>
         {% if errors %}
-          <p class="mt-4 font-bold">TIMEOUT INFO:</p>
+          <p class="mt-4 font-bold">ERROR INFO:</p>
           <ul class="list-disc ml-4">
             {% for error in errors %}
               <li>{{ error.language }} has a <span class="font-bold italic">{{ error.type_of_error }}</span> error at size {{ error.size }}.</li>
