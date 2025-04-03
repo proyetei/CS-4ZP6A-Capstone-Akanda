@@ -77,7 +77,7 @@ var Case_list = map[int]Testcase{
 		5,
 		"Variable declaration with an identifier of a specified length",
 		"LongIdentifier",
-		100000000,
+		30000000,
 	},
 	6: {
 		6,
@@ -89,19 +89,19 @@ var Case_list = map[int]Testcase{
 		7,
 		"A very long chain (N) of dependent record definitions",
 		"ChainDef_DependentRecordModule",
-		20000,
+		10000,
 	},
 	8: {
 		8,
 		"A record with N parameters",
 		"Parameters_DependentRecordModule",
-		3500,
+		3000,
 	},
 	9: {
 		9,
 		"A file with N newlines",
 		"NewlineFile",
-		100000000,
+		20000000,
 	},
 	10: {
 		10,
@@ -119,7 +119,7 @@ var Case_list = map[int]Testcase{
 		12,
 		"A simple datatype with N constructors accepting no parameters",
 		"Constructors_Datatypes",
-		10000,
+		20000,
 	},
 	13: {
 		13,
@@ -149,7 +149,7 @@ var Case_list = map[int]Testcase{
 		17,
 		"A file consisting of a single long line with N characters",
 		"SingleLongLine",
-		100000,
+		10000000,
 	},
 	18: {
 		18,
