@@ -7,8 +7,22 @@
 - [Technology Stack](#ssTechnologyStack)
 - [Available Test Cases](#ssAvailableCases)
 - [How To Add Test Cases](#ssAddCases)
+    - [Writing Dynamic Test Cases in MHPG](#sssExtendMHPG)
+    - [Extending CI](#sssExtendCI)
+    - [Extending CLI](#sssExtendCI)
 - [CI Workflows](#ssCIWorkflows)
+    - [Build Workflow](#sssBuildWorkflow)
+    - [Generate-List Test Cases Workflow](#sssListWorkflow)
+    - [Generate-Range Test Cases Workflow](#sssRangeWorkflow)
+    - [Startup-Time Workflow](#sssStartupWorkflow)
+    - [Tests Workflow](#sssTestWorkflow)
+    - [Additional Notes](#sssAddNotes)
 - [CLI](#ssCLI)
+    - [Local Installation Instructions](#sssInstallation)
+    - [generate-list Command](#sssListCommand)
+    - [generate-range Command](#sssRangeCommand)
+    - [startup-time Command](#sssStartupCommand)
+    - [print Command](#sssPrintCommand)
 - [Webpage](#ssWebpage)
 - [Sources](#ssSources)
 
@@ -313,21 +327,17 @@ N = let
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
-### Writing Dynamic Test Cases in MHPG
+### Writing Dynamic Test Cases in MHPG <a id='sssExtendMHPG'></a>
 
+### Extending CI Workflows <a id='sssExtendCI'></a>
 
-
-### Extending MHPG
-
-### Extending CI Workflows
-
-### Extending CLI
+### Extending CLI <a id='sssExtendCLI'></a>
 
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
 The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). 
 
-### Build Workflow
+### Build Workflow <a id='sssBuildWorkflow'></a>
 Allows users to build the CLI and the translator as well as creating and pushing the docker image. 
 
 <img src="images/build.png">
@@ -335,7 +345,7 @@ Allows users to build the CLI and the translator as well as creating and pushing
 **Required Inputs**: None
 **Triggers**: On push + Manual
 
-### Generate-List Test Cases Workflow
+### Generate-List Test Cases Workflow <a id='sssListWorkflow'></a>
 Allows users to generate and type check a selected test case at specific sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results. 
 
 <img src="images/generate-list.png">
@@ -343,7 +353,7 @@ Allows users to generate and type check a selected test case at specific sizes i
 **Required Inputs**: Test Case, Datapoint List
 **Triggers**: Manual
 
-### Generate-Range Test Cases Workflow
+### Generate-Range Test Cases Workflow <a id='sssRangeWorkflow'></a>
  Allows users to generate and type check a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results. 
 
 <img src="images/generate-range.png">
@@ -357,12 +367,12 @@ Interval Type: The interval between the generated datapoints (select from provid
 
 **Triggers**: Manual
 
-### Startup-Time Workflow
+### Startup-Time Workflow <a id='sssStartupWorkflow'></a>
 
 **Required Inputs**: None
 **Triggers**: Manual
 
-### Tests Workflow
+### Tests Workflow <a id='sssTestWorkflow'></a>
 Allows users to test the translator for a selected testcase at a size between 1 and 20.
 
 <img src="images/tests.png">
@@ -372,7 +382,7 @@ Test Case: Specifies which test case is translated and type checked (select from
 Size: Specifies the size we want the translated test case to be (must be an integer value >= 1)
 **Triggers**: Manual
 
-### Additional Notes
+### Additional Notes <a id='sssAddNotes'></a>
 - The Generate-List and Generate-Range workflows set the maximum memory of the type checking commands to 10GB
 - The artifacts of each workflow have a retention period of 2 days
 - The Generate-Range, Generate-List, and Startup-Time workflows uses the Docker container associated with the branch the workflow is being run on. For example, if the Generate-List workflow is running on a branch called 'feature_branch', the workflow uses the docker image `mphgeez/mhpg:feature_branch`. The main branch uses the `latest` tag.
@@ -381,24 +391,22 @@ Size: Specifies the size we want the translated test case to be (must be an inte
 
 
 ## CLI <a id='ssCLI'></a>
+CLI tool for generating and analyzing test cases of varying sizes across Lean, Idris, Agda, and Rocq.
 
 ### Things TODO
-- Docker cp commands to get startup and data files
-- add max memory limit behaviour to behaviour section
 - Add versioning
-- Add links
 - Add upper bounds to available test cases table
 - Format CI section better
 - Add Extending Sections
 - Update CI diagrams
 
-### Local Installation Instructions
+### Local Installation Instructions <a id='sssInstallation'></a>
 1. Install Docker https://docs.docker.com/engine/install/
 2. Pull Docker image `docker pull mhpgeez/mhpg`
 3. For CLI usage information run the Docker container using the command: `docker run -it --rm mhpgeez/mhpg:latest help` (**note** In the help section, ignore the 'mhpgeez' prefix since it is the entrypoint of the Docker container)
-4. To run a test, use the command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` 
+4. To run a test, use the command: `docker run -it --name benchpal -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` 
 
-### generate-list Command
+### generate-list Command <a id='sssListCommand'></a>
 
 **Description:** Generates and type checks a selected test case at a provided list of sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results.
 
@@ -422,15 +430,18 @@ Flags:
 4. **Translate Test Case:** Translate the selected test case for the first size in the sorted list (no timeout set for translation)
 5. **Type Check Execution:** Execute the type check command on the translated files for all languages with an "OK" exit status. Record the time and memory usage using GNU time command (type check commands have 120s timeout).
 6. **Error Handling:** If a type check times out, record the exit status as a time error. For any other error, record it as a memory error (program assumes that translation is correct, with no parsing, import, or syntax errors).
-7. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artifical zero. 
-8. **Repeat Process:** Repeat steps 4-7 for all sizes in the sorted list unless all languages have a non "OK" exit status.
-9. **Store Data:** Save the time and memory usage data in a JSON file (data.json).
-10. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
-11. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
+7. **Memory Limit Check:** For Idris and Rocq, which do not allow a memory limit to be set, check that the recorded memory is less than the memory limit provided by the user (Default 3GB). If it is greater than or equal to the memory limit, set the exit status of the language to indicate a memory error.
+8. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artificial zero. 
+9. **Repeat Process:** Repeat steps 4-8 for all sizes in the sorted list unless all languages have a non "OK" exit status.
+10. **Store Data:** Save the time and memory usage data in a JSON file (data.json).
+11. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
+12. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
 
-**Example Run:** `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 1 -d 1,2,3 -v`
+**Example Run:** `docker run -it --name benchpal -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 1 -d 1,2,3 -v`
 
-### generate-range Command
+**Get startup.json:** `docker cp benchpal:/code/data.json ./`
+
+### generate-range Command <a id='sssRangeCommand'></a>
 ```
 Usage:
   mhpgeez generate-range [flags]
@@ -454,17 +465,20 @@ Flags:
 4. **Translate Test Case:** Translate the selected test case for the first size (no timeout set for translation)
 5. **Type Check Execution:** Execute the type check command on the translated files for all languages with an "OK" exit status. Record the time and memory usage using GNU time command (type check commands have 120s timeout).
 6. **Error Handling:** If a type check times out, record the exit status as a time error. For any other error, record it as a memory error (program assumes that translation is correct, with no parsing, import, or syntax errors).
-7. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artificial zero. 
-8. **Log Interval Handling:** If the selected interval is 'log,' take the log of each time and memory value. If any data is equal to or less than 0, set the data to the log base 2 of 0.01. 
-9. **Increment Size:** Increment the size based on the interval type.
-10. **Repeat Process:** Repeat steps 4-9 for the next size unless all languages have a non "OK" exit status, the incremented size exceeds the upper bound, or the number of data points exceeds the user-defined limit.
-11. **Store Data:** Save the time and memory usage data in a JSON file (data.json).
-12. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
-13. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
+7. **Memory Limit Check:** For Idris and Rocq, which do not allow a memory limit to be set, check that the recorded memory is less than the memory limit provided by the user (Default 3GB). If it is greater than or equal to the memory limit, set the exit status of the language to indicate a memory error.
+8. **Normalize Data** Subtract startup times from the recorded times to normalize the data. If the startup time is larger than the recorded time, record the time as an artificial zero. 
+9. **Log Interval Handling:** If the selected interval is 'log,' take the log of each time and memory value. If any data is equal to or less than 0, set the data to the log base 2 of 0.01. 
+10. **Increment Size:** Increment the size based on the interval type.
+11. **Repeat Process:** Repeat steps 4-10 for the next size unless all languages have a non "OK" exit status, the incremented size exceeds the upper bound, or the number of data points exceeds the user-defined limit.
+12. **Store Data:** Save the time and memory usage data in a JSON file (data.json).
+13. **Generate Graphs:** Run a Python script to generate graphs from the JSON file and deploy a webpage at `http://127.0.0.1:5001/`.
+14. **Terminate Command:** Use `CTRL + C` to terminate the command and close the webpage.
 
-**Example Run:** `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-range -t 1 -l 1 -u 500 -d 5 -v`
+**Example Run:** `docker run -it --name benchpal -p "5001:5001" mhpgeez/mhpg:latest generate-range -t 1 -l 1 -u 500 -d 5 -v`
 
-### startup-time command
+**Get data.json:** `docker cp benchpal:/code/data.json ./`
+
+### startup-time command <a id='sssStartupCommand'></a>
 **Description:** Records the startup time for each test case in Agda, Idris, Lean, and Rocq, saving the data to a JSON file called startup.json.
 
 ```
@@ -484,10 +498,12 @@ Flags:
 - Fastest real, user, system times for each test case in each language is stored in the startup.json file
 
 
-**Example Run:** `docker run -it --rm mhpgeez/mhpg:latest startup-time -v`
+**Example Run:** `docker run -it mhpgeez/mhpg:latest startup-time -v`
+
+**Get startup.json:** `docker cp benchpal:/code/startup.json ./`
 
 
-### print Command
+### print Command <a id='sssPrintCommand'></a>
 **Description:** Prints the available test cases (id, description) and their maximum upper bounds.
 ```
 Usage:
