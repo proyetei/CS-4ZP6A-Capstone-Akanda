@@ -608,7 +608,18 @@ Flags:
 
 **Example Run:** `docker run -it --rm mhpgeez/mhpg:latest print`
 
-## Webpage <a id='ssWebpage'></a>
+## Graph generation <a id='ssGraph'></a>
+#### Libraries and APIs used:
+
+| Library           | Purpose                                                                 |
+|-------------------|-------------------------------------------------------------------------|
+| **Flask**         | Web server setup, routing (`@app.route`), and HTML templating (`render_template`). |
+| **Matplotlib**    | Graph generation (time/memory complexity plots) with non-GUI backend (`'Agg'`). |
+| **OS**            | File path handling (`os.path.join`, `os.path.dirname`).                |
+| **Base64**        | Encoding plot images to base64 for HTML embedding.                      |
+| **IO (BytesIO)**  | In-memory binary storage of plot images (avoiding disk writes).         |
+
+## Website <a id='ssWebsite'></a>
 
 ## Sources <a id='ssSources'></a>
 - https://discourse.nixos.org/t/how-to-use-nix-only-in-docker-for-a-project/18043
