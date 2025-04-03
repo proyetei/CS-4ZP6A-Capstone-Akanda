@@ -609,6 +609,7 @@ Flags:
 **Example Run:** `docker run -it --rm mhpgeez/mhpg:latest print`
 
 ## Graph generation <a id='ssGraph'></a>
+
 #### Libraries and APIs used:
 
 | Library           | Purpose                                                                 |
@@ -620,6 +621,10 @@ Flags:
 | **IO (BytesIO)**  | In-memory binary storage of plot images (avoiding disk writes).         |
 
 ## Website <a id='ssWebsite'></a>
+- Displays benchmark results in the website.
+- Shows the four types of performance graphs (real/user/system time + memory) as embedded images
+- An error message appears if one exists with information on the size, language, and type of error
+- Built with Python, Flask, HTML and Tailwind CSS, it works seamlessly on Vercel by converting graphs to base64 text.  
 
 ## Sources <a id='ssSources'></a>
 - https://discourse.nixos.org/t/how-to-use-nix-only-in-docker-for-a-project/18043
