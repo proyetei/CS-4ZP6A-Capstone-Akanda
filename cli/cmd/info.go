@@ -143,7 +143,7 @@ var Case_list = map[int]Testcase{
 		16,
 		"A simple datatype declaration with a specified number of indices, defined implicitly",
 		"DataImplicitIndices",
-		1000,
+		10000,
 	},
 	17: {
 		17,
