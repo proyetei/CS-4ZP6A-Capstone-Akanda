@@ -243,10 +243,10 @@ _tests =
        in Module "DataImplicitIndices" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
         iszero 0 = []
-        iszero _ = [DefVar "A" Nothing $ String (genLongValue n)]    
-        genLongValue 1 = "x"
-        genLongValue m = 'x' : genLongValue (m-1)
-        in Module "SingleLongLine" []  $ iszero n
+        iszero _ = [DefVar "A" Nothing $ Int (read (genLongValue n))]    
+        genLongValue 1 = "1"
+        genLongValue m = '1' : genLongValue (m-1)
+        in Module "SingleLongLine" [ImportLib "Nat"]  $ iszero n
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         let
             iszero 0 = []
