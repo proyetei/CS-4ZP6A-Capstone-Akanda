@@ -242,8 +242,11 @@ _tests =
         genIndex m = genIndexName m : genIndex (m-1)
        in Module "DataImplicitIndices" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
-        singleLine = replicate n 'x'
-    in File "SingleLongLine" singleLine
+        iszero 0 = []
+        iszero _ = [DefVar "A" Nothing $ String (genLongValue n)]    
+        genLongValue 1 = "x"
+        genLongValue m = 'x' : genLongValue (m-1)
+        in Module "SingleLongLine" []  $ iszero n
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         let
             iszero 0 = []
