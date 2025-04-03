@@ -331,29 +331,52 @@ Allows users to build the CLI and the translator as well as creating and pushing
 
 <img src="images/build.png">
 
+**Required Inputs**: None
+**Triggers**: On push + Manual
+
 ### Generate-List Test Cases Workflow
 Allows users to generate and type check a selected test case at specific sizes in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results. 
 
 <img src="images/generate-list.png">
 
-
+**Required Inputs**: Test Case, Datapoint List
+**Triggers**: Manual
 
 ### Generate-Range Test Cases Workflow
  Allows users to generate and type check a selected over a range of sizes with a linear, quadratic or log interval in Agda, Idris, Lean, and Rocq, and provides a URL where users can access the webpage with the time and memory results. 
 
 <img src="images/generate-range.png">
 
+**Required Inputs**: Test Case, Lower Bound, Upper Bound, Number of Datapoints, Interval Type
+Test Case: Specifies which test case the data is generated for (select from provided list)
+Lower Bound: The lower bound for the generated sizes of the test case (must be an integer >= 1) 
+Upper Bound: The upper bound for the generated sizes of the test case (must be an interger >= 1)
+Number of Datapoints: The number of generated datapoints (must be an integer between 1 and 150)
+Interval Type: The interval between the generated datapoints (select from provided list)
+
+**Triggers**: Manual
+
 ### Startup-Time Workflow
+
+**Required Inputs**: None
+**Triggers**: Manual
 
 ### Tests Workflow
 Allows users to test the translator for a selected testcase at a size between 1 and 20.
 
 <img src="images/tests.png">
 
-**Things to add:** 
-- The tag of the dockerfile is based on the branch that is running the workflow, if it is the main branch the tag is set to "latest" otherwise it is set to the branch name
-- required inputs for each workflow + descriptions
-- Usage Instructions(i.e. Go to Actions Tab > Go to Build tab > Go to Run Workflow tab > Choose branch > Click Run Workflow) for each workflow???
+**Required Inputs**: Test Case, Size
+Test Case: Specifies which test case is translated and type checked (select from provided list)
+Size: Specifies the size we want the translated test case to be (must be an integer value >= 1)
+**Triggers**: Manual
+
+### Additional Notes
+- The Generate-List and Generate-Range workflows set the maximum memory of the type checking commands to 10GB
+- The artifacts of each workflow have a retention period of 2 days
+- The Generate-Range, Generate-List, and Startup-Time workflows uses the Docker container associated with the branch the workflow is being run on. For example, if the Generate-List workflow is running on a branch called 'feature_branch', the workflow uses the docker image `mphgeez/mhpg:feature_branch`. The main branch uses the `latest` tag.
+- If a Generate-Test or Generate-Range Worflow fails, Check the `generate-list/generate-range` job logs to ensure the provided inputs were valid (under `Run Tests` step).
+- More information about the different input options can be found in the CLI section
 
 
 ## CLI <a id='ssCLI'></a>
@@ -365,12 +388,7 @@ Allows users to test the translator for a selected testcase at a size between 1 
 4. To run a test use the command: `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest [COMMAND] [FLAGS]` (eg `docker run -it --rm -p "5001:5001" mhpgeez/mhpg:latest generate-list -t 2 -d 1,2,3 -v`)
 
 ## Sources <a id='ssSources'></a>
-- https://www.youtube.com/watch?v=U7TY_qUD8yA
-- https://github.com/marketplace/actions/build-and-push-docker-images
 - https://discourse.nixos.org/t/how-to-use-nix-only-in-docker-for-a-project/18043
-- https://stackoverflow.com/questions/48470049/build-a-json-string-with-bash-variables
-- https://stackoverflow.com/questions/3795470/how-do-i-get-just-real-time-value-from-time-command
-- https://community.unix.com/t/storing-output-of-time-command-to-a-variable/281158/2
 - https://dev.to/aws-builders/running-jobs-in-a-container-via-github-actions-securely-p0c
 - https://github.com/rishabkumar7/aws-devops-capstone-project/blob/main/.github/workflows/build-docker.yaml
 - https://goobar.dev/manually-triggering-github-actions-workflows/
@@ -378,4 +396,3 @@ Allows users to test the translator for a selected testcase at a size between 1 
 - https://stackoverflow.com/a/67752977
 - https://jarv.org/posts/command-with-timeout/
 - https://qmacro.org/blog/posts/2021/03/26/mass-deletion-of-github-actions-workflow-runs/
-- https://github.com/orgs/community/discussions/25725

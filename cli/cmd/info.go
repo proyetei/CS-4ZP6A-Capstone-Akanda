@@ -196,7 +196,7 @@ var Language_list = []Language{
 	{
 		"Lean",
 		".lean",
-		"lean --timeout=0",
+		"lean -D maxRecDepth=2000 -D maxHeartbeats=0",
 	},
 }
 
