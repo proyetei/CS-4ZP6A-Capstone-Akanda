@@ -5,6 +5,7 @@
 - [Group Members](#ssGroupMembers) 
 - [Demo](#ssDemo) 
 - [Technology Stack](#ssTechnologyStack)
+- [Versions](#ssVersions)
 - [Available Test Cases](#ssAvailableCases)
 - [How To Add Test Cases](#ssAddCases)
     - [Writing Dynamic Test Cases in MHPG](#sssExtendMHPG)
@@ -50,6 +51,20 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 - Flask + Python for the backend
 - HTML/Tailwind CSS/JavaScript for frontend
 - Vercel for deployment
+
+## Versions <a id='ssVersions'></a>
+- Python (3.12.3)
+- Lean (4.17.0)
+- Idris2 (0.7.0)
+- Rocq (8.20.1)
+- Agda (2.7.0.1)
+- Nix Channel (24.11 and Unstable)
+- Docker (26.1.3)
+- GHC (9.4.7)
+- Cabal (3.8.1.0)
+- Go (1.23.6)
+
+
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
 <table>
@@ -393,6 +408,9 @@ Allows users to generate and type check a selected test case at specific sizes i
 **Triggers**: Manual
 
 ### Startup-Time Workflow <a id='sssStartupWorkflow'></a>
+Allows the user to records the startup time for each test case in Agda, Idris, Lean, and Rocq, saving the data to a JSON file `startup.json`
+
+<img src="images/startup-time.png">
 
 **Required Inputs**: None
 
@@ -424,22 +442,19 @@ Allows users to test the translator for a selected testcase at a size between 1 
 **Triggers**: Manual
 
 ### Additional Notes <a id='sssAddNotes'></a>
-- The Generate-List and Generate-Range workflows set the maximum memory of the type checking commands to 10GB
-- The artifacts of each workflow have a retention period of 2 days
-- The Generate-Range, Generate-List, and Startup-Time workflows uses the Docker container associated with the branch the workflow is being run on. For example, if the Generate-List workflow is running on a branch called 'feature_branch', the workflow uses the docker image `mphgeez/mhpg:feature_branch`. The main branch uses the `latest` tag.
-- If a Generate-Test or Generate-Range Worflow fails, Check the `generate-list/generate-range` job logs to ensure the provided inputs were valid (under `Run Tests` step).
-- More information about the different input options can be found in the CLI section
-
+- **Memory Limit:** The Generate-List and Generate-Range workflows have a maximum memory limit of **10GB** for type checking commands. 
+- **Artifact Retention:** Artifacts from each workflow have a retention period of **2 days**
+- **Docker Container Usage:** The Generate-Range, Generate-List, and Startup-Time workflows uses the Docker container associated with the branch the workflow is running on. For example, if the Generate-List workflow is running on a branch called `feature_branch`, it will use the Docker image `mphgeez/mhpg:feature_branch`. The main branch uses the `latest` tag.
+- **Workflow Failiure:** If a Generate-List or Generate-Range Worflow fails, Check the `generate-list/generate-range` job logs to ensure the provided inputs were valid (under `Run Tests` step).
+- **Vercel Deployment Management:** Before the Generate-List or Generate-Range Worflows deploy to vercel, a Python script is run to remove deployments older than **24 hours** and to ensure there are less than **15 active deployments**. If there are 15 ore more deployments, the oldest deployments  are removed until there are only **14**. 
+- **Workflow Inputs:** Any required inputs are stored the inputs in the job summary at the beginning of the workflow (`workflow-inputs` job). 
 
 ## CLI <a id='ssCLI'></a>
 CLI tool for generating and analyzing test cases of varying sizes across Lean, Idris, Agda, and Rocq.
 
 ### Things TODO
-- Add versioning
-- Add vercel deployment removal behaviour for generate-list and generate-range + 100 preview deployment limit per 24h
 - Add upper bounds to available test cases table
 - Add Extending Sections
-- Update CI diagrams
 
 ### Local Installation Instructions <a id='sssInstallation'></a>
 1. Install Docker https://docs.docker.com/engine/install/
