@@ -73,7 +73,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
         <th>Agda Example For Size N = 3</th>
     </tr>
     <tr>
-        <td>LetExample (ID = 1)<br>A series of N nested let statements. </td>
+        <td>LetExample (ID = 1)<br>A series of N nested let statements. <br>(Upper Bound Limit: 5000) </td>
         <td>
             <pre><code>n : Nat
 n = let
@@ -89,7 +89,7 @@ n = let
         </td>
     </tr>
     <tr>
-        <td>LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables based on previous definitions</td>
+        <td>LetAddExample (ID = 2)<br>A series of N nested let statements that define and use sequential variables based on previous definitions <br>(Upper Bound Limit: 1000)</td>
         <td>
             <pre><code>n : Nat
 n = let
@@ -105,7 +105,7 @@ n = let
         </td>
     </tr>
     <tr>
-        <td>NestedFunction (ID = 3)<br>A series of N nested functions</td>
+        <td>NestedFunction (ID = 3)<br>A series of N nested functions <br>(Upper Bound Limit: 250)</td>
         <td>
             <pre><code>n : Nat
 n = let
@@ -119,7 +119,7 @@ n = let
         </td>
     </tr>
     <tr>
-        <td>DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations</td>
+        <td>DataSimpleDeclarations (ID = 4)<br>A specified number of simple datatype declarations <br>(Upper Bound Limit: 1000)</td>
         <td>
             <pre><code>data x3 : Set where
  y : Bool
@@ -130,14 +130,14 @@ data x1 : Set where
         </td>
     </tr>
     <tr>
-        <td>LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length</td>
+        <td>LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length <br>(Upper Bound Limit: 5000000)</td>
         <td>
             <pre><code>xxx : Nat
 xxx = 0</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Fields_DependentRecordModule (ID = 6)<br>A record declaration with N dependent fields</td>
+        <td>Fields_DependentRecordModule (ID = 6)<br>A record declaration with N dependent fields <br>(Upper Bound Limit: 250)</td>
         <td>
             <pre><code>record X : Set where
     constructor Const
@@ -151,7 +151,7 @@ example = Const 1 (1 ∷ []) (1 ∷ 1 ∷ [])</code></pre>
         </td>
     </tr>
     <tr>
-        <td>ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions</td>
+        <td>ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions <br>(Upper Bound Limit: 20000)</td>
         <td>
             <pre><code>record Record1 : Set where
     constructor Const1
@@ -171,7 +171,7 @@ example =  Const3 (Const2 (Const1 10) )</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Parameters_DependentRecordModule (ID = 8)<br>A record with N parameters</td>
+        <td>Parameters_DependentRecordModule (ID = 8)<br>A record with N parameters <br> (Upper Bound Limit: 3500)</td>
         <td>
             <pre><code>record X (f1 : Nat) (f2 : Nat) (f3 : Nat) : Set where
     constructor Const
@@ -184,7 +184,7 @@ example = Const (1 + 2 + 3)  (1 ∷ 2 ∷ 3 ∷ [])</code></pre>
         </td>
     </tr>
     <tr>
-        <td>NewlineFile (ID = 9)<br>A file with N newlines</td>
+        <td>NewlineFile (ID = 9)<br>A file with N newlines <br> (Upper Bound Limit: 500000)</td>
         <td>
             <pre><code>
 
@@ -192,7 +192,7 @@ example = Const (1 + 2 + 3)  (1 ∷ 2 ∷ 3 ∷ [])</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Fields_NonDependentRecordModule (ID = 10)</td>
+        <td>Fields_NonDependentRecordModule (ID = 10) <br> A record declaration with N independent fields <br> (Upper Bound Limit: 2000)</td>
         <td>
             <pre><code>record X : Set where
     constructor Const
@@ -206,7 +206,7 @@ example = Const 1 1 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>ChainDefFields_NonDependentRecordModule (ID = 11)</td>
+        <td>ChainDefFields_NonDependentRecordModule (ID = 11) A very long chain (N) of independent record definitions<br> (Upper Bound Limit: 5305)</td>
         <td>
             <pre><code>record Record1 : Set where
     constructor Const1
@@ -226,7 +226,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Constructors_Datatypes (ID = 12)<br>defines a datatype with N simple constructors</td>
+        <td>Constructors_Datatypes (ID = 12)<br>defines a datatype with N simple constructors <br> (Upper Bound Limit: 10000)</td>
         <td>
             <pre><code>data d : Set where
  c1 : d 
@@ -235,14 +235,14 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Parameters_Datatypes (ID = 13)<br>defines a datatype with a single constructor accepting N parameters</td>
+        <td>Parameters_Datatypes (ID = 13)<br>defines a datatype with a single constructor accepting N parameters<br>(Upper Bound Limit: 5000)</td>
         <td>
             <pre><code>data d (p1: Type)  (p2: Type)  (p3: Type) : Set where
  c : d p1 p2 p3</code></pre>
         </td>
     </tr>
     <tr>
-        <td>FirstLast_VariableModule (ID = 14)<br>defines N variables, and uses both the first and last one in a declaration, N>=2</td>
+        <td>FirstLast_VariableModule (ID = 14)<br>defines N variables, and uses both the first and last one in a declaration, N>=2<br>(Upper Bound Limit: 20000)</td>
         <td>
             <pre><code>x1 : Nat
 x1 = 1
@@ -255,7 +255,7 @@ result = x1 + x3</code></pre>
         </td>
     </tr>
     <tr>
-        <td>DeepDependency_VariableModule (ID = 15)<br>Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression</td>
+        <td>DeepDependency_VariableModule (ID = 15)<br>Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression<br>(Upper Bound Limit: 5000)</td>
         <td> For N = 1
             <pre><code>x1L1 : Nat
 x1L1 = 1
@@ -282,20 +282,20 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>DataImplicitIndices (ID = 16)<br>A simple datatype declaration with a specified number of indices, defined implicitly</td>
+        <td>DataImplicitIndices (ID = 16)<br>A simple datatype declaration with a specified number of indices, defined implicitly<br>(Upper Bound Limit: 1000)</td>
         <td>
             <pre><code>data D : Nat -> Nat -> Nat -> Set where
  C1 : {x3 x2 x1 : Nat} -> D x3 x2 x1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>SingleLongLine (ID = 17)<br>A file consisting of a single long line with N characters</td>
+        <td>SingleLongLine (ID = 17)<br>A file consisting of a single long line with N characters<br>(Upper Bound Limit: 100000)</td>
         <td>
             <pre><code>xxx</code></pre>
         </td>
     </tr>
     <tr>
-        <td>ConstructorsParameters_Datatypes (ID = 18)<br>A single datatype where N represents the number of 'Type' parameters, all needed for N constructors</td>
+        <td>ConstructorsParameters_Datatypes (ID = 18)<br>A single datatype where N represents the number of 'Type' parameters, all needed for N constructors<br>(Upper Bound Limit: 1000)</td>
         <td>
             <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
  C1 : D P1 P2 P3 
@@ -304,7 +304,7 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, with N constructors that each use a different number of indices</td>
+        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, with N constructors that each use a different number of indices<br>(Upper Bound Limit: 500)</td>
         <td>
             <pre><code>data D : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
  C1 : {X1 : Nat} -> D X1 0 0 0 0 
@@ -315,14 +315,14 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>IndicesParameters_Datatypes (ID = 20)<br>A single datatype where N represents the number of 'Type' parameters as well as the number of indices</td>
+        <td>IndicesParameters_Datatypes (ID = 20)<br>A single datatype where N represents the number of 'Type' parameters as well as the number of indices<br>(Upper Bound Limit: 2000)</td>
         <td>
             <pre><code>data D (p1 : Set)  (p2 : Set)  (p3 : Set)  : Nat -> Nat -> Nat -> Set where
  C : {X3 X2 X1 : Nat} -> D p1 p2 p3 X1 X2 X3</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Pattern_Matching_Datatypes (ID = 21)<br>A function pattern matching on N constructors of a datatype</td>
+        <td>Pattern_Matching_Datatypes (ID = 21)<br>A function pattern matching on N constructors of a datatype<br>(Upper Bound Limit: 5000)</td>
         <td>
             <pre><code>data D : Set where
  C1 : D 
