@@ -30,7 +30,7 @@ on:
         - 20 [IndicesParameters_Datatypes]
         - 21 [Pattern_Matching_Datatypes]
       size:
-        description: Select the size of the test case (must be an integer value between 1 and 20)
+        description: Select the size of the test case (must be an integer value between 0 and 20)
         required: true
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@v2 
       - name: Run Test
         run: |
-          if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 1 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 1 and 20"; exit 1; fi
+          if ! [[ "${{ github.event.inputs.size }}" =~ ^[0-9]+$ ]] || [ "${{ github.event.inputs.size }}" -le 0 ] || [ "${{ github.event.inputs.size }}" -ge 21 ]; then echo "Please input a value between 0 and 20"; exit 1; fi
           cd translators
           ghc -o translators main.hs
           chmod +x translators
@@ -66,13 +66,21 @@ jobs:
           cd out 
           GREEN='\033[0;32m'
           file_name=$(echo '${{ github.event.inputs.testcase }}' | grep -oP '\[\K[^\]]+')
-          echo -e "${GREEN} Coq $file_name Output:"
+          echo -e "${GREEN} Coq $file_name:"
+          cat "$file_name.v"
+          echo -e "${GREEN} Coq $file_name Type Check Output:"
           coqc "$file_name.v"
-          echo -e "${GREEN} Lean $file_name Output:"
+          echo -e "${GREEN} Lean $file_name:"
+          cat "$file_name.lean"
+          echo -e "${GREEN} Lean $file_name Type Check Output:"
           lean "$file_name.lean" 
-          echo -e "${GREEN} Idris $file_name Output:"
+          echo -e "${GREEN} Idris $file_name:"
+          cat "$file_name.idr"
+          echo -e "${GREEN} Idris $file_name Type Check Output:"
           idris2 --check "$file_name.idr"
-          echo -e "${GREEN} Agda $file_name Output:"
+          echo -e "${GREEN} Agda $file_name:"
+          cat "./$file_name.agda"
+          echo -e "${GREEN} Agda $file_name Type Check Output:"
           agda "./$file_name.agda"
         shell: bash
       - name: Store generated files as artifacts
