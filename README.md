@@ -68,8 +68,8 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Language Considerations <a id='ssLanguageConsideration'></a>
 - Lean has maximum recursion depth set to 2000 and the maximum heartbeats disabled
-- Lean has a limit of 257 fields in a record
-- Lean has a limit of parameters ...
+- Lean has a limit of 256 fields in a record
+- Lean has a limit of 127 parameters in a datatype, giving a 'type mismatch' error with any more
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
 <table>
