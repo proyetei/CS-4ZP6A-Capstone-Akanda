@@ -295,7 +295,12 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
     <tr>
         <td>SingleLongLine (ID = 17)<br>A file consisting of a single long line with N characters<br>(Upper Bound Limit: 10000000)</td>
         <td>
-            <pre><code>xxx</code></pre>
+            <pre><code>module SingleLongLine where 
+open import Agda.Builtin.String
+
+A : String
+A = "xxx"
+</code></pre>
         </td>
     </tr>
     <tr>
