@@ -44,7 +44,7 @@ interactive proof assistants including Lean, Idris, Agda, and Rocq. Testing will
 The project will also include a command line interface enabling users to view the time and memory complexity and provide a link redirecting them to local webpages presenting visualizations of the measured data.
 
 ## Demo <a id='ssDemo'></a>
-This is an example output for one of the test cases, please run GitHub Actions to run your own tests!
+This is an example output for one of the test cases, please run GitHub Actions to run your own tests! (See CI Workflows Section)
 https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Technology Stack <a id='ssTechnologyStack'></a>
@@ -473,7 +473,7 @@ on:
 
 ## CI Workflows - Run System <a id='ssCIWorkflows'></a>
 
-The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). 
+The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). For visual instructions on how to run our project watch the demo video located [here](https://github.com/proyetei/CS-4ZP6A-Capstone-Akanda/blob/main/Deliverables/capstone-demo-v2.mp4) starting from 1:05.
 
 ### Build Workflow <a id='sssBuildWorkflow'></a>
 Allows users to build the CLI and the translator as well as creating and pushing the docker image. 
