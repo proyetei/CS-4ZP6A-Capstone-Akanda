@@ -177,7 +177,7 @@ func rangeInputValidation(input int) Testcase {
 func init() {
 	rootCmd.AddCommand(generateRangeCmd)
 	generateRangeCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "Specifies which test case the data is generated for")
-	generateRangeCmd.PersistentFlags().IntVarP(&lowerBound, "lower", "l", 1, "The lower bound for the generated sizes of the test case (>= 1)")
+	generateRangeCmd.PersistentFlags().IntVarP(&lowerBound, "lower", "l", 1, "The lower bound for the generated sizes of the test case (>= 0)")
 	generateRangeCmd.PersistentFlags().IntVarP(&upperBound, "upper", "u", 500, "The upper bound for the generated sizes of the test case")
 	generateRangeCmd.PersistentFlags().StringVarP(&interval, "interval", "i", "linear", "The interval between datapoints (log, linear, quadratic)")
 	generateRangeCmd.PersistentFlags().IntVarP(&num_points, "datapoints", "d", 5, "The number of generated datapoints (between 1 and 150)")
