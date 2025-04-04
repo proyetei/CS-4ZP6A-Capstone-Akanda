@@ -113,7 +113,7 @@ var Case_list = map[int]Testcase{
 		11,
 		"A very long chain (N) of independent record definitions",
 		"ChainDefFields_NonDependentRecordModule",
-		5305,
+		10000,
 	},
 	12: {
 		12,
@@ -131,19 +131,19 @@ var Case_list = map[int]Testcase{
 		14,
 		"defines N variables, and uses both the first and last one in a declaration, N>=2",
 		"FirstLast_VariableModule",
-		20000,
+		25000,
 	},
 	15: {
 		15,
 		"Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression",
 		"DeepDependency_VariableModule",
-		5000,
+		3500,
 	},
 	16: {
 		16,
 		"A simple datatype declaration with a specified number of indices, defined implicitly",
 		"DataImplicitIndices",
-		10000,
+		5000,
 	},
 	17: {
 		17,
@@ -155,13 +155,13 @@ var Case_list = map[int]Testcase{
 		18,
 		"A single datatype where N represents the number of 'Type' parameters, all needed for N constructors",
 		"ConstructorsParameters_Datatypes",
-		1000,
+		700,
 	},
 	19: {
 		19,
 		"A single datatype where N represents the number of indices, all needed for N constructors",
 		"IndicesConstructors_Datatypes",
-		500,
+		450,
 	},
 	20: {
 		20,

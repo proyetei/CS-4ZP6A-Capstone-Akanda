@@ -68,7 +68,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Language Considerations <a id='ssLanguageConsideration'></a>
 - Lean has maximum recursion depth set to 2000 and the maximum heartbeats disabled
-- Lean has a limit of fields in a record ()
+- Lean has a limit of 257 fields in a record
 - Lean has a limit of parameters ...
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
@@ -135,7 +135,7 @@ data x1 : Set where
         </td>
     </tr>
     <tr>
-        <td>LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length <br>(Upper Bound Limit: 5000000)</td>
+        <td>LongIdentifier (ID = 5)<br>Variable declaration with an identifier of a specified length <br>(Upper Bound Limit: 30000000)</td>
         <td>
             <pre><code>xxx : Nat
 xxx = 0</code></pre>
@@ -156,7 +156,7 @@ example = Const 1 (1 ∷ []) (1 ∷ 1 ∷ [])</code></pre>
         </td>
     </tr>
     <tr>
-        <td>ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions <br>(Upper Bound Limit: 20000)</td>
+        <td>ChainDef_DependentRecordModule (ID = 7)<br>A very long chain (N) of dependent record definitions <br>(Upper Bound Limit: 10000)</td>
         <td>
             <pre><code>record Record1 : Set where
     constructor Const1
@@ -176,7 +176,7 @@ example =  Const3 (Const2 (Const1 10) )</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Parameters_DependentRecordModule (ID = 8)<br>A record with N parameters <br> (Upper Bound Limit: 3500)</td>
+        <td>Parameters_DependentRecordModule (ID = 8)<br>A record with N parameters <br> (Upper Bound Limit: 3000)</td>
         <td>
             <pre><code>record X (f1 : Nat) (f2 : Nat) (f3 : Nat) : Set where
     constructor Const
@@ -188,7 +188,7 @@ example = Const (1 + 2 + 3)</code></pre>
         </td>
     </tr>
     <tr>
-        <td>NewlineFile (ID = 9)<br>A file with N newlines <br> (Upper Bound Limit: 500000)</td>
+        <td>NewlineFile (ID = 9)<br>A file with N newlines <br> (Upper Bound Limit: 20000000)</td>
         <td>
             <pre><code>
 
@@ -210,7 +210,7 @@ example = Const 1 1 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>ChainDefFields_NonDependentRecordModule (ID = 11) A very long chain (N) of independent record definitions<br> (Upper Bound Limit: 5305)</td>
+        <td>ChainDefFields_NonDependentRecordModule (ID = 11) A very long chain (N) of independent record definitions<br> (Upper Bound Limit: 10000)</td>
         <td>
             <pre><code>record Record1 : Set where
     constructor Const1
@@ -230,7 +230,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>Constructors_Datatypes (ID = 12)<br>defines a datatype with N simple constructors <br> (Upper Bound Limit: 10000)</td>
+        <td>Constructors_Datatypes (ID = 12)<br>defines a datatype with N simple constructors <br> (Upper Bound Limit: 20000)</td>
         <td>
             <pre><code>data d : Set where
  c1 : d 
@@ -246,7 +246,7 @@ example = Const 1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>FirstLast_VariableModule (ID = 14)<br>defines N variables, and uses both the first and last one in a declaration, N>=2<br>(Upper Bound Limit: 20000)</td>
+        <td>FirstLast_VariableModule (ID = 14)<br>defines N variables, and uses both the first and last one in a declaration, N>=2<br>(Upper Bound Limit: 25000)</td>
         <td>
             <pre><code>x1 : Nat
 x1 = 1
@@ -259,7 +259,7 @@ result = x1 + x3</code></pre>
         </td>
     </tr>
     <tr>
-        <td>DeepDependency_VariableModule (ID = 15)<br>Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression<br>(Upper Bound Limit: 5000)</td>
+        <td>DeepDependency_VariableModule (ID = 15)<br>Defines a series of dependent variables, with 10 variables at each level of dependency, and then utilizes the innermost variables in a subsequent expression<br>(Upper Bound Limit: 3500)</td>
         <td> For N = 1
             <pre><code>x1L1 : Nat
 x1L1 = 1
@@ -286,20 +286,20 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>DataImplicitIndices (ID = 16)<br>A simple datatype declaration with a specified number of indices, defined implicitly<br>(Upper Bound Limit: 1000)</td>
+        <td>DataImplicitIndices (ID = 16)<br>A simple datatype declaration with a specified number of indices, defined implicitly<br>(Upper Bound Limit: 5000)</td>
         <td>
             <pre><code>data D : Nat -> Nat -> Nat -> Set where
  C1 : {x3 x2 x1 : Nat} -> D x3 x2 x1</code></pre>
         </td>
     </tr>
     <tr>
-        <td>SingleLongLine (ID = 17)<br>A file consisting of a single long line with N characters<br>(Upper Bound Limit: 100000)</td>
+        <td>SingleLongLine (ID = 17)<br>A file consisting of a single long line with N characters<br>(Upper Bound Limit: 10000000)</td>
         <td>
             <pre><code>xxx</code></pre>
         </td>
     </tr>
     <tr>
-        <td>ConstructorsParameters_Datatypes (ID = 18)<br>A single datatype where N represents the number of 'Type' parameters, all needed for N constructors<br>(Upper Bound Limit: 1000)</td>
+        <td>ConstructorsParameters_Datatypes (ID = 18)<br>A single datatype where N represents the number of 'Type' parameters, all needed for N constructors<br>(Upper Bound Limit: 700)</td>
         <td>
             <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
  C1 : D P1 P2 P3 
@@ -308,7 +308,7 @@ result = 100 + x1L1 + x1L2 + x1L3 + x1L4 + x1L5 + x1L6 + x1L7 + x1L8 + x1L9 + x1
         </td>
     </tr>
     <tr>
-        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, with N constructors that each use a different number of indices<br>(Upper Bound Limit: 500)</td>
+        <td>IndicesConstructors_Datatypes (ID = 19)<br>A single datatype where N represents the number of indices, with N constructors that each use a different number of indices<br>(Upper Bound Limit: 450)</td>
         <td>
             <pre><code>data D : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
  C1 : {X1 : Nat} -> D X1 0 0 0 0 
@@ -350,7 +350,13 @@ N = let
 
 ### Extending CI Workflows <a id='sssExtendCI'></a>
 
-Add the new test case to the workflows in `./github/workflows/test.yml`, `./github/workflows/generate.yml`, and `./github/workflows/generate-list.yml`  in the user input section:
+To add a new test case, update the workflows in the following files:
+- `./github/workflows/test.yml`
+- `./github/workflows/generate.yml`
+- `./github/workflows/generate-list.yml` 
+
+In each file, include the test case in the user input section as shown below:
+
 ```
 on:
   workflow_dispatch:
@@ -368,11 +374,12 @@ on:
           - <Test Case ID> [<File Name>] 
 ```
 
-
 ### Extending CLI <a id='sssExtendCLI'></a>
 
-1. To add a test case in the CLI go to the `cli/cmd/info.go` file and find the `Case_list` variable. Add an item to this list in the following format:
-
+1.  **Update Test Case List:** 
+- Open `cli/cmd/info.go`.
+- Find `Case_list` variable.
+- Add new test case to this list in the following format:
 ```
 <Test Case ID (int)>: {
 		<Test Case ID (int)>,
@@ -382,8 +389,10 @@ on:
 	},
 ```
 
-2. Increase `maxID` variable in `cli/cmd/root.go` by 1.
+2. **Increment the maxID variable:**
+- In the `cli/cmd/root.go` file, increase the `maxID` variable by 1.
 
+**Note** The test case ID should be the integer following the last test case ID in the `Case_list` variable. 
 
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
