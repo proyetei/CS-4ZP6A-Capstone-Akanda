@@ -136,7 +136,7 @@ func listInputValidation(input int) Testcase {
 func init() {
 	rootCmd.AddCommand(generateListCmd)
 	generateListCmd.PersistentFlags().IntVarP(&caseID, "testcase", "t", 1, "Specifies which test case the data is generated for")
-	generateListCmd.PersistentFlags().IntSliceVarP(&datapoints, "datapoints", "d", []int{}, "List of up to 150 sizes (≥ 1) in comma-separated format (eg 1,2,3)")
+	generateListCmd.PersistentFlags().IntSliceVarP(&datapoints, "datapoints", "d", []int{}, "List of up to 150 sizes (≥ 0) in comma-separated format (eg 1,2,3)")
 	generateListCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates webpage with graph visualizations")
 	generateListCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
 	generateListCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Memory limit for the type checking commands in GB (between 1 to 15)")
