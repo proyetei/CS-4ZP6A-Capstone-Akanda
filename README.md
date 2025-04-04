@@ -743,3 +743,16 @@ Since Vercel (our hosting platform) doesn’t support saving image files, the ap
 - https://stackoverflow.com/a/67752977
 - https://jarv.org/posts/command-with-timeout/
 - https://qmacro.org/blog/posts/2021/03/26/mass-deletion-of-github-actions-workflow-runs/
+  
+Sources for Python, matplotlib, Flask, Vercel, HTML/Tailwind CSS 
+- https://overapi.com/python
+- https://www.digitalocean.com/community/tutorials/how-to-make-a-web-application-using-flask-in-python-3 
+- https://docs.python.org/3/library/os.html 
+- https://matplotlib.org/stable/gallery/user_interfaces/web_application_server_sgskip.html 
+- https://matplotlib.org/stable/users/explain/figure/backends.html 
+- https://docs.python.org/3/library/base64.html 
+- https://vercel.com/docs 
+- https://tailwindcss.com/docs/styling-with-utility-classes 
+- https://vercel.com/guides/how-to-use-python-and-javascript-in-the-same-application 
+  
+
