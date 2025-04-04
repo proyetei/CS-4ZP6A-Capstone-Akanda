@@ -56,10 +56,20 @@ var generateRangeCmd = &cobra.Command{
 			linear_inc = 1
 		}
 		if interval == "log" {
-			i = int(math.Pow(2, math.Ceil(math.Log2(float64(i)))))
+			if i == 0 {
+				i = 1
+			} else {
+				i = int(math.Pow(2, math.Ceil(math.Log2(float64(i)))))
+
+			}
 		}
 		if interval == "quadratic" {
-			i = int(math.Pow(math.Ceil(math.Sqrt(float64(i))), 2))
+			if i == 0 {
+				i = 1
+			} else {
+				i = int(math.Pow(math.Ceil(math.Sqrt(float64(i))), 2))
+
+			}
 		}
 		data.Testcases[0].LowerBound = i
 		data.Testcases[0].Interval = interval
@@ -138,8 +148,8 @@ func rangeInputValidation(input int) Testcase {
 		fmt.Println("available testcases have IDs between 1 and", maxID)
 		os.Exit(1)
 	}
-	if lowerBound < 1 {
-		fmt.Println("The lower bound cannot be less than 1")
+	if lowerBound < 0 {
+		fmt.Println("The lower bound cannot be less than 0")
 		os.Exit(1)
 	}
 	if upperBound < lowerBound || upperBound > testcase.max_range {
@@ -155,7 +165,7 @@ func rangeInputValidation(input int) Testcase {
 		os.Exit(1)
 	}
 	if max_memory < 1 || max_memory > 15 {
-		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 15GB \n")
+		fmt.Printf("The memory limit for the type checking commands must be between 1GB and 15GB \n")
 		os.Exit(1)
 
 	}

@@ -124,7 +124,7 @@ func listInputValidation(input int) Testcase {
 		os.Exit(1)
 	}
 	if max_memory < 1 || max_memory > 15 {
-		fmt.Printf("The maximum heap size for an Agda program must be between 1GB and 15GB \n")
+		fmt.Printf("The memory limit for the type checking commands must be between 1GB and 15GB \n")
 		os.Exit(1)
 
 	}
