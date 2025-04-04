@@ -303,7 +303,7 @@ A = "xxx"
 </code></pre>
         </td>
     </tr>
-    <tr>
+        <tr>
         <td>ConstructorsParameters_Datatypes (ID = 18)<br>A single datatype where N represents the number of 'Type' parameters, all needed for N constructors<br>(Upper Bound Limit: 700)</td>
         <td>
             <pre><code>data D (P1: Type)  (P2: Type)  (P3: Type) : Set where
@@ -317,17 +317,17 @@ A = "xxx"
         <td>
             <pre><code>data D : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
  C1 : {X1 : Nat} -> D X1 0 0 0 0 
- C2 : {X2 X1 : Nat} -> D X1 X2 0 0 0 
- C3 : {X3 X2 X1 : Nat} -> D X1 X2 X3 0 0 
- C4 : {X4 X3 X2 X1 : Nat} -> D X1 X2 X3 X4 0 
- C5 : {X5 X4 X3 X2 X1 : Nat} -> D X1 X2 X3 X4 X5 </code></pre>
+ C2 : {X1 X2 : Nat} -> D X1 X2 0 0 0 
+ C3 : {X1 X2 X3 : Nat} -> D X1 X2 X3 0 0 
+ C4 : {X1 X2 X3 X4 : Nat} -> D X1 X2 X3 X4 0 
+ C5 : {X1 X2 X3 X4 X5 : Nat} -> D X1 X2 X3 X4 X5 </code></pre>
         </td>
     </tr>
     <tr>
         <td>IndicesParameters_Datatypes (ID = 20)<br>A single datatype where N represents the number of 'Type' parameters as well as the number of indices<br>(Upper Bound Limit: 2000)</td>
         <td>
             <pre><code>data D (p1 : Set)  (p2 : Set)  (p3 : Set)  : Nat -> Nat -> Nat -> Set where
- C : {X3 X2 X1 : Nat} -> D p1 p2 p3 X1 X2 X3</code></pre>
+ C : {X1 X2 X3 : Nat} -> D p1 p2 p3 X1 X2 X3</code></pre>
         </td>
     </tr>
     <tr>
@@ -337,13 +337,12 @@ A = "xxx"
  C1 : D 
  C2 : D 
  C3 : D
+F : D -> Nat
+F C1 = 1 
+F C2 = 2 
+F C3 = 3
 N : Nat
-N = let
-    F: D -> Nat
-        F C1 = 1 
-        F C2 = 2 
-        F C3 = 3 in
-    F C3 + F C2 + F C1</code></pre>
+N = F C3 + F C2 + F C1</code></pre>
         </td>
     </tr>
 
