@@ -68,7 +68,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Language Considerations <a id='ssLanguageConsideration'></a>
 - Lean has maximum recursion depth set to 2000 and the maximum heartbeats disabled
-- Lean has a limit of fields in a record ()
+- Lean has a limit of 257 fields in a record
 - Lean has a limit of parameters ...
 
 ## Available Test Cases <a id='ssAvailableCases'></a>
@@ -350,7 +350,13 @@ N = let
 
 ### Extending CI Workflows <a id='sssExtendCI'></a>
 
-Add the new test case to the workflows in `./github/workflows/test.yml`, `./github/workflows/generate.yml`, and `./github/workflows/generate-list.yml`  in the user input section:
+To add a new test case, update the workflows in the following files:
+- `./github/workflows/test.yml`
+- `./github/workflows/generate.yml`
+- `./github/workflows/generate-list.yml` 
+
+In each file, include the test case in the user input section as shown below:
+
 ```
 on:
   workflow_dispatch:
@@ -368,11 +374,12 @@ on:
           - <Test Case ID> [<File Name>] 
 ```
 
-
 ### Extending CLI <a id='sssExtendCLI'></a>
 
-1. To add a test case in the CLI go to the `cli/cmd/info.go` file and find the `Case_list` variable. Add an item to this list in the following format:
-
+1.  **Update Test Case List:** 
+- Open `cli/cmd/info.go`.
+- Find `Case_list` variable.
+- Add new test case to this list in the following format:
 ```
 <Test Case ID (int)>: {
 		<Test Case ID (int)>,
@@ -382,8 +389,10 @@ on:
 	},
 ```
 
-2. Increase `maxID` variable in `cli/cmd/root.go` by 1.
+2. **Increment the maxID variable:**
+- In the `cli/cmd/root.go` file, increase the `maxID` variable by 1.
 
+**Note** The test case ID should be the integer following the last test case ID in the `Case_list` variable. 
 
 ## CI Workflows <a id='ssCIWorkflows'></a>
 
