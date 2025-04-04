@@ -243,7 +243,7 @@ _tests =
        in Module "DataImplicitIndices" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
         iszero 0 = []
-        iszero _ = [DefVar "A" Nothing $ String (genLongValue n)]    
+        iszero _ = [DefVar "A" (Just (Con "String")) $ String (genLongValue n)]    
         genLongValue 1 = "x"
         genLongValue m = 'x' : genLongValue (m-1)
         in Module "SingleLongLine" [ImportLib "String"]  $ iszero n

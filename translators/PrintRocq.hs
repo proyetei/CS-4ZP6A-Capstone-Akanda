@@ -5,6 +5,7 @@ import Data.Char
 import Data.List (isPrefixOf)
 
 printImport (ImportLib "Vec") = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
+printImport (ImportLib "String") = "Require Import Coq.Strings.String."
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
 
