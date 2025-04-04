@@ -346,7 +346,80 @@ N = let
 
 ## How To Add Test Cases <a id='ssAddCases'></a>
 
-### Writing Dynamic Test Cases in MHPG <a id='sssExtendMHPG'></a>
+
+### Writing Dynamic Test Cases in MHPG
+
+The MHPG generalizes the structure of a program written in each of our 4 PALs. Most test cases are modules, which (may) contain imports and definitions. Definitions can be variable definitions, function definitions, data type definitions, record type definitions, record definitions, and sub-module definitions. They mostly consist of a name, a type, and an expression. Types include type constructors, dependent type constructors, parameterized type constructors, function types, type variables, and indexed types. We have also included the type constructor 'Suc' for the Nat type because Nat is implemented differently across the 4 PALs. If you would like to use a type that is implemented differently across the PALs, you will need to extend the Type type of the MHPG. See [Extending MHPG](#ssExtendingMHPG) for more. Expressions include Ints, Bools, Strings, unary operators, binary operators, let .. in expressions, if .. then .. else expressions, .. where expressions, function calls, Vectors, and Lists. If you would like to use an expression that is not currently supported by the Expression type, such as a lambda expression, you will need to extend the MHPG to include this.
+
+To write your test case in the MHPG, you must compose it according to the structure of the MHPG. Let's work through an example test case written in Haskell:
+```haskell
+module LetExample where
+import Numeric.Natural
+
+n :: Natural
+n = let x1 = 1 in
+    let x2 = x1 in
+        let x3 = x2 in
+            x3
+```
+First, we need to write this test as an instance of the Module type. 
+```haskell
+data Module = Module { mod :: Name, imports :: [Import], defs :: [Definition] } 
+        | File { fil :: Name, con :: String }
+```
+This test is a module named LetExample with one import and one variable definition.
+```haskell
+test :: Module
+test = Module "LetExample" [ImportLib "Nat"] [
+    DefVar "n" ...
+    ]
+```
+According to the type of DefVar, our variable definition needs to include the variable name, maybe its type, and an expression that represents its value.
+```haskell
+DefVar Name (Maybe Type) Expr
+```
+In this test, the type of n is given as a natural number and it is expressed as three nested let statements. To see how to fit these let statements into each other, we look to the type of the Let constructor of the Expr type.
+```haskell
+Let [Definition] Expr
+```
+From this definition, we can see that the next Let constructor goes after the local variable definition. 
+```haskell
+Let [
+        DefVar "x1" Nothing $ Int 1
+    ] $ Let [
+        DefVar "x2" Nothing $ Var "x1"
+    ] $ Let ...
+```
+Putting this all together gives us the test expressed in MHPG:
+```haskell
+test :: Module
+test = Module "LetExample" [ImportLib "Nat"] [
+    DefVar "n" (Just $ Con "Nat") $ Let [
+        DefVar "x1" Nothing $ Int 1
+    ] $ Let [
+        DefVar "x2" Nothing $ Var "x1"
+    ] $ Let [
+        DefVar "x3" Nothing $ Var "x2"
+    ] $ Var "x3"
+    ]
+```
+We can now generalize this test so it can be resized by the test case generator. Test cases are recorded in a list named _tests in Tests.hs. The elements of _tests are of the type Int -> Module and are conventionally written as anonymous functions with the parameter n, which represents the "size" of the test case. 
+```haskell
+\n -> let
+        iszero 0 = []
+        iszero _ = [DefVar "n" (Just $ Con "Nat") $ lets 1]
+        xs 0 = Int 1
+        xs m = Var $ "x" ++ show m
+        lets p = 
+            if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ xs p 
+            else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
+    in Module "LetExample" [ImportLib "Nat"] $ iszero n
+```
+### Extending MHPG <a id='ssExtendingMHPG'></a>
+
+If you would like to write a test case that uses language constructs that are not currently supported by the MHPG, you will need to extend it. This will most likely be done by adding a constructor to Definition, Expression, or Type. Make sure to include parameters for all the information required for that construct by each language. For example, if one language requires a type signature for a certain kind of definition, but its type signature is optional for the other languages, the constructor that you write should require the type of the definition. 
+
+Note that changes to the MHPG will affect each Print_.hs file and may also affect the Tests.hs file. If you add/change a type in Grammar.hs, you will need to add/change the translation for that type in each language. If you change an existing type which is used in another test, you will need to update that test with the correct constructor arguments. 
 
 ### Extending CI Workflows <a id='sssExtendCI'></a>
 
