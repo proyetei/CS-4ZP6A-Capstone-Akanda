@@ -44,8 +44,10 @@ interactive proof assistants including Lean, Idris, Agda, and Rocq. Testing will
 The project will also include a command line interface enabling users to view the time and memory complexity and provide a link redirecting them to local webpages presenting visualizations of the measured data.
 
 ## Demo <a id='ssDemo'></a>
-This is an example output for one of the test cases, please run GitHub Actions to run your own tests! (See CI Workflows Section)
-https://capstone-proyetei-proyeteis-projects.vercel.app/
+This is an example output for test case 9 - NewFileLine with an upper bound of 100,000 and 50 data points, view it here -> https://capstone-proyeteis-projects.vercel.app/
+
+Please run GitHub Actions to run your own tests! (Click on "Actions" and view the CI Workflows Section)
+
 
 ## Technology Stack <a id='ssTechnologyStack'></a>
 - Haskell for building the translators, grammars, and the automated code generator creating test cases for each of the 4 proof assistants (Idris, Agda, Lean, Rocq)
@@ -56,6 +58,7 @@ https://capstone-proyetei-proyeteis-projects.vercel.app/
 
 ## Versions <a id='ssVersions'></a>
 - Python (3.12.3)
+- Flask (3.10.1)
 - Lean (4.17.0)
 - Idris2 (0.7.0)
 - Rocq (8.20.1)
