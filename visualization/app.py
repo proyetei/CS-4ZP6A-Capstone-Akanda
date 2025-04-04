@@ -8,8 +8,9 @@ import io
 import base64
 from matplotlib.ticker import ScalarFormatter
 
-# LOGIC: Since Vercel is a serverless platform, it doesn't support saving static files
-# To avoid issues with static images not appearing on Vercel hosted website, the graphs are first saved to a BytesIO object instead of a file, and then converted to base64
+# LOGIC: Since Vercel is a serverless platform, it doesn't support saving static files.
+# To avoid issues with static images not appearing on a Vercel hosted website,
+# the graphs are first saved to a BytesIO object instead of a file, and then converted to base64.
 
 app = Flask(__name__)
 
@@ -27,7 +28,22 @@ except FileNotFoundError:
     exit(1)
 
 # Setting colors for each language
-colors = {"Rocq": "blue", "Agda": "orange", "Lean": "purple", "Idris":"green"}
+colors = {
+    "Rocq": "blue",
+    "Agda": "orange",
+    "Lean": "purple",
+    "Idris": "green"
+}
+
+# Method returns the type of graph the user selected, as a string.
+def displayIntervalType(test_case):
+    if test_case["interval"] == "log":
+        intervalType = "Log"
+    elif test_case["interval"] == "linear":
+        intervalType = "Linear"
+    else:
+        intervalType = "Quadratic"
+    return intervalType
 
 # METHOD CHECK EXIT STATUS LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
 
@@ -138,7 +154,8 @@ def plot_size_vs_real_time(test_case):
         checkExitStatus(plt, language_data, test_case_lower, x_values, real_time_values)
     
     adding_annotations(plt, languages, "real_time", test_case_lower, max_y_values)
-    # Add legend
+
+    # Add legend, grid, and adjust layout.
     plt.legend(loc='upper left')
     plt.grid(True)
     plt.tight_layout()
@@ -160,7 +177,6 @@ def plot_size_vs_user_time(test_case):
     test_case_name = test_case["name"]
     test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
-    # description = test_case["description"]
 
     if test_case["interval"] == "log":
         xlabel = "Log(Size)"
@@ -201,14 +217,18 @@ def plot_size_vs_user_time(test_case):
             if user_time_values[i] == -10:
                 user_time_values[i] = 0
                 artificial_zero_x += [x_values[i]]
-        # Plot user time complexity marked by dotted line and x
-        plt.plot(x_values, user_time_values, marker='x', linestyle='--', label=f'{language} - User Time', color = colors[language])
+
+        # Plot user time complexity marked by a dotted line and x markers.
+        plt.plot(x_values, user_time_values, marker='x', linestyle='--',
+                 label=f'{language} - User Time', color=colors[language])
         plotArtificialZeros(plt, artificial_zero_x, artificial_zero)
-        # Check exit status and plot marker if not OK
+
+        # Check exit status and plot marker if not OK.
         checkExitStatus(plt, language_data, test_case_lower, x_values, user_time_values)
-        
+
     adding_annotations(plt, languages, "user_time", test_case_lower, max_y_values)
-    # Add legend
+
+    # Add legend, grid, and adjust layout.
     plt.legend(loc='upper left')
     plt.grid(True)
     plt.tight_layout()
@@ -230,7 +250,6 @@ def plot_size_vs_system_time(test_case):
     test_case_name = test_case["name"]
     test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
-    # description = test_case["description"]
 
     if test_case["interval"] == "log":
         xlabel = "Log(Size)"
@@ -269,16 +288,18 @@ def plot_size_vs_system_time(test_case):
             if system_time_values[i] == -10:
                 system_time_values[i] = 0
                 artificial_zero_x += [x_values[i]]
-        
-        # Plot system time complexity marked by dotted line and x
-        plt.plot(x_values, system_time_values, marker='x', linestyle='--', label=f'{language} - System Time', color = colors[language])
+
+        # Plot system time complexity marked by a dotted line and x markers.
+        plt.plot(x_values, system_time_values, marker='x', linestyle='--',
+                 label=f'{language} - System Time', color=colors[language])
         plotArtificialZeros(plt, artificial_zero_x, artificial_zero)
 
-        # Check exit status and plot marker if not OK
+        # Check exit status and plot marker if not OK.
         checkExitStatus(plt, language_data, test_case_lower, x_values, system_time_values)
-    
+
     adding_annotations(plt, languages, "system_time", test_case_lower, max_y_values)
-    # Add legend
+
+    # Add legend, grid, and adjust layout.
     plt.legend(loc='upper left')
     plt.grid(True)
     plt.tight_layout()
@@ -300,7 +321,6 @@ def plot_size_vs_memory(test_case):
     test_case_name = test_case["name"]
     test_case_lower = test_case["lower_bound"]
     languages = test_case["languages"]
-    # description = test_case["description"]
 
     if test_case["interval"] == "log":
         xlabel = "Log(Size)"
@@ -399,8 +419,11 @@ def index():
 
     # Get test case
     test_case = data["testcases"][0]
-    
-    # Extract error information for each language
+
+    # Get graph interval type.
+    interval_type = displayIntervalType(test_case)
+
+    # Extract error information for each language.
     errors = []
     for language_data in test_case["languages"]:
         x_values = [point["size"] for point in language_data["tests"]]
@@ -409,11 +432,17 @@ def index():
         errors.extend(get_error_messages(language_data, test_case["interval"], test_case["lower_bound"], x_values, y_values))
 
 
-    # Return a simple HTML page to display the images
-    # Extract name and description to reference on the website
-    return render_template('index.html',  test_case_name=test_case["name"], errors=errors, 
-                           test_case_desc=test_case["description"], graphs=graphs)
+    # Return a simple HTML page to display the images.
+    # Extract name, description, error messages, and intervalType to reference on the website.
+    return render_template(
+        'index.html',
+        test_case_name=test_case["name"],
+        test_case_desc=test_case["description"],
+        interval_type=interval_type,
+        errors=errors,
+        graphs=graphs
+    )
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
-

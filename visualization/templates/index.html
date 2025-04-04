@@ -28,7 +28,7 @@
 
   <!-- Information Container -->
   <h2 class="text-2xl text-[#377ddf] mt-8 mb-4">Graph Explanation</h2>
-  <div class="grid grid-cols-2 gap-4 max-w-5xl w-full mt-5">
+  <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-4 max-w-5xl w-full mt-5">
 
     <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
       <p class="font-bold mb-2">DEFINITIONS:</p>
@@ -53,11 +53,17 @@
         {% endif %}
       </div>
     </div>
+    
+    <!-- If the selected graph interval == log, display it, for better readibility -->
+    <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
+      <p class="font-bold mb-2"> User selected the following graph interval type: </p>
+      <p> {{ interval_type }} </p>
+    </div>
 
     <div class="bg-white shadow-md p-4 border border-gray-300 font-sans text-[#7795be] text-left rounded-xl border border-gray-300 rounded-lg shadow-md transform transition duration-200 hover:scale-105">
       <p class="font-bold mb-2"> LOG LOG PLOT:</p>
       <ul class="list-disc ml-4">
-        <li> For the log plots, the y axis is the log value of the time in base 2. </li>
+        <li> If the selected interval is 'log,' take the log of each time and memory value. Hence, the y axis is the log value of the time in base 2, but if any time is equal to or less than 0, set the time to the log base 2 of 0.01. </li>
       </ul>
     </div>
   </div>
