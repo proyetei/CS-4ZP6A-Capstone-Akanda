@@ -44,7 +44,7 @@ interactive proof assistants including Lean, Idris, Agda, and Rocq. Testing will
 The project will also include a command line interface enabling users to view the time and memory complexity and provide a link redirecting them to local webpages presenting visualizations of the measured data.
 
 ## Demo <a id='ssDemo'></a>
-This is an example output for test case 9 - NewFileLine with an upper bound of 100,000 and 50 data points, view it here -> https://capstone-proyeteis-projects.vercel.app/
+This is an example output for test case 9 - NewLineFile with an upper bound of 100,000 and 50 data points, view it here -> https://capstone-proyeteis-projects.vercel.app/
 
 Please run GitHub Actions to run your own tests! (Click on "Actions" and view the CI Workflows Section)
 
