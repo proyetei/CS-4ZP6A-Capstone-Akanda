@@ -473,7 +473,7 @@ on:
 
 ## CI Workflows - Run System <a id='ssCIWorkflows'></a>
 
-The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). For visual instructions on how to run our project watch the demo video located [here](https://github.com/proyetei/CS-4ZP6A-Capstone-Akanda/blob/main/Deliverables/capstone-demo-v2.mp4) starting from 1:05.
+The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). For visual instructions on how to run our project, watch the demo video located [here](https://github.com/proyetei/CS-4ZP6A-Capstone-Akanda/blob/main/Deliverables/capstone-demo-v2.mp4) starting from 1:05.
 
 ### Build Workflow <a id='sssBuildWorkflow'></a>
 Allows users to build the CLI and the translator as well as creating and pushing the docker image. 
