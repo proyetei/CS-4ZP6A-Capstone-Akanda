@@ -139,5 +139,5 @@ func init() {
 	generateListCmd.PersistentFlags().IntSliceVarP(&datapoints, "datapoints", "d", []int{}, "List of up to 150 sizes (≥ 1) in comma-separated format (eg 1,2,3)")
 	generateListCmd.PersistentFlags().BoolVarP(&webpage, "webpage", "w", true, "Generates webpage with graph visualizations")
 	generateListCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable detailed output for debugging and progress tracking")
-	generateListCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Maximum memory that can be used by the type checking commands in GB (must be an integer between 1 to 15)")
+	generateListCmd.PersistentFlags().IntVarP(&max_memory, "max-memory", "m", 3, "Memory limit for the type checking commands in GB (between 1 to 15)")
 }

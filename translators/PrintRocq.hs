@@ -119,7 +119,7 @@ printModule (Module name imports defs) =
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 
-printModule (File _ str) = str
+printModule (File name str) = "Module " ++ name ++ ".\n\n" ++ str ++ "\nEnd " ++ name ++ "."
 
 runRocq :: Module -> IO()
 runRocq m = do

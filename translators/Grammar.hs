@@ -3,7 +3,7 @@ module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), 
 -- grammar
 
 data Module = Module { mod :: Name, imports :: [Import], defs :: [Definition] } -- is there anything like 'module Main where' FEL?
-        | File { fil :: Name, con :: String } -- this option is for empty files and other invalid programs
+        | File { fil :: Name, con :: String } -- this option is for modules with text instead of definitions -- should not generate invalid programs
 
 data Import = ImportLib Lib   
             | ImportFun Name Lib
