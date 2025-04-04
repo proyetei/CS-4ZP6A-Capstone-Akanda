@@ -719,13 +719,14 @@ Since Vercel (our hosting platform) doesn’t support saving image files, the ap
 
 #### Libraries and APIs used:
 
-| Library           | Purpose                                                                 |
-|-------------------|-------------------------------------------------------------------------|
-| **Flask**         | Web server setup, routing (`@app.route`), and HTML templating (`render_template`). |
-| **Matplotlib**    | Graph generation (time/memory complexity plots) with non-GUI backend (`'Agg'`). |
-| **OS**            | File path handling (`os.path.join`, `os.path.dirname`).                |
-| **Base64**        | Encoding plot images to base64 for HTML embedding.                      |
-| **IO (BytesIO)**  | In-memory binary storage of plot images (avoiding disk writes).         |
+| Library            | Purpose                                                                 |
+|--------------------|-------------------------------------------------------------------------|
+| **Flask (3.1.0)** | Web server setup, routing (`@app.route`), and HTML templating (`render_template`). |
+| **Matplotlib (3.10.1)**     | Graph generation (time/memory complexity plots) with non-GUI backend (`'Agg'`). |
+| **OS**             | File path handling (`os.path.join`, `os.path.dirname`).                |
+| **Base64**         | Encoding plot images to base64 for HTML embedding.                      |
+| **IO (BytesIO)**   | In-memory binary storage of plot images (avoiding disk writes).         |
+
 
 ## Website <a id='ssWebsite'></a>
 - Displays benchmark results in the website.
