@@ -12,7 +12,7 @@
     - [Writing Dynamic Test Cases in MHPG](#sssExtendMHPG)
     - [Extending CI](#sssExtendCI)
     - [Extending CLI](#sssExtendCI)
-- [CI Workflows](#ssCIWorkflows)
+- [CI Workflow - Run System](#ssCIWorkflows)
     - [Build Workflow](#sssBuildWorkflow)
     - [Generate-List Test Cases Workflow](#sssListWorkflow)
     - [Generate-Range Test Cases Workflow](#sssRangeWorkflow)
@@ -394,7 +394,7 @@ on:
 
 **Note** The test case ID should be the integer following the last test case ID in the `Case_list` variable. 
 
-## CI Workflows <a id='ssCIWorkflows'></a>
+## CI Workflows - Run System <a id='ssCIWorkflows'></a>
 
 The CI implemented in github actions consists of 5 workflows (Build, Generate-List Test Cases, Generate-Range Test Cases, Startup-Times, Tests). 
 
