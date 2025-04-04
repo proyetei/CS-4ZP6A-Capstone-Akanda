@@ -35,16 +35,6 @@ colors = {
     "Idris": "green"
 }
 
-# Method returns the type of graph the user selected, as a string.
-def displayIntervalType(test_case):
-    if test_case["interval"] == "log":
-        intervalType = "Log"
-    elif test_case["interval"] == "linear":
-        intervalType = "Linear"
-    else:
-        intervalType = "Quadratic"
-    return intervalType
-
 # METHOD CHECK EXIT STATUS LOGIC: Find the exit status, if its not OK, meaning its memory or time, then put a marker on the exact coordinates
 
 def checkExitStatus(plt, language_data, lower_bound, x_values, y_values):
@@ -420,9 +410,6 @@ def index():
     # Get test case
     test_case = data["testcases"][0]
 
-    # Get graph interval type.
-    interval_type = displayIntervalType(test_case)
-
     # Extract error information for each language.
     errors = []
     for language_data in test_case["languages"]:
@@ -438,7 +425,6 @@ def index():
         'index.html',
         test_case_name=test_case["name"],
         test_case_desc=test_case["description"],
-        interval_type=interval_type,
         errors=errors,
         graphs=graphs
     )
