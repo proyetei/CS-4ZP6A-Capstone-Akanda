@@ -498,7 +498,7 @@ Allows users to generate and type check a selected test case at specific sizes i
 
 **Required Inputs**: Test Case, Datapoint List
 - **Test Case:** Specifies which test case the data is generated for (select from provided list).
-- **Datapoint List:** The list of sizes for the test case, can include up to 150 values (≥ 1) in comma-separated format (eg 1,2,3).
+- **Datapoint List:** The list of sizes for the test case, can include up to 150 values (≥ 0) in comma-separated format (eg 1,2,3).
 
 **Usage**: 
 1. Navigate to the 'Actions' tab.
@@ -516,7 +516,7 @@ Allows users to generate and type check a selected test case at specific sizes i
 
 **Required Inputs**:
 - **Test Case:** Specifies which test case the data is generated for (select from provided list)
-- **Lower Bound:** The lower bound for the generated sizes of the test case (must be an integer ≥ 1) 
+- **Lower Bound:** The lower bound for the generated sizes of the test case (must be an integer ≥ 0) 
 - **Upper Bound:** The upper bound for the generated sizes of the test case (must be an integer ≥ lower bound)
 - **Number of Datapoints:** The number of generated datapoints (must be an integer between 1 and 150)
 - **Interval Type:** The interval between the generated datapoints (select from provided list of linear, quadratic, and log)
@@ -547,13 +547,13 @@ Allows the user to records the startup time for each test case in Agda, Idris, L
 **Triggers**: Manual
 
 ### Tests Workflow <a id='sssTestWorkflow'></a>
-Allows users to test the translator for a selected testcase at a size between 1 and 20.
+Allows users to test the translator for a selected testcase at a size between 0 and 20.
 
 <img src="images/tests.png">
 
 **Required Inputs**:
 - **Test Case:** Specifies which test case is translated and type checked (select from provided list)
-- **Size:** Specifies the size we want the translated test case to be (must be an integer value between 1 and 20)
+- **Size:** Specifies the size we want the translated test case to be (must be an integer value between 0 and 20)
 
 **Usage**: 
 1. Navigate to the 'Actions' tab.
