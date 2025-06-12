@@ -1,5 +1,8 @@
 {-# OPTIONS_GHC -Wno-overlapping-patterns #-}
-module Print.Agda (runAgda) where
+module Print.Agda
+  ( printModule
+  , runAgda
+  ) where
 
 import Data.List (intercalate)
 
