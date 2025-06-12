@@ -46,11 +46,17 @@ executable translators
 test-suite translators-golden
     import: warnings, extensions
     main-is: Main.hs
+    other-modules:
+        Golden.Util.File
     build-depends:
         translators,
         base ^>=4.17.2.0,
         tasty >= 1.5,
         tasty-golden >= 2.3,
+    if os(windows)
+        build-depends: Win32 >= 2.12
+    else
+        build-depends: unix  >= 2.8
     hs-source-dirs: test/golden
     type: exitcode-stdio-1.0
     default-language: Haskell2010
