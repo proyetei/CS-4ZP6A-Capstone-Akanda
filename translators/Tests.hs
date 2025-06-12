@@ -73,13 +73,12 @@ _tests =
         genSize p = Suc (genSize (p - 1))
 
         -- Generate example initialization dynamically
-        genExample 1 = [("f1", Int 1)]
-        genExample 2 = genExample 1 ++ [("f2", VecCons (Int 1) VecEmpty)]
-        genExample p = genExample (p - 1) ++ [("f" ++ show p, buildVecCons (p - 1))] 
+        genExample n = map (\i -> ("f" ++ show i, buildVecCons i) [1..n]
+ [("f1", Int 1)]
 
         -- Function to correctly build `VecCons`
-        buildVecCons 1 = VecCons (Int 1) VecEmpty
-        buildVecCons p = VecCons (Int 1) (buildVecCons (p - 1))
+        buildVecCons n | n <= 0 = error "needs length at least 1"
+        buildVecCons n = VecE $ replicate n (Int 1)
 
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type")
@@ -124,7 +123,7 @@ _tests =
         sumExpr = buildSum n
 
         -- Helper to build the list exp: [1, 2, …, n]
-        buildList i = if i > n then ListEmpty else ListCons (Int i) (buildList (i+1))
+        buildList i = map Int [1..i]
         listExpr = buildList 1
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
