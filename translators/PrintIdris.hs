@@ -1,14 +1,16 @@
 {-# OPTIONS_GHC -Wno-overlapping-patterns #-}
 module PrintIdris (runIdris) where
 
+import Data.List (intercalate)
+
 import Grammar
 
+printImport :: Import -> String
 printImport (ImportLib "Vec") = "import Data.Vect"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
-datatype = "Type"
-
+printType :: Type -> String
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
@@ -22,7 +24,9 @@ printType (Suc t) = "(S " ++ printType t ++ ")"
 printType (Index names ty) = "{" ++ unwords' names ++ " : " ++ printType ty ++ "}" where
     unwords' [] = ""
     unwords' [n] = n
-    unwords' names = foldl1 (\ x n -> x ++ ", " ++ n) names
+    unwords' more = foldl1 (\ x n -> x ++ ", " ++ n) more
+
+printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -37,19 +41,11 @@ printExpr (Let (d:ds) expr) = "let \n    " ++ (foldl (\x y -> x ++ "\n    " ++ y
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ foldl (\x y -> x ++ "\n    " ++ y) "" $ map printDef ds
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
--- For vectors and lists
-printExpr VecEmpty = "[]"
-printExpr (VecCons x xs) = "[" ++ printVecElements (VecCons x xs) ++ "]"
-printExpr ListEmpty = "[]"
-printExpr (ListCons x xs) = "[" ++ printListElements (ListCons x xs) ++ "]"
+printExpr (VecE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
+printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
 
-printVecElements VecEmpty = ""
-printVecElements (VecCons x VecEmpty) = printExpr x
-printVecElements (VecCons x xs) = printExpr x ++ ", " ++ printVecElements xs
-printListElements ListEmpty = ""
-printListElements (ListCons x ListEmpty) = printExpr x
-printListElements (ListCons x xs) = printExpr x ++ ", " ++ printListElements xs
 
+printDef :: Definition -> String
 printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr where
     typeSig = case ty of
         Just t -> var ++ " : " ++ printType t ++ "\n"
@@ -62,8 +58,8 @@ printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args e
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 printDef (DefPatt var params ty _ cons) =
     var ++ " : " ++ printType (foldr (\x y -> Arr x y) ty (map snd params)) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e ) cons)
-printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
-printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\(x, y) z -> "(" ++ x ++ " : " ++ printType y ++ ") -> " ++ z) (printType ty) params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ unwords (map (\(p, _) -> p ++ " ->") params) ++ printType t) cons) ++ "\n"
+printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\(x, y) z -> "(" ++ x ++ " : " ++ printType y ++ ") -> " ++ z) (printType ty) params ++ " where" ++ unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ unwords (map (\(p, _) -> p ++ " ->") params) ++ printType t) cons) ++ "\n"
 
 -- Record Defn
 printDef (DefRecType name params consName fields _) =
@@ -83,18 +79,14 @@ printDef (DefModule m) = printModule m
 -- Catch-all to prevent non-exhaustive errors
 printDef _ = error "Unhandled case in printDef"
 
--- Store all defined records to check constructors
-definedRecords :: [Definition]
-definedRecords = []
-
 printModule :: Module -> String
-printModule (Module name imports defs) =
+printModule (Module _ imports defs) =
     let
         headers = "module Main\n" ++ unlines (map printImport imports)
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
 
-printModule (File name str) = "module Main\n" ++ str ++ "\nmain : IO()\nmain = putStrLn \"\""
+printModule (File _ str) = "module Main\n" ++ str ++ "\nmain : IO()\nmain = putStrLn \"\""
 
 runIdris :: Module -> IO()
 runIdris m = do

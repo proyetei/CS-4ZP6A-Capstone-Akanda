@@ -56,10 +56,8 @@ data Expr = Var Name
         | If Expr Expr Expr 
         | Where Expr [Definition]
         | FunCall Name [Expr]    --constructor to call function
-        | VecEmpty               -- Represents `[]`
-        | VecCons Expr Expr      -- Represents `_∷_`, e.g., `1 ∷ []`
-        | ListEmpty              -- Represents `[]`
-        | ListCons Expr Expr     -- Represents list construction, e.g. `1 :: []`
+        | VecE [Expr]
+        | ListE [Expr]
         | Paren Expr
         | Constructor Name
         

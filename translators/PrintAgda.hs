@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -Wno-overlapping-patterns #-}
 module PrintAgda (runAgda) where
 
+import Data.List (intercalate)
+
 import Grammar
 
 printImport :: Import -> String
@@ -42,20 +44,11 @@ printExpr (Let (d:ds) expr) = "let\n    " ++ printDef d ++ concatMap (\x -> "\n 
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concatMap (\x -> "\n    " ++ printDef x) ds
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
-printExpr (VecEmpty) = "([])" -- For vectors
-printExpr (VecCons expr xs) = "(" ++ printVecElements (VecCons expr xs) ++ ")"
-printExpr (ListEmpty) = "([])"
-printExpr (ListCons expr xs) = "(" ++ printListElements (ListCons expr xs) ++ ")"
-
-printVecElements :: Expr -> String
-printVecElements VecEmpty = "[]"
-printVecElements (VecCons x xs) = printExpr x ++ " ∷ " ++ printVecElements xs
-
-printListElements :: Expr -> String
-printListElements  ListEmpty = "[]"
-printListElements  (ListCons x xs) = printExpr x ++ " ∷ " ++ printListElements  xs
+printExpr (VecE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
+printExpr (ListE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
 
 -- Function to print variable definitions
+printDef :: Definition -> String
 printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n"
     where
         typeSig = case ty of
@@ -99,10 +92,12 @@ printDef (DefRec name recType consName fields) =
     name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields
 
 printDef (OpenName _) = ""
+printDef (DefModule m) = printModule m
+
 
 -- Print the Agda module
-printAgda :: Module -> String
-printAgda (Module name imports defs) =
+printModule :: Module -> String
+printModule (Module name imports defs) =
     let
         headers = "module " ++ name ++ " where \n" ++ unlines (map printImport imports)
         -- Concatenate all definitions
@@ -110,9 +105,9 @@ printAgda (Module name imports defs) =
 
     in headers ++ "\n" ++ body
 
-printAgda (File name str) = "module " ++ name ++ " where \n" ++ str
+printModule (File name str) = "module " ++ name ++ " where \n" ++ str
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ printAgda m
+    writeFile ("out/" ++ name ++ ".agda") $ printModule m
     where name = modname m

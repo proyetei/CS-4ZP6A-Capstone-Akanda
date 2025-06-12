@@ -1,20 +1,28 @@
 module Tests (tests) where
-import Data.List (intercalate)
 import Data.IntMap.Strict as Map ( fromList, IntMap )
 import Grammar
+
+-- re-usable generators for the tests below
+genIndexName :: Char -> Int -> String
+genIndexName c i = c : show i
+        
+genIndex :: Char -> Int -> [String]
+genIndex c m = map (genIndexName c) [1..m]
+
+optional :: Int -> [a] -> [a]
+optional n c = if n <= 0 then [] else c
 
 -- this is our list of expandable tests. each test should take an Int as an argument and return a program written in the internal grammar (see Grammar.hs)
 _tests :: [Int -> Module] -- todo: add commented Haskell representation for each test
 _tests = 
     [ \n -> let --1
-            iszero 0 = []
-            iszero _ = [DefVar "n" (Just $ Con "Nat") $ lets 1]
+            decl = [DefVar "n" (Just $ Con "Nat") $ lets 1]
             xs 0 = Int 1
             xs m = Var $ "x" ++ show m
             lets p = 
                 if p==n then Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ xs p 
                 else Let [DefVar ("x"++ show p) Nothing $ xs $ p-1] $ lets $ p+1
-        in Module "LetExample" [ImportLib "Nat"] $ iszero n
+        in Module "LetExample" [ImportLib "Nat"] $ optional n decl
     , \n -> let --2
         iszero 0 = []
         iszero _ = [DefVar "n" (Just $ Con "Nat") $ lets 1]
@@ -73,12 +81,11 @@ _tests =
         genSize p = Suc (genSize (p - 1))
 
         -- Generate example initialization dynamically
-        genExample n = map (\i -> ("f" ++ show i, buildVecCons i) [1..n]
- [("f1", Int 1)]
+        genExample k = map (\i -> ("f" ++ show i, buildVecCons i)) [1..k]
 
         -- Function to correctly build `VecCons`
-        buildVecCons n | n <= 0 = error "needs length at least 1"
-        buildVecCons n = VecE $ replicate n (Int 1)
+        buildVecCons k | k <= 0 = error "needs length at least 1"
+        buildVecCons k          = VecE $ replicate k (Int 1)
 
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) (Con "Type")
@@ -121,10 +128,6 @@ _tests =
         buildSum 1 = Int 1
         buildSum m = Bin "+" (buildSum (m-1)) (Int m)
         sumExpr = buildSum n
-
-        -- Helper to build the list exp: [1, 2, …, n]
-        buildList i = map Int [1..i]
-        listExpr = buildList 1
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
         params = map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
@@ -231,14 +234,10 @@ _tests =
     in Module "DeepDependency_VariableModule" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
         iszero 0 = []
-        iszero _ = [DefDataType "D" [("C1", Arr (Index (genIndex n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex n))))] (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex 'x' n))))] (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
-        genIndexName i = 'x' : show i
-        
-        genIndex 1 = [genIndexName 1]
-        genIndex m = genIndexName m : genIndex (m-1)
        in Module "DataImplicitIndices" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
         iszero 0 = []
@@ -253,25 +252,21 @@ _tests =
         in Module "ConstructorsParameters_Datatypes" [] $ iszero n
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         iszero 0 = []
-        iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Arr (Index (genIndex i) (Con "Nat")) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\k -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefDataType "D" 
+           (map (\ i -> ("C" ++ show i, Arr (Index (genIndex 'x' i) (Con "Nat")) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\_ -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
-        genIndexName i = 'X' : show i
-        
-        genIndex 1 = [genIndexName 1]
-        genIndex m = genIndex (m-1) ++ [genIndexName m]
         in Module "IndicesConstructors_Datatypes" [ImportLib "Nat"] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
-        iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) [("C", Arr (Index (genIndex n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))] (Arr (genType n) (Con "Type"))]
+        iszero _ = [DefPDataType "D" 
+          (map (\i -> ("p" ++ show i, Con "Type")) [1 .. n]) 
+          [("C", Arr (Index (genIndex 'X' n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))] 
+          (Arr (genType n) (Con "Type"))]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) (Con "Nat")
 
-        genIndexName i = 'X' : show i
-        
-        genIndex 1 = [genIndexName 1]
-        genIndex m = genIndex (m-1) ++ [genIndexName m]
         in Module "IndicesParameters_Datatypes" [ImportLib "Nat"] $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
         let 
@@ -291,10 +286,6 @@ _tests =
 -- to access the expandable test at index i: tests ! i
 tests :: IntMap (Int -> Module)
 tests = Map.fromList $ zip [1..(length _tests)] _tests
-
--- this is a list of the names of the tests, in order (to be used in the menu of CLI)
-desc = fmap (\x -> (\(Module n _ _) -> n) $ x 0) _tests
-
 
 -- add more tests below. can be expandable or not
 
