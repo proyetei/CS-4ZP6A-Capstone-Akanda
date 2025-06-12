@@ -1,4 +1,10 @@
-module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
+module Grammar
+  ( Module (..)
+  , Import (..)
+  , Definition (..)
+  , Type (..)
+  , Arg (..)
+  , Expr (..)
   , modname) where
 
 -- grammar
@@ -36,30 +42,32 @@ data Definition
     -- for nested modules
   | DefModule Module
 
-data Type = Con Name              -- type constructor
-        | PCon Name [Type]        -- parameterized type constructor
-        | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
-        | Arr Type Type           -- function type
-        | TVar Name               -- type variable
-        | Suc Type
-        | Index [Name] Type
+data Type
+  = Con Name              -- type constructor
+  | PCon Name [Type]        -- parameterized type constructor
+  | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
+  | Arr Type Type           -- function type
+  | TVar Name               -- type variable
+  | Suc Type
+  | Index [Name] Type
 
 data Arg = Arg { arg :: Name, argty :: Type }
 
-data Expr = Var Name
-        | Int Int
-        | Bool Bool
-        | String String
-        | Mon Op Expr
-        | Bin Op Expr Expr
-        | Let [Definition] Expr
-        | If Expr Expr Expr
-        | Where Expr [Definition]
-        | FunCall Name [Expr]    --constructor to call function
-        | VecE [Expr]
-        | ListE [Expr]
-        | Paren Expr
-        | Constructor Name
+data Expr
+  = Var Name
+  | Int Int
+  | Bool Bool
+  | String String
+  | Mon Op Expr
+  | Bin Op Expr Expr
+  | Let [Definition] Expr
+  | If Expr Expr Expr
+  | Where Expr [Definition]
+  | FunCall Name [Expr]    --constructor to call function
+  | VecE [Expr]
+  | ListE [Expr]
+  | Paren Expr
+  | Constructor Name
 
 
 -- aliases for readability purposes
