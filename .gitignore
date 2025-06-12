@@ -4,3 +4,4 @@
 **/*.ttm
 **/*.ibc
 **/dist-newstyle
+translators/test/staging/*
