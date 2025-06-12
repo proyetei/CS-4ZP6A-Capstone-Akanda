@@ -101,7 +101,6 @@ definedRecords :: [Definition]
 definedRecords = []
 
 
-
 -- Print the Agda module
 printAgda :: Module -> String
 printAgda (Module name imports defs) =
@@ -117,7 +116,4 @@ printAgda (File name str) = "module " ++ name ++ " where \n" ++ str
 runAgda :: Module -> IO()
 runAgda m = do
     writeFile ("out/" ++ name ++ ".agda") $ printAgda m
-        where 
-            name = case m of 
-                Module n _ _ -> n
-                File n _ -> n
+    where name = modname m

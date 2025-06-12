@@ -1,13 +1,17 @@
-module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)) where
+module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
+  , modname) where
 
 -- grammar
 
 data Module 
-  = Module { mod :: Name
-           , modimports :: [Import]
-           , moddefs :: [Definition] } -- is there anything like 'module Main where' FEL?
-  | File { fil :: Name
+  = Module { mname :: Name
+           , mimports :: [Import]
+           , mdefs :: [Definition] } -- is there anything like 'module Main where' FEL?
+  | File { mname :: Name
          , con :: String } -- this option is for modules with text instead of definitions -- should not generate invalid programs
+
+modname :: Module -> Name
+modname m = mname m
 
 data Import = ImportLib Lib
             | ImportFun Name Lib
