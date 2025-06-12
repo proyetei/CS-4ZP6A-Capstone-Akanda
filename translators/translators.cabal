@@ -22,10 +22,10 @@ library
     import:           warnings
     exposed-modules:  
       Grammar, 
-      PrintAgda, 
-      PrintIdris, 
-      PrintLean, 
-      PrintRocq,
+      Print.Agda, 
+      Print.Idris, 
+      Print.Lean, 
+      Print.Rocq,
       Tests
     -- other-modules:
     -- other-extensions:

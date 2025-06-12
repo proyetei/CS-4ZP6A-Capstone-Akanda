@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-overlapping-patterns #-}
-module PrintIdris (runIdris) where
+module Print.Idris (runIdris) where
 
 import Data.List (intercalate)
 
