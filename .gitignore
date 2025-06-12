@@ -3,3 +3,4 @@
 **/*.ttc
 **/*.ttm
 **/*.ibc
+**/dist-newstyle
