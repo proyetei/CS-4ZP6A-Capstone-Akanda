@@ -1,0 +1,2 @@
+test/staging/** -text
+test/snapshot/** -text
