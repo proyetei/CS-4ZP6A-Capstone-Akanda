@@ -1,12 +1,14 @@
 module Main where
 
-import Tests
 import Text.Read
 import Data.IntMap.Strict as Map
-import PrintAgda
-import PrintIdris
-import PrintLean
-import PrintRocq
+
+import Print.Agda
+import Print.Idris
+import Print.Lean
+import Print.Rocq
+
+import Tests
 
 _maxsize :: Int
 _maxsize = 1000000

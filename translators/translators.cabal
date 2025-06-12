@@ -17,10 +17,10 @@ library
     import: warnings
     exposed-modules:  
       Grammar, 
-      PrintAgda, 
-      PrintIdris, 
-      PrintLean, 
-      PrintRocq,
+      Print.Agda, 
+      Print.Idris, 
+      Print.Lean, 
+      Print.Rocq,
       Tests
     build-depends:
       base ^>=4.17.2.0,

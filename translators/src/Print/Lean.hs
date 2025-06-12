@@ -1,4 +1,4 @@
-module PrintLean (runLean) where
+module Print.Lean (runLean) where
 
 import Grammar
 import Data.List (intercalate)
