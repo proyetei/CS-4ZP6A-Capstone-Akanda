@@ -25,7 +25,7 @@ createFile path = do
          Win32.oPEN_ALWAYS
          Win32.fILE_ATTRIBUTE_NORMAL
          Nothing
-  closeHandle hdl
+  Win32.closeHandle hdl
 #else
   fd <-
     Unix.createFile path $
