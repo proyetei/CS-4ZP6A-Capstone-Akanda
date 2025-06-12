@@ -2,18 +2,19 @@ module PrintRocq (runRocq) where
 
 import Grammar
 import Data.Char
-import Data.List (isPrefixOf)
+import Data.List (isPrefixOf, intercalate)
 
+printImport :: Import -> String
 printImport (ImportLib "Vec") = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
 printImport (ImportLib "String") = "Require Import Coq.Strings.String."
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
 
+printType :: Type -> String
 printType (Con "Type") = "Type"
 printType (Con t) = if  "Cap_" `isPrefixOf` t || 
                         "Record" `isPrefixOf` t 
                         then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
---printType (Con t) = map toLower t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
 printType (PCon "Vec" args) = "t " ++ unwords (map printType args)
@@ -23,9 +24,16 @@ printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(S " ++ printType t ++ ")" --
 printType (Index names ty) = "forall {" ++ map toLower (unwords names) ++ " : " ++ printType ty ++ "}"
+
+printReturnType :: Type -> String
 printReturnType (Con t) = map toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
-printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
+printReturnType _ = error "should not occur as a return type"
+
+printArg :: Arg -> String
+printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ argty a) ++ ")"
+
+printExpr :: Expr -> String
 printExpr (Constructor name) = map toLower name
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -40,18 +48,10 @@ printExpr (Let (d:ds) expr) =
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n\twhere " $ foldl (\x y -> x ++ "\n\t" ++ y) "" $ map printDef ds
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
--- For vectors and lists
-printExpr VecEmpty = "[]"
-printExpr (VecCons x xs) = "[" ++ printVecElements (VecCons x xs) ++ "]"
-printExpr ListEmpty = "[]"
-printExpr (ListCons x xs) = "[" ++ printListElements (ListCons x xs) ++ "]"
+printExpr (VecE l) = "[" ++ intercalate "; " (map printExpr l) ++ "]"
+printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
 
-printVecElements VecEmpty = ""
-printVecElements (VecCons x VecEmpty) = printExpr x
-printVecElements (VecCons x xs) = printExpr x ++ "; " ++ printVecElements xs
-printListElements ListEmpty = ""
-printListElements (ListCons x ListEmpty) = printExpr x
-printListElements (ListCons x xs) = printExpr x ++ "; " ++ printListElements xs
+printDef :: Definition -> String
 printDef (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr
 printDef (DefVar var (Just t) expr) = "Definition " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ ". \n"--LEAVING OUT: Compute " ++ var ++ "."
 printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
@@ -90,7 +90,6 @@ printDef (DefRec name recType consName fields) =
     -- Split the record type into words.
     -- The first word is the record name; any remaining words are the concrete parameter values.
     recWords = words $ printType recType
-    baseName = if null recWords then printType recType else head recWords
     paramsStr = case recWords of
                   (_:ps) -> unwords ps
                   _      -> ""
@@ -106,11 +105,6 @@ printDef (DefRec name recType consName fields) =
                       else consName ++ " " ++ paramsStr ++ fieldsStr
 printDef (OpenName _) = ""
 printDef (DefModule m) = printModule m
-
--- Store all defined records to check constructors
-definedRecords :: [Definition]
-definedRecords = []
-
 
 printModule :: Module -> String
 printModule (Module name imports defs) =

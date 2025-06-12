@@ -1,16 +1,20 @@
 {-# OPTIONS_GHC -Wno-overlapping-patterns #-}
 module PrintAgda (runAgda) where
 
+import Data.List (intercalate)
+
 import Grammar
 
+printImport :: Import -> String
 printImport (ImportLib "Nat") = "open import Agda.Builtin.Nat"
-printImport (ImportLib "Vec") = "open import Data.Vec"
+printImport (ImportLib "Vec") = "open import Data.Vec.Base"
 printImport (ImportLib "List") = "open import Agda.Builtin.List"
 printImport (ImportLib "String") = "open import Agda.Builtin.String"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
 -- Print types
+printType :: Type -> String
 printType (Con "Type") = "Set"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -23,7 +27,9 @@ printType (DCon name types exprs) = -- For dependent type constructors (like suc
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(suc " ++ printType t ++ ")"
 printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
+
 -- Print expressions
+printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -38,15 +44,11 @@ printExpr (Let (d:ds) expr) = "let\n    " ++ printDef d ++ concatMap (\x -> "\n 
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concatMap (\x -> "\n    " ++ printDef x) ds
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
-printExpr (VecEmpty) = "([])" -- For vectors
-printExpr (VecCons expr xs) = "(" ++ printVecElements (VecCons expr xs) ++ ")"
-printExpr (ListEmpty) = "([])"
-printExpr (ListCons expr xs) = "(" ++ printListElements (ListCons expr xs) ++ ")"
-printVecElements VecEmpty = "[]"
-printVecElements (VecCons x xs) = printExpr x ++ " ∷ " ++ printVecElements xs
-printListElements  ListEmpty = "[]"
-printListElements  (ListCons x xs) = printExpr x ++ " ∷ " ++ printListElements  xs
+printExpr (VecE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
+printExpr (ListE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
+
 -- Function to print variable definitions
+printDef :: Definition -> String
 printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n"
     where
         typeSig = case ty of
@@ -57,20 +59,24 @@ printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n
 printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ " = " ++ printExpr expr
     where
         typeSig = case ty of
-            Just t -> var ++ " : " ++ printType t ++ "\n    "
+            Just t -> var ++ " : " ++ printType t ++ "\n"
             Nothing -> ""
-        argsStr = unwords $ map (\(Arg name _) -> name) args  -- Correctly handle argument names
+        argsStr = unwords $ map arg args  -- Correctly handle argument names
 
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 --Name [(Name,Type)] Type [([Arg], Expr)]
 printDef (DefPatt var params ty _ cons) =
-    var ++ " : " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg name _) -> name) a) ++ " = " ++ printExpr e) cons) ++ "\n"
+    var ++ " : " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg n _) -> n) a) ++ " = " ++ printExpr e) cons) ++ "\n"
 -- Function to print datatype definitions
-printDef (DefDataType name cons ty) = "data " ++ name ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
-printDef (DefPDataType name params cons ty) = "data " ++ name ++ " " ++ unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++ " : " ++ printType ty ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ printType t) cons) ++ "\n"
---printDef (DefPDataType name params cons ty) = "data " ++ name ++ " : " ++ foldr (\x y -> "(" ++ x ++ " : Set) -> " ++ y) datatype params ++ " where" ++ unwords (map (\(name, t) -> "\n " ++ name ++ " : " ++ unwords (map (\p -> p ++ " ->") params) ++ printType t) cons) ++ "\n"
-
+printDef (DefDataType name cons ty) = 
+  "data " ++ name ++ " : " ++ printType ty ++ " where" ++ 
+  unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
+printDef (DefPDataType name params cons ty) = 
+  "data " ++ name ++ " " ++ 
+  unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++ 
+  " : " ++ printType ty ++ 
+  " where" ++ unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
 
 -- Function for records
 printDef (DefRecType name params consName fields _) =
@@ -79,23 +85,19 @@ printDef (DefRecType name params consName fields _) =
     where
         paramsStr = case params of
             [] -> ""
-            _ -> " " ++ unwords (map (\(Arg name ty) -> "(" ++ name ++ " : " ++ printType ty ++ ")") params)
+            _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
 
 printDef (DefRec name recType consName fields) =
     "\n" ++ name ++ " : " ++ printType recType ++ "\n" ++ 
     name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields
 
 printDef (OpenName _) = ""
-
--- Store all defined records to check constructors
-definedRecords :: [Definition]
-definedRecords = []
-
+printDef (DefModule m) = printModule m
 
 
 -- Print the Agda module
-printAgda :: Module -> String
-printAgda (Module name imports defs) =
+printModule :: Module -> String
+printModule (Module name imports defs) =
     let
         headers = "module " ++ name ++ " where \n" ++ unlines (map printImport imports)
         -- Concatenate all definitions
@@ -103,12 +105,9 @@ printAgda (Module name imports defs) =
 
     in headers ++ "\n" ++ body
 
-printAgda (File name str) = "module " ++ name ++ " where \n" ++ str
+printModule (File name str) = "module " ++ name ++ " where \n" ++ str
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ printAgda m
-        where 
-            name = case m of 
-                Module n _ _ -> n
-                File n _ -> n
+    writeFile ("out/" ++ name ++ ".agda") $ printModule m
+    where name = modname m

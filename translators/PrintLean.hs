@@ -1,12 +1,15 @@
 module PrintLean (runLean) where
 
 import Grammar
+import Data.List (intercalate)
 
+printImport :: Import -> String
 printImport (ImportLib "Vec") = "import Init.Data.Vector"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
 -- Print types (unchanged)
+printType :: Type -> String
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
@@ -18,12 +21,16 @@ printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types)
 printType (Suc t) = "(Nat.succ " ++ printType t ++ ")"  -- Use `Nat.succ` explicitly
 printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 
+printReturnType :: Type -> String
 printReturnType (Con t) = t
 printReturnType (Arr _ t) = printReturnType t
+printReturnType _ = error "show not occur as a return type"
 
-printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
+printArg :: Arg -> String
+printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ argty a) ++ ")"
 
 -- Print expressions (unchanged)
+printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -38,18 +45,10 @@ printExpr (Let (d:ds) expr) = "let " ++ (foldl (\x y -> x ++ "\nlet " ++ y) (pri
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then \n\t" ++ printExpr thn ++ "\nelse " ++ printExpr els
 printExpr (Where expr ds) = printExpr expr ++ "\n\twhere " ++ foldl (\x y -> x ++ "\n\t" ++ y) "" (map (printDef []) ds)
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args)
-printExpr (VecEmpty) = "#[]"  -- Lean uses `#[]` for empty vectors
-printExpr (VecCons expr rest) = "⟨#[" ++ printVecElements (VecCons expr rest) ++ "], rfl⟩"
-printExpr (ListEmpty) = "[]"
-printExpr (ListCons expr rest) = "[" ++ printListElements (ListCons expr rest) ++ "]"
--- Helper for vectors
-printVecElements :: Expr -> String
-printVecElements VecEmpty = ""
-printVecElements (VecCons x VecEmpty) = printExpr x
-printVecElements (VecCons x xs) = printExpr x ++ ", " ++ printVecElements xs
-printListElements ListEmpty = ""
-printListElements (ListCons expr ListEmpty) = printExpr expr
-printListElements (ListCons expr rest) = printExpr expr ++ ", " ++ printListElements rest
+printExpr (VecE l) = "#[" ++ intercalate ", " (map printExpr l) ++ "]"
+printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
+
+printDef :: [Definition] -> Definition -> String
 printDef _ (DefVar var Nothing expr) = var ++ " := " ++ printExpr expr
 printDef _ (DefVar var (Just t) expr) = "def " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr
 printDef _ (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
@@ -85,14 +84,14 @@ printDef _ (DefModule m) = printModule m
 
 
 printModule :: Module -> String
-printModule (Module name imports defs) =
+printModule (Module _ imports defs) =
     let
         headers = unlines (map printImport imports)
         recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
         body = foldl (\x y -> x ++ "\n" ++ printDef recs y) "" defs
     in headers ++ "\n" ++ body
 
-printModule (File name str) = str
+printModule (File _ str) = str
 
 runLean :: Module -> IO()
 runLean m = do
