@@ -1,8 +1,5 @@
 module ChainDefFields_NonDependentRecordModule where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec 
-open import Agda.Builtin.List 
+open import Agda.Builtin.Nat
 
 record Record1 : Set where
     constructor Const1
@@ -26,4 +23,4 @@ record Record5 : Set where
         f5 : Nat
 
 example : Record5
-example = Const 1
+example = Const5 1

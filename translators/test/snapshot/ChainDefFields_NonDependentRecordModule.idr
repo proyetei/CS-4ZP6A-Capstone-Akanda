@@ -1,5 +1,6 @@
 module Main
-import Data.Vect
+
+
 
 record Record1 where
     constructor Const1
@@ -22,7 +23,7 @@ record Record5 where
     f5 : Nat
 
 example : Record5
-example = Const 1
+example = Const5 1
 
 main : IO()
 main = putStrLn ""

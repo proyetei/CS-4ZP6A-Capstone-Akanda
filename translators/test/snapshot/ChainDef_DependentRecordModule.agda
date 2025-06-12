@@ -1,7 +1,5 @@
 module ChainDef_DependentRecordModule where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec
+open import Agda.Builtin.Nat
 
 record Record1 : Set where
     constructor Const1
@@ -25,4 +23,4 @@ record Record5 : Set where
         f5 : Record4
 
 example : Record5
-example =  (Const5 (Const4 (Const3 (Const2 (Const1 10)))))
+example = Const5 (Const4 (Const3 (Const2 (Const1 10))))

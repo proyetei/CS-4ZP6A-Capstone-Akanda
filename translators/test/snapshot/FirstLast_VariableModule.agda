@@ -1,8 +1,5 @@
 module FirstLast_VariableModule where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec 
-open import Agda.Builtin.List 
+open import Agda.Builtin.Nat
 
 x1 : Nat
 x1 = 1

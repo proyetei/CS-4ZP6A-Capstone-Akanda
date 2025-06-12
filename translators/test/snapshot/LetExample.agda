@@ -1,8 +1,5 @@
 module LetExample where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec 
-open import Agda.Builtin.List 
+open import Agda.Builtin.Nat
 
 n : Nat
 n = let

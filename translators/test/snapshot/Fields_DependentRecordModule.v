@@ -1,13 +1,12 @@
+
 Require Import Coq.Vectors.Vector. 
-Require Import List. 
-Import VectorNotations. 
-Import ListNotations.
+Import VectorNotations.
 
 
 Module Fields_DependentRecordModule.
 
 
-Record X : Type := Const {
+Record Cap_X : Type := Const {
   f1 : nat;
   f2 : t nat f1;
   f3 : t nat (S f1);
@@ -15,7 +14,7 @@ Record X : Type := Const {
   f5 : t nat (S (S (S f1)));
 }.
 
-Definition example : X :=
-  Const 1 [1] [1; 1] [1; 1; 1] [1; 1; 1; 1].
+Definition example : Cap_X :=
+  Const [1] [1; 1] [1; 1; 1] [1; 1; 1; 1] [1; 1; 1; 1; 1].
 
 End Fields_DependentRecordModule.

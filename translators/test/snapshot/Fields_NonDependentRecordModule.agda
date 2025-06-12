@@ -1,10 +1,7 @@
 module Fields_NonDependentRecordModule where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec 
-open import Agda.Builtin.List 
+open import Agda.Builtin.Nat
 
-record X : Set where
+record Cap_X : Set where
     constructor Const
     field
         f1 : Nat
@@ -13,5 +10,5 @@ record X : Set where
         f4 : Nat
         f5 : Nat
 
-example : X
+example : Cap_X
 example = Const 1 1 1 1 1

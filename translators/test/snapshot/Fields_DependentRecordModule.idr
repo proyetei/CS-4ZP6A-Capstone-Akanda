@@ -1,7 +1,9 @@
 module Main
+
 import Data.Vect
 
-record X where
+
+record Cap_X where
     constructor Const
     f1 : Nat
     f2 : Vect f1 Nat
@@ -9,8 +11,8 @@ record X where
     f4 : Vect (S (S f1)) Nat
     f5 : Vect (S (S (S f1))) Nat
 
-example : X
-example = Const 1 [1] [1, 1] [1, 1, 1] [1, 1, 1, 1]
+example : Cap_X
+example = Const [1] [1, 1] [1, 1, 1] [1, 1, 1, 1] [1, 1, 1, 1, 1]
 
 main : IO()
 main = putStrLn ""

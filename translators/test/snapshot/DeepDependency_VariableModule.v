@@ -1,7 +1,4 @@
-Require Import Coq.Vectors.Vector. 
-Require Import List. 
-Import VectorNotations. 
-Import ListNotations.
+
 
 
 Module DeepDependency_VariableModule.

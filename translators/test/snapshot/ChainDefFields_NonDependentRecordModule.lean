@@ -1,4 +1,5 @@
-import Init.Data.Vector
+
+
 
 structure Record1 where
     Const1 ::

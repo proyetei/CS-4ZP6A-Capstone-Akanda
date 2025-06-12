@@ -1,10 +1,8 @@
 module Fields_DependentRecordModule where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec 
-open import Agda.Builtin.List 
+open import Agda.Builtin.Nat
+open import Data.Vec.Base
 
-record X : Set where
+record Cap_X : Set where
     constructor Const
     field
         f1 : Nat
@@ -13,5 +11,5 @@ record X : Set where
         f4 : Vec Nat (suc (suc f1))
         f5 : Vec Nat (suc (suc (suc f1)))
 
-example : X
-example = Const 1(1 ∷ [])(1 ∷ 1 ∷ [])(1 ∷ 1 ∷ 1 ∷ [])(1 ∷ 1 ∷ 1 ∷ 1 ∷ [])
+example : Cap_X
+example = Const ([1]) ([1 7 1]) ([1 7 1 7 1]) ([1 7 1 7 1 7 1]) ([1 7 1 7 1 7 1 7 1])

@@ -1,8 +1,5 @@
 module DeepDependency_VariableModule where 
-open import Agda.Builtin.IO  
-open import Agda.Builtin.Nat 
-open import Data.Vec 
-open import Agda.Builtin.List 
+open import Agda.Builtin.Nat
 
 x1L1 : Nat
 x1L1 = 1

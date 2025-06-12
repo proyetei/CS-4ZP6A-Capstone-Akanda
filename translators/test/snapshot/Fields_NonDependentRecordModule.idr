@@ -1,7 +1,8 @@
 module Main
-import Data.Vect
 
-record X where
+
+
+record Cap_X where
     constructor Const
     f1 : Nat
     f2 : Nat
@@ -9,7 +10,7 @@ record X where
     f4 : Nat
     f5 : Nat
 
-example : X
+example : Cap_X
 example = Const 1 1 1 1 1
 
 main : IO()

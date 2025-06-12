@@ -1,4 +1,5 @@
-import Init.Data.Vector
+
+
 
 structure Record1 where
     Const1 ::
@@ -21,4 +22,4 @@ structure Record5 where
     f5 : Record4
 
 open Record1 Record2 Record3 Record4 Record5
-example : Record5 :=  Const5 (Const4 (Const3 (Const2 (Const1 10))))
+example : Record5 := Const5 (Const4 (Const3 (Const2 (Const1 10))))

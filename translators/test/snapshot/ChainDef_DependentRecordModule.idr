@@ -1,5 +1,6 @@
 module Main
-import Data.Vect
+
+
 
 record Record1 where
     constructor Const1
@@ -22,7 +23,7 @@ record Record5 where
     f5 : Record4
 
 example : Record5
-example =  Const5 (Const4 (Const3 (Const2 (Const1 10))))
+example = Const5 (Const4 (Const3 (Const2 (Const1 10))))
 
 main : IO()
 main = putStrLn ""

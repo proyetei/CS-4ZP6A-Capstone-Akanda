@@ -1,6 +1,7 @@
-import Init.Data.Vector
 
-structure X where
+
+
+structure Cap_X where
     Const ::
     f1 : Nat
     f2 : Nat
@@ -8,5 +9,5 @@ structure X where
     f4 : Nat
     f5 : Nat
 
-open X
-example : X := Const 1 1 1 1 1
+open Cap_X
+example : Cap_X := Const 1 1 1 1 1

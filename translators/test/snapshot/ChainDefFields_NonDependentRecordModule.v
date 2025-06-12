@@ -1,7 +1,4 @@
-Require Import Coq.Vectors.Vector. 
-Require Import List. 
-Import VectorNotations. 
-Import ListNotations.
+
 
 
 Module ChainDefFields_NonDependentRecordModule.
@@ -28,6 +25,6 @@ Record Record5 : Type := Const5 {
 }.
 
 Definition example : Record5 :=
-  Const 1.
+  Const5 1.
 
 End ChainDefFields_NonDependentRecordModule.
