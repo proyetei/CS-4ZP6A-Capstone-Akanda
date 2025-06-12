@@ -1,25 +1,20 @@
 cabal-version:      3.0
 name:               translators
 version:            0.2.0.0
--- synopsis:
--- description:
+synopsis:           A generic proof-assistant benchmarking framework.
 license:            MIT
--- license-file:       LICENSE
-author:
-    Zainab Abdulsada, Esha Pisharody, Emma Willson, Grace Croome, Marie Hollington, Proyetei Akanda, Jacques Carette
+author:             Zainab Abdulsada, Esha Pisharody, Emma Willson, Grace Croome, Marie Hollington, Proyetei Akanda, Jacques Carette, Reed Mullanix
 
 maintainer:         82549386+Z-Obaid@users.noreply.github.com
--- copyright:
 category:           Testing
 build-type:         Simple
--- extra-doc-files:    CHANGELOG.md
--- extra-source-files:
+extra-doc-files:    CHANGELOG.md
 
 common warnings
     ghc-options: -Wall
 
 library
-    import:           warnings
+    import: warnings
     exposed-modules:  
       Grammar, 
       PrintAgda, 
@@ -27,24 +22,18 @@ library
       PrintLean, 
       PrintRocq,
       Tests
-    -- other-modules:
-    -- other-extensions:
-    build-depends:    base ^>=4.17.2.0
-                   , containers >= 0.6 && < 0.7
-    hs-source-dirs:   .
+    build-depends:
+      base ^>=4.17.2.0,
+      containers >= 0.6 && < 0.7
+    hs-source-dirs: src
     default-language: Haskell2010
 
 executable translators
-    import:           warnings
-    main-is:          main.hs
-    -- other-modules: 
-    other-modules:    Grammar, PrintAgda, PrintIdris, PrintLean, PrintRocq, Tests
-    -- other-extensions:
+    import: warnings
+    main-is:  Main.hs
     build-depends:
+        translators,
         base ^>=4.17.2.0,
         containers >= 0.6 && < 0.7
-
-    hs-source-dirs:
-        .
-
+    hs-source-dirs: app
     default-language: Haskell2010
