@@ -13,23 +13,28 @@ extra-doc-files:    CHANGELOG.md
 common warnings
     ghc-options: -Wall
 
+common extensions
+     default-extensions:
+       BlockArguments,
+       ImportQualifiedPost
+
 library
-    import: warnings
+    import: warnings, extensions
     exposed-modules:  
-      Grammar, 
-      Print.Agda, 
-      Print.Idris, 
-      Print.Lean, 
-      Print.Rocq,
-      Tests
+        Grammar, 
+        Print.Agda, 
+        Print.Idris, 
+        Print.Lean, 
+        Print.Rocq,
+        Tests
     build-depends:
-      base ^>=4.17.2.0,
-      containers >= 0.6 && < 0.7
+        base ^>=4.17.2.0,
+        containers >= 0.6 && < 0.7
     hs-source-dirs: src
     default-language: Haskell2010
 
 executable translators
-    import: warnings
+    import: warnings, extensions
     main-is:  Main.hs
     build-depends:
         translators,
@@ -39,7 +44,7 @@ executable translators
     default-language: Haskell2010
 
 test-suite translators-golden
-    import: warnings
+    import: warnings, extensions
     main-is: Main.hs
     build-depends:
         translators,
@@ -48,3 +53,5 @@ test-suite translators-golden
         tasty-golden >= 2.3,
     hs-source-dirs: test/golden
     type: exitcode-stdio-1.0
+    default-language: Haskell2010
+    
