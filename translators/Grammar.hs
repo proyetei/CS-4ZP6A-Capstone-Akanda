@@ -44,7 +44,7 @@ data Type = Con Name              -- type constructor
         | Suc Type
         | Index [Name] Type
 
-data Arg = Arg { arg :: Name, ty :: Type }
+data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
         | Int Int 

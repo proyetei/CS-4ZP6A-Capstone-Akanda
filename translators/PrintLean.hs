@@ -21,7 +21,7 @@ printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}
 printReturnType (Con t) = t
 printReturnType (Arr _ t) = printReturnType t
 
-printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ ty a) ++ ")"
+printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ argty a) ++ ")"
 
 -- Print expressions (unchanged)
 printExpr (Constructor name) = name
