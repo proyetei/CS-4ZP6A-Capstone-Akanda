@@ -3,14 +3,16 @@ module PrintAgda (runAgda) where
 
 import Grammar
 
+printImport :: Import -> String
 printImport (ImportLib "Nat") = "open import Agda.Builtin.Nat"
-printImport (ImportLib "Vec") = "open import Data.Vec"
+printImport (ImportLib "Vec") = "open import Data.Vec.Base"
 printImport (ImportLib "List") = "open import Agda.Builtin.List"
 printImport (ImportLib "String") = "open import Agda.Builtin.String"
 printImport (ImportLib _) = ""
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
 -- Print types
+printType :: Type -> String
 printType (Con "Type") = "Set"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
@@ -23,7 +25,9 @@ printType (DCon name types exprs) = -- For dependent type constructors (like suc
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
 printType (Suc t) = "(suc " ++ printType t ++ ")"
 printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
+
 -- Print expressions
+printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Int int) = show int
@@ -42,10 +46,15 @@ printExpr (VecEmpty) = "([])" -- For vectors
 printExpr (VecCons expr xs) = "(" ++ printVecElements (VecCons expr xs) ++ ")"
 printExpr (ListEmpty) = "([])"
 printExpr (ListCons expr xs) = "(" ++ printListElements (ListCons expr xs) ++ ")"
+
+printVecElements :: Expr -> String
 printVecElements VecEmpty = "[]"
 printVecElements (VecCons x xs) = printExpr x ++ " ∷ " ++ printVecElements xs
+
+printListElements :: Expr -> String
 printListElements  ListEmpty = "[]"
 printListElements  (ListCons x xs) = printExpr x ++ " ∷ " ++ printListElements  xs
+
 -- Function to print variable definitions
 printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n"
     where
