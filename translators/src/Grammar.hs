@@ -3,7 +3,7 @@ module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), 
 
 -- grammar
 
-data Module 
+data Module
   = Module { mname :: Name
            , mimports :: [Import]
            , mdefs :: [Definition] } -- is there anything like 'module Main where' FEL?
@@ -16,25 +16,25 @@ modname m = mname m
 data Import = ImportLib Lib
             | ImportFun Name Lib
 
-data Definition 
+data Definition
   = DefFun Name (Maybe Type) [Arg] Expr
      -- Constructor for nested functions
   | DefNesFun Name (Maybe Type) [Arg] Expr
     --function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
-  | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)] 
+  | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)]
   | DefVar Name (Maybe Type) Expr
     -- datatype name, constructors, usually type is Set
-  | DefDataType Name [(Name,Type)] Type 
+  | DefDataType Name [(Name,Type)] Type
     -- datatype name, parameters, constrcutors, overall type
-  | DefPDataType Name [(Name, Type)] [(Name,Type)] Type 
+  | DefPDataType Name [(Name, Type)] [(Name,Type)] Type
     -- [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
   | DefRecType Name [Arg] Name [(Name,Type)] Type
     -- record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
   | DefRec Name Type Name [(String, Expr)]
     --just for Lean, to refer to user-defined datatypes directly
-  | OpenName Name 
+  | OpenName Name
     -- for nested modules
-  | DefModule Module 
+  | DefModule Module
 
 data Type = Con Name              -- type constructor
         | PCon Name [Type]        -- parameterized type constructor
@@ -47,21 +47,21 @@ data Type = Con Name              -- type constructor
 data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
-        | Int Int 
-        | Bool Bool 
-        | String String 
+        | Int Int
+        | Bool Bool
+        | String String
         | Mon Op Expr
         | Bin Op Expr Expr
         | Let [Definition] Expr
-        | If Expr Expr Expr 
+        | If Expr Expr Expr
         | Where Expr [Definition]
         | FunCall Name [Expr]    --constructor to call function
         | VecE [Expr]
         | ListE [Expr]
         | Paren Expr
         | Constructor Name
-        
-        
+
+
 -- aliases for readability purposes
 type Name = String
 type Lib = String

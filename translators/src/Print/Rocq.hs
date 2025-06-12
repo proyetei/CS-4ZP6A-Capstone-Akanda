@@ -12,8 +12,8 @@ printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ nam
 
 printType :: Type -> String
 printType (Con "Type") = "Type"
-printType (Con t) = if  "Cap_" `isPrefixOf` t || 
-                        "Record" `isPrefixOf` t 
+printType (Con t) = if  "Cap_" `isPrefixOf` t ||
+                        "Record" `isPrefixOf` t
                         then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
@@ -109,7 +109,7 @@ printDef (DefModule m) = printModule m
 printModule :: Module -> String
 printModule (Module name imports defs) =
     let
-        headers = unlines (map printImport imports) ++ "\n\nModule " ++ name ++ ".\n" 
+        headers = unlines (map printImport imports) ++ "\n\nModule " ++ name ++ ".\n"
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 

@@ -69,13 +69,13 @@ printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args
 printDef (DefPatt var params ty _ cons) =
     var ++ " : " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg n _) -> n) a) ++ " = " ++ printExpr e) cons) ++ "\n"
 -- Function to print datatype definitions
-printDef (DefDataType name cons ty) = 
-  "data " ++ name ++ " : " ++ printType ty ++ " where" ++ 
+printDef (DefDataType name cons ty) =
+  "data " ++ name ++ " : " ++ printType ty ++ " where" ++
   unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
-printDef (DefPDataType name params cons ty) = 
-  "data " ++ name ++ " " ++ 
-  unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++ 
-  " : " ++ printType ty ++ 
+printDef (DefPDataType name params cons ty) =
+  "data " ++ name ++ " " ++
+  unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++
+  " : " ++ printType ty ++
   " where" ++ unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
 
 -- Function for records
@@ -88,7 +88,7 @@ printDef (DefRecType name params consName fields _) =
             _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
 
 printDef (DefRec name recType consName fields) =
-    "\n" ++ name ++ " : " ++ printType recType ++ "\n" ++ 
+    "\n" ++ name ++ " : " ++ printType recType ++ "\n" ++
     name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields
 
 printDef (OpenName _) = ""

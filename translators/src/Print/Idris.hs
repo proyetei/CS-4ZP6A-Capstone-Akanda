@@ -71,9 +71,9 @@ printDef (DefRecType name params consName fields _) =
         _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
 
 printDef (DefRec name recType consName fields) =
-    name ++ " : " ++ printType recType ++ 
+    name ++ " : " ++ printType recType ++
     "\n" ++ name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields ++ "\n"
-    
+
 printDef (OpenName _) = ""
 printDef (DefModule m) = printModule m
 -- Catch-all to prevent non-exhaustive errors
