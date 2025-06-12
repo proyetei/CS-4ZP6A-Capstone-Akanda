@@ -38,7 +38,7 @@ executable translators
     import:           warnings
     main-is:          main.hs
     -- other-modules: 
-    other-modules:    Grammar, PrintAgda, PrintIdris, PrintLean, PrintRocq, Tests
+    other-modules:    Grammar, Print.Agda, Print.Idris, Print.Lean, Print.Rocq, Tests
     -- other-extensions:
     build-depends:
         base ^>=4.17.2.0,
