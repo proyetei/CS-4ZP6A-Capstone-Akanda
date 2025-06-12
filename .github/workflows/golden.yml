@@ -15,4 +15,4 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
-      - run: cabal test all
+      - run: cabal test all --test-options="--no-create"

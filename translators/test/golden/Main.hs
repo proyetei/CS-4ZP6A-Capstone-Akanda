@@ -3,6 +3,7 @@ module Main where
 
 import Data.IntMap as IntMap
 
+import System.Directory
 import System.FilePath
 
 import Test.Tasty.Golden
@@ -55,7 +56,7 @@ printTestForLang
   -> TestTree
 printTestForLang langName printer fileExt base syn =
   goldenVsFileDiff langName (\ref new -> ["diff" ,"-u", ref, new]) snapshotFile stagingFile do
-    -- Make sure to encode our 'String' using UTF-8.
+    createDirectoryIfMissing False ("test" </> "staging")
     createFile stagingFile
     writeBinaryFile stagingFile (printer syn)
   where
