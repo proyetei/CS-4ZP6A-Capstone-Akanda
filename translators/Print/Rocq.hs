@@ -1,4 +1,4 @@
-module PrintRocq (runRocq) where
+module Print.Rocq (runRocq) where
 
 import Grammar
 import Data.Char
