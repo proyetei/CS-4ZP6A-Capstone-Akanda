@@ -51,6 +51,8 @@ test-suite translators-golden
     build-depends:
         translators,
         base ^>=4.17.2.0,
+        containers >= 0.6 && < 0.7,
+        filepath >= 1.5,
         tasty >= 1.5,
         tasty-golden >= 2.3,
     if os(windows)
