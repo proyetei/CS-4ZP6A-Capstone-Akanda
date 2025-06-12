@@ -55,7 +55,7 @@ printTestForLang
   -- ^ The thing to print.
   -> TestTree
 printTestForLang langName printer fileExt base syn =
-  goldenVsFileDiff langName (\ref new -> ["diff" ,"-u", ref, new]) snapshotFile stagingFile do
+  goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", ref, new]) snapshotFile stagingFile do
     createDirectoryIfMissing False ("test" </> "staging")
     createFile stagingFile
     writeBinaryFile stagingFile (printer syn)
