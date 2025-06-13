@@ -2,6 +2,7 @@ module Main where
 
 import Text.Read
 import Data.IntMap.Strict as Map
+import Numeric.Natural (Natural)
 
 import Print.Agda
 import Print.Idris
@@ -10,13 +11,13 @@ import Print.Rocq
 
 import Tests
 
-_maxsize :: Int
+_maxsize :: Natural
 _maxsize = 1000000
 
-chooseTest :: String -> IO Int
-chooseTest str = case readMaybe str :: Maybe Int of
+chooseTest :: String -> IO Natural
+chooseTest str = case readMaybe str :: Maybe Natural of
     Just i ->
-        if i > 0 || i <= length tests then return i else
+        if i > 0 || i <= (fromIntegral $ length tests) then return i else
             do
                 putStrLn "test choice out of bounds"
                 getLine >>= chooseTest
@@ -25,8 +26,8 @@ chooseTest str = case readMaybe str :: Maybe Int of
             putStrLn $ "not a valid test choice. enter an integer from 1 to " ++ show (length tests)
             getLine >>= chooseTest
 
-chooseSize :: String -> IO Int
-chooseSize str = case readMaybe str :: Maybe Int of
+chooseSize :: String -> IO Natural
+chooseSize str = case readMaybe str :: Maybe Natural of
     Just i ->
         if i >= 0 || i <= _maxsize then return i else
             do
@@ -43,7 +44,7 @@ main = do
     i <- getLine >>= chooseTest
     putStrLn "choose size: "
     n <- getLine >>= chooseSize
-    let test = (tests ! i) n
+    let test = (tests ! fromIntegral i) n
     runAgda test
     runIdris test
     runLean test

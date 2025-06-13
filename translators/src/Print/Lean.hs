@@ -40,7 +40,7 @@ printArg a = parens $ (arg a) ++ " : " ++ (printType $ argty a)
 printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
-printExpr (Int int) = show int
+printExpr (Nat n) = show n
 printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
 printExpr (Paren e) = parens $ printExpr e

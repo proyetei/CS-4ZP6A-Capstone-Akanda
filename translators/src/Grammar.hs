@@ -2,6 +2,8 @@ module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), 
   , KnownMods (..)
   , modname) where
 
+import Numeric.Natural (Natural)
+
 -- grammar
 
 data Module
@@ -49,7 +51,7 @@ data Type = Con Name              -- type constructor
 data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
-        | Int Int
+        | Nat Natural
         | Bool Bool
         | String String
         | Mon Op Expr
