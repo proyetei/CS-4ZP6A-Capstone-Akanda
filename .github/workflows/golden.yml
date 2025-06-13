@@ -16,19 +16,19 @@ jobs:
       - name: Checkout ⬇️
         uses: actions/checkout@v4
 
-      - name: Setup Linux environment
+      - name: Setup Linux environment 🐧
         if: runner.os == 'Linux'
         run: |
-          echo "ghcup=/home/runner/.ghcup" >> $GITHUB_ENV
+          echo "ghcup=/usr/local/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/home/runner/.cabal/store" >> $GITHUB_ENV
 
-      - name: Setup MacOS environment
+      - name: Setup MacOS environment 🍎
         if: runner.os == 'macOS'
         run: |
           echo "ghcup=/Users/runner/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/Users/runner/.cabal/store" >> $GITHUB_ENV
 
-      - name: Setup Windows environment
+      - name: Setup Windows environment 🪟
         if: runner.os == 'Windows'
         run: |
           echo "ghcup=C:\ghcup" >> $env:GITHUB_ENV
@@ -61,7 +61,8 @@ jobs:
       - name: Debug Windows
         if: runner.os == 'Windows'
         run: |
-          dir /a /s C:\ghcup
+          ls -Path "C:\ghcup"
+          ls -Path "C:\tools"
         
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
