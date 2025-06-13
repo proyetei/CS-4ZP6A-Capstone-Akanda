@@ -19,8 +19,8 @@ jobs:
       - name: Setup Linux environment
         if: runner.os == 'Linux'
         run: |
-          echo "ghcup=/hom/runner/.ghcup" >> $GITHUB_ENV
-          echo "cabal-store=/hom/runner/.cabal/store" >> $GITHUB_ENV
+          echo "ghcup=/home/runner/.ghcup" >> $GITHUB_ENV
+          echo "cabal-store=/home/runner/.cabal/store" >> $GITHUB_ENV
 
       - name: Setup MacOS environment
         if: runner.os == 'macOS'
@@ -53,7 +53,7 @@ jobs:
 
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
-        if: steps.ghcup-cache.outputs.cache-hit != 'true'
+        if: steps.ghcup-cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
         with:
           path: ${{ env.ghcup }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
