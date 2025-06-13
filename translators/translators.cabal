@@ -22,6 +22,7 @@ library
     import: warnings, extensions
     exposed-modules:  
         Grammar, 
+        Print.Generic,
         Print.Agda, 
         Print.Idris, 
         Print.Lean, 
