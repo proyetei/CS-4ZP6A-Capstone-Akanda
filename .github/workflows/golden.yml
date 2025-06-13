@@ -48,11 +48,19 @@ jobs:
           restore-keys: ${{ env.key }}-
           
       # There is no narwhal emoji? Very upsetting.
-      - name: Set up GHC ${{ matrix.ghc-version }} 🐬
+      - name: Install GHC ${{ matrix.ghc-version }} 🐬
+        if: steps.ghcup-cache.outputs.cache-hit != 'true'
         uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc-version }}
           cabal-version: ${{ matrix.cabal-version }}
+
+      - name: Set ghcup paths ${{ matrix.ghc-version }} 🧰
+        if: steps.ghcup-cache.outputs.cache-hit == 'true'
+        run: |
+          ghcup set ghc ${{ matrix.ghc-version }}
+          ghcup set cabal ${{ matrix.cabal-version }}
+
 
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
@@ -65,7 +73,6 @@ jobs:
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
         run: |
-          echo $PATH
           ghc --version
           cabal --version
           cabal update
