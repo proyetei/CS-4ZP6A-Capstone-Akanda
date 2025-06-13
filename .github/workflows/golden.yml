@@ -20,19 +20,19 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           echo "ghcup=/hom/runner/.ghcup" >> $GITHUB_ENV
-          echo "cabal-store=/hom/runner/.cabal/store >> $GITHUB_ENV
+          echo "cabal-store=/hom/runner/.cabal/store" >> $GITHUB_ENV
 
       - name: Setup MacOS environment
         if: runner.os == 'macOS'
         run: |
           echo "ghcup=/Users/runner/.ghcup" >> $GITHUB_ENV
-          echo "cabal-store=/Users/runner/.cabal/store >> $GITHUB_ENV
+          echo "cabal-store=/Users/runner/.cabal/store" >> $GITHUB_ENV
 
       - name: Setup Windows environment
         if: runner.os == 'Windows'
         run: |
           echo "ghcup=C:\ghcup" >> env:$GITHUB_ENV
-          echo "cabal-store=C:\sr >> env:$GITHUB_ENV
+          echo "cabal-store=C:\sr" >> env:$GITHUB_ENV
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
