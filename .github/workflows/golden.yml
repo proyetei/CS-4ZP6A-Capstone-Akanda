@@ -64,6 +64,7 @@ jobs:
       - name: Set GHC version to ${{ matrix.ghc-version }} on Windows 👺
         if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os == 'Windows'
         run: |
+          echo "C:\tools\ghc-${{matrix.ghc-version}}\bin" >> $env:GITHUB_PATH
           C:\ghcup\bin\ghcup.exe set ghc ${{ matrix.ghc-version }}
           C:\ghcup\bin\ghcup.exe set cabal ${{ matrix.cabal-version }}
 
