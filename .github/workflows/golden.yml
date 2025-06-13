@@ -78,11 +78,12 @@ jobs:
       - name: Debug the great satan 👺
         if: runner.os == 'Windows'
         run: |
-          $colItems = Get-ChildItem C:\ghcup | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object
-          foreach ($i in $colItems) {
-              $subFolderItems = Get-ChildItem $i.FullName -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
-              $i.FullName + " -- " + "{0:N2}" -f ($subFolderItems.sum / 1MB) + " MB"
-          }
+          ls C:\ghcup\ghc
+          # $colItems = Get-ChildItem C:\ghcup\ghc | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object
+          # foreach ($i in $colItems) {
+          #     $subFolderItems = Get-ChildItem $i.FullName -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
+          #     $i.FullName + " -- " + "{0:N2}" -f ($subFolderItems.sum / 1MB) + " MB"
+          # }
 
         
       # We need to generate the build plan so that we can use it for a caching key.
