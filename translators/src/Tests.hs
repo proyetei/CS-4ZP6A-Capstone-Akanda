@@ -36,21 +36,21 @@ sum2vars n | n == 0    = Nat 1
 _tests :: [Natural -> Module] -- todo: add commented Haskell representation for each test
 _tests =
     [ \n -> let --1
-            decl = [DefVar "n" (Just $ Con "Nat") $ lets 0]
+            decl = [DefTVar "n" nat $ lets 0]
             lets :: Natural -> Expr
-            lets p = Let [DefVar ("x"++ show (p+1)) Nothing $ xs p] $ if p == minusNatural n 1 then xs (p+1) else lets (p+1)
+            lets p = Let [DefUVar ("x"++ show (p+1)) $ xs p] $ if p == minusNatural n 1 then xs (p+1) else lets (p+1)
         in Module "LetExample" [ImportLib NatMod] $ optional n decl
 
     , \n -> let --2
         lets p =
-            if p==n then Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ vx p
-            else Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ lets $ p+1
-    in Module "LetAddExample" [ImportLib NatMod] $ optional n [DefVar "n" (Just $ Con "Nat") $ lets 1]
+            if p==n then Let [DefUVar ("x"++ show p) $ sum2vars $ p-1] $ vx p
+            else Let [DefUVar ("x"++ show p) $ sum2vars $ p-1] $ lets $ p+1
+    in Module "LetAddExample" [ImportLib NatMod] $ optional n [DefTVar "n" nat $ lets 1]
 
     , -- 3 Description: Generate Nested Functions
     \n -> let --3
             iszero 0 = []
-            iszero _ = [ DefVar "n" (Just $ Con "Nat") (Let (reverse(genFunc n)) (genCall n)) ]
+            iszero _ = [ DefTVar "n" nat (Let (reverse(genFunc n)) (genCall n)) ]
             -- Generate function definitions dynamically based on (1 to n)
             genFunc :: Natural -> [Definition]
             genFunc 1 = [DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat"))
@@ -78,7 +78,7 @@ _tests =
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
     , \n -> let --5 Variable declaration with an identifier of a specified length.
         iszero 0 = []
-        iszero _ = [DefVar (genIdentifier n) (Just $ Con "Nat") $ Nat 0]
+        iszero _ = [DefTVar (genIdentifier n) nat $ Nat 0]
         genIdentifier 1 = "x"
         genIdentifier m = 'x' : genIdentifier (m-1)
         in Module "LongIdentifier" [ImportLib NatMod]  $ iszero n
@@ -221,11 +221,11 @@ _tests =
         varNames = map (\i -> "x" ++ show i) [1..n]
 
         -- Generate definitions: x1 = 1, x2 = 2, ..., xn = n
-        varDefs = zipWith (\name val -> DefVar name (Just $ Con "Nat") (Nat val)) varNames [1..n]
+        varDefs = zipWith (\name val -> DefTVar name nat (Nat val)) varNames [1..n]
 
         -- result = x1 + xn
         finalExpr = Bin "+" (Var "x1") (vx n)
-        resultDef = DefVar "result" (Just $ Con "Nat") finalExpr
+        resultDef = DefTVar "result" nat finalExpr
 
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ iszero n
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
@@ -243,16 +243,16 @@ _tests =
     genExpr 1 idx = Nat idx
     genExpr level idx = Bin "+" (Var $ varName (level - 1) idx) (Nat idx)
 
-    -- Generate DefVar for each level
+    -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
-    genLevelDefs 1 = [DefVar (varName 1 idx) (Just $ Con "Nat") (genExpr 1 idx) | idx <- [1..varsPerLevel]]
+    genLevelDefs 1 = [DefTVar (varName 1 idx) nat (genExpr 1 idx) | idx <- [1..varsPerLevel]]
     genLevelDefs level = genLevelDefs (level - 1) ++
-        [DefVar (varName level idx) (Just $ Con "Nat") (genExpr level idx) | idx <- [1..varsPerLevel]]
+        [DefTVar (varName level idx) nat (genExpr level idx) | idx <- [1..varsPerLevel]]
 
     --  sum of all xN_1 .. xN_10 + 100
     sumVars = foldl (\acc idx -> Bin "+" acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
 
-    resultDef = DefVar "result" (Just $ Con "Nat") sumVars
+    resultDef = DefTVar "result" nat sumVars
 
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ iszero n
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
@@ -264,7 +264,7 @@ _tests =
        in Module "DataImplicitIndices" [ImportLib NatMod] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
         iszero 0 = []
-        iszero _ = [DefVar "A" (Just (Con "String")) $ String (genLongValue n)]
+        iszero _ = [DefTVar "A" (Con "String") $ String (genLongValue n)]
         genLongValue 1 = "x"
         genLongValue m = 'x' : genLongValue (m-1)
         in Module "SingleLongLine" [ImportLib StringMod]  $ iszero n
@@ -297,7 +297,7 @@ _tests =
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) Univ, --create datatype
           OpenName "D",
           DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], Nat i)) [1..n]),
-          DefVar "N" (Just $ Con "Nat") (genCall n)]
+          DefTVar "N" nat (genCall n)]
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
     in

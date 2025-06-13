@@ -53,10 +53,11 @@ printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
 
 
 printDef :: Definition -> String
-printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr where
-    typeSig = case ty of
-        Just t -> var ++ " : " ++ printType t ++ "\n"
-        Nothing -> ""
+printDef (DefUVar var expr) = 
+    var ++ " = " ++ printExpr expr
+printDef (DefTVar var t expr) =
+    var ++ " : " ++ printType t ++ "\n" ++
+    var ++ " = " ++ printExpr expr
 printDef (DefFun var ty args expr) = typeSig ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " = " ++ printExpr expr where
     typeSig = case ty of
         Just t -> var ++ " : " ++ printType t ++ "\n    "
