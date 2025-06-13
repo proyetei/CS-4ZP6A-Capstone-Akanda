@@ -34,7 +34,8 @@ jobs:
       - name: Setup Windows environment 🪟
         if: runner.os == 'Windows'
         run: |
-          echo @"ghcup<<EOF
+          echo @"
+          ghcup<<EOF
           C:\tools\ghc-*
           C:\ghcup\bin
           C:\ghcup\ghc
@@ -53,14 +54,14 @@ jobs:
           restore-keys: ${{ env.key }}-
           
       # There is no narwhal emoji? Very upsetting.
-      - name: Install GHC ${{ matrix.ghc-version }} 🐬
+      - name: Install GHC ${{ matrix.ghc-version }} and Cabal ${{ matrix.cabal-version }} 🐬
         if: steps.ghcup-cache.outputs.cache-hit == 'false' || runner.os != 'Windows'
         uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc-version }}
           cabal-version: ${{ matrix.cabal-version }}
 
-      - name: Set GHC versions on Windows ${{ matrix.ghc-version }} 🪟
+      - name: Set GHC version to ${{ matrix.ghc-version }} on Windows 🪟
         if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os == 'Windows'
         run: |
           C:\ghcup\bin\ghcup.exe set ghc ${{ matrix.ghc-version }}
