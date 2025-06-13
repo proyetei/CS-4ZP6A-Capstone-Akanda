@@ -19,9 +19,9 @@ jobs:
       - name: Setup environment 🏕️
         id: env_setup
         run: |
-          echo "$GITHUB_ENV"
-          echo "ghcup=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}\n" >> "$GITHUB_ENV"
-          echo "cabal-store=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}\n" >> "$GITHUB_ENV"
+          echo "OS: ${{runner.os}}"
+          echo "ghcup=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> "$GITHUB_ENV"
+          echo "cabal-store=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> "$GITHUB_ENV"
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
