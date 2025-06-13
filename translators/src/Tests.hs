@@ -53,13 +53,13 @@ _tests =
             iszero _ = [ DefTVar "n" nat (Let (reverse(genFunc n)) (genCall n)) ]
             -- Generate function definitions dynamically based on (1 to n)
             genFunc :: Natural -> [Definition]
-            genFunc 1 = [DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat"))
-                            [Arg "x1" (Con "Nat")]
+            genFunc 1 = [DefNesFun "f1" (Just $ Arr nat nat)
+                            [Arg "x1" nat]
                             (Bin "+" (Var "x1") (Nat 1))]
             genFunc p = DefNesFun
                             ("f" ++ show p)  -- Function name
-                            (Just $ foldr Arr (Con "Nat") (replicate (fromIntegral p) (Con "Nat")))  -- Function type
-                            (map (\ i -> Arg ("x" ++ show i) (Con "Nat")) [1 .. p])  -- Function arguments
+                            (Just $ foldr Arr nat (replicate (fromIntegral p) nat))  -- Function type
+                            (map (\ i -> Arg ("x" ++ show i) nat) [1 .. p])  -- Function arguments
                             (foldl (\ acc i -> Bin "+" acc (vx i)) (Nat 1) [1 .. p])  -- Fixed expression
                         : genFunc (p-1)
 
@@ -153,7 +153,7 @@ _tests =
         sumExpr = buildSum n
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
-        params = map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
+        params = map (\i -> Arg ("f" ++ show i) nat) [1..n]
 
         -- Define the record X with param, a constructor "Const",
         -- two fields "sums" and "values", and overall type Set.
@@ -257,9 +257,9 @@ _tests =
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ iszero n
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
         iszero 0 = []
-        iszero _ = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex 'x' n))))] (Arr (genType n) Univ)]
+        iszero _ = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (Con ("D" ++ " " ++ unwords (genIndex 'x' n))))] (Arr (genType n) Univ)]
         genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) (Con "Nat")
+        genType m = Arr (genType (m-1)) nat
 
        in Module "DataImplicitIndices" [ImportLib NatMod] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
@@ -276,19 +276,19 @@ _tests =
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         iszero 0 = []
         iszero _ = [DefDataType "D"
-           (map (\ i -> ("C" ++ show i, Arr (Index (genIndex 'x' i) (Con "Nat")) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\_ -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) Univ)]
+           (map (\ i -> ("C" ++ show i, Arr (Index (genIndex 'x' i) nat) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\_ -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) Univ)]
         genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) (Con "Nat")
+        genType m = Arr (genType (m-1)) nat
 
         in Module "IndicesConstructors_Datatypes" [ImportLib NatMod] $ iszero n
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         iszero 0 = []
         iszero _ = [DefPDataType "D"
           (map (\i -> ("p" ++ show i, Univ)) [1 .. n])
-          [("C", Arr (Index (genIndex 'X' n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))]
+          [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))]
           (Arr (genType n) Univ)]
         genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) (Con "Nat")
+        genType m = Arr (genType (m-1)) nat
 
         in Module "IndicesParameters_Datatypes" [ImportLib NatMod] $ iszero n
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
@@ -296,7 +296,7 @@ _tests =
         iszero 0 = []
         iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) Univ, --create datatype
           OpenName "D",
-          DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], Nat i)) [1..n]),
+          DefPatt "F" [("C", Con "D")] nat "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], Nat i)) [1..n]),
           DefTVar "N" nat (genCall n)]
         genCall 1 = FunCall "F" [Constructor "C1"]
         genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
