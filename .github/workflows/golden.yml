@@ -22,7 +22,7 @@ jobs:
         env:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ (contains(matrix.os, 'windows') && 'C:\ghcup') || '/home/runner/.ghcup' }}
+          path: ${{ (runner.os == 'Windows' && 'C:\ghcup') || '/home/runner/.ghcup' }}
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
           restore-keys: ${{ env.key }}-
           
@@ -35,17 +35,19 @@ jobs:
           ghc-version: ${{ matrix.ghc-version }}
           cabal-version: ${{ matrix.cabal-version }}
 
-      - name: Set ghcup versions 🧰
-        if: steps.ghcup-cache.outputs.cache-hit == 'true'
-        run: |
-          ghcup set ghc ${{ matrix.ghc-version }}
-          ghcup set cabal ${{ matrix.cabal-version }}
-          
+      - name: Set Unix GHC and Cabal versions 🐧
+        if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os != 'Windows'
+        run: echo "${HOME}/.ghcup/bin" >> $GITHUB_PATH
+
+      - name: Set Windows GHC and Cabal versions 🪟
+        if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os == 'Windows'
+        run: echo "${HOME}/.ghcup/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
         if: steps.ghcup-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ (contains(matrix.os, 'windows') && 'C:\ghcup') || '/home/runner/.ghcup' }}
+          path: ${{ (runner.os == 'Windows' && 'C:\ghcup') || '/home/runner/.ghcup' }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
         
       # We need to generate the build plan so that we can use it for a caching key.
@@ -60,7 +62,7 @@ jobs:
         env:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ (contains(matrix.os, 'windows') && 'C:\sr') || '/home/runner/.cabal/store' }}
+          path: ${{ (runner.os == 'Windows' && 'C:\sr') || '/home/runner/.cabal/store' }}
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
           
@@ -72,7 +74,7 @@ jobs:
         uses: actions/cache/save@v4
         if: steps.cabal-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ (contains(matrix.os, 'windows') && 'C:\sr') || '/home/runner/.cabal/store' }}
+          path: ${{ (runner.os == 'Windows' && 'C:\sr') || '/home/runner/.cabal/store' }}
           key: ${{ steps.cabal-cache.outputs.cache-primary-key }}
           
       - name: Build 🛠️
