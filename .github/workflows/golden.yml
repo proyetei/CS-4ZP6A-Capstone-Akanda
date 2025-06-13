@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup environment 🏕️
-        id: env
+        id: env_setup
         run: |
           echo "{ghcup}={${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}}" >> $GITHUB_OUTPUT
           echo "{cabal-store}={${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}}" >> $GITHUB_OUTPUT
@@ -25,7 +25,7 @@ jobs:
       - name: aslkdjflkasjdfl
         run: |
           echo "AJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
-          echo ${{ steps.env.outputs.ghcup }}
+          echo ${{ steps.env_setup.outputs.ghcup }}
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
@@ -33,7 +33,7 @@ jobs:
         env:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ steps.env.outputs.ghcup }}
+          path: ${{ steps.env_setup.outputs.ghcup }}
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
           restore-keys: ${{ env.key }}-
           
@@ -48,7 +48,7 @@ jobs:
         uses: actions/cache/save@v4
         if: steps.ghcup-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ steps.env.outputs.ghcup }}
+          path: ${{ steps.env_setup.outputs.ghcup }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
         
       # We need to generate the build plan so that we can use it for a caching key.
@@ -67,7 +67,7 @@ jobs:
         env:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ steps.env.outputs.cabal-store }}
+          path: ${{ steps.env_setup.outputs.cabal-store }}
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
           
@@ -79,7 +79,7 @@ jobs:
         uses: actions/cache/save@v4
         if: steps.cabal-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ steps.env.outputs.cabal-store }}
+          path: ${{ steps.env_setup.outputs.cabal-store }}
           key: ${{ steps.cabal-cache.outputs.cache-primary-key }}
           
       - name: Build 🛠️
