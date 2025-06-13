@@ -19,6 +19,7 @@ jobs:
       - name: Setup Linux environment 🐧
         if: runner.os == 'Linux'
         run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
           echo "ghcup=/usr/local/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/home/runner/.cabal/store" >> $GITHUB_ENV
           # tar doesn't get run with the right permissions when unpacking the
@@ -28,12 +29,14 @@ jobs:
       - name: Setup MacOS environment 🍎
         if: runner.os == 'macOS'
         run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
           echo "ghcup=/Users/runner/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/Users/runner/.cabal/store" >> $GITHUB_ENV
 
       - name: Setup Windows environment 🪟
         if: runner.os == 'Windows'
         run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force;[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; try { & ([ScriptBlock]::Create((Invoke-WebRequest https://www.haskell.org/ghcup/sh/bootstrap-haskell.ps1 -UseBasicParsing))) -Interactive -DisableCurl } catch { Write-Error $_ }
           echo "ghcup=C:\tools\ghc-*" >> $env:GITHUB_ENV
           echo "cabal-store=C:\sr" >> $env:GITHUB_ENV
         
@@ -47,20 +50,18 @@ jobs:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
           restore-keys: ${{ env.key }}-
           
-      # There is no narwhal emoji? Very upsetting.
+        # There is no narwhal emoji? Very upsetting.
       - name: Install GHC ${{ matrix.ghc-version }} 🐬
         if: steps.ghcup-cache.outputs.cache-hit != 'true'
-        uses: haskell-actions/setup@v2
-        with:
-          ghc-version: ${{ matrix.ghc-version }}
-          cabal-version: ${{ matrix.cabal-version }}
+        run: |
+          ghcup install ghc ${{ matrix.ghc-version }}
+          ghcup install cabal ${{ matrix.cabal-version }}
 
       - name: Set ghcup paths ${{ matrix.ghc-version }} 🧰
         if: steps.ghcup-cache.outputs.cache-hit == 'true'
         run: |
           ghcup set ghc ${{ matrix.ghc-version }}
           ghcup set cabal ${{ matrix.cabal-version }}
-
 
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
