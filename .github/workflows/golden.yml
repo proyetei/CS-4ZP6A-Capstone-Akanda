@@ -61,7 +61,7 @@ jobs:
           ghc-version: ${{ matrix.ghc-version }}
           cabal-version: ${{ matrix.cabal-version }}
 
-      - name: Set GHC version to ${{ matrix.ghc-version }} on Windows 🪟
+      - name: Set GHC version to ${{ matrix.ghc-version }} on Windows 👺
         if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os == 'Windows'
         run: |
           C:\ghcup\bin\ghcup.exe set ghc ${{ matrix.ghc-version }}
@@ -73,19 +73,6 @@ jobs:
         with:
           path: ${{ env.ghcup }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
-
-      - name: Debug the great satan 👺
-        if: runner.os == 'Windows'
-        run: |
-          ls C:\ghcup\ghc
-          ls C:\ghcup\bin
-          ls C:\ghcup\cache
-          # $colItems = Get-ChildItem C:\ghcup\ghc | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object
-          # foreach ($i in $colItems) {
-          #     $subFolderItems = Get-ChildItem $i.FullName -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
-          #     $i.FullName + " -- " + "{0:N2}" -f ($subFolderItems.sum / 1MB) + " MB"
-          # }
-
         
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
