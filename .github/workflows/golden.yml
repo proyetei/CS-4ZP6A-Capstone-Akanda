@@ -31,7 +31,7 @@ jobs:
       - name: Setup Windows environment 🪟
         if: runner.os == 'Windows'
         run: |
-          echo "ghcup=C:\ghcup" >> $env:GITHUB_ENV
+          echo "ghcup=C:\tools\ghc-*" >> $env:GITHUB_ENV
           echo "cabal-store=C:\sr" >> $env:GITHUB_ENV
         
       - name: Restore ghcup cache ♻️
@@ -53,16 +53,11 @@ jobs:
 
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
-        if: steps.ghcup-cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        if: steps.ghcup-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ env.ghcup }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
 
-      - name: Debug Windows
-        if: runner.os == 'Windows'
-        run: |
-          ls -Path "C:\ghcup"
-          ls -Path "C:\tools"
         
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
