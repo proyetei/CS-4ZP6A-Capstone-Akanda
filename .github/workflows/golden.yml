@@ -56,7 +56,7 @@ jobs:
           
       # There is no narwhal emoji? Very upsetting.
       - name: Install GHC ${{ matrix.ghc-version }} and Cabal ${{ matrix.cabal-version }} 🐬
-        if: steps.ghcup-cache.outputs.cache-hit == 'false' || runner.os != 'Windows'
+        if: steps.ghcup-cache.outputs.cache-hit != 'true' || runner.os != 'Windows'
         uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc-version }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
-        if: steps.ghcup-cache.outputs.cache-hit == 'false'
+        if: steps.ghcup-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ env.ghcup }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
@@ -96,12 +96,12 @@ jobs:
           restore-keys: ${{ env.key }}-
           
       - name: Install dependencies ⬇️
-        if: steps.cabal-cache.outputs.cache-hit == 'false'
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
         run: cabal build all --only-dependencies
         
       - name: Cache dependencies 💾
         uses: actions/cache/save@v4
-        if: steps.cabal-cache.outputs.cache-hit == 'false'
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ env.cabal-store }}
           key: ${{ steps.cabal-cache.outputs.cache-primary-key }}
