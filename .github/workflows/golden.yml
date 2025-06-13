@@ -1,3 +1,6 @@
+# CI workflow for running golden tests.
+# See https://github.com/haskell-actions/setup/blob/main/docs/examples.md#model-cabal-workflow-with-caching
+
 on: [push, pull_request]
 name: Golden Tests
 
@@ -6,13 +9,93 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['9.4.8']
-        cabal: ['3.12.1.0']
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        ghc-version: ['9.4.8']
+        cabal-version: ['3.12.1.0']
+        os: [ubuntu-latest, macOS-latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: haskell-actions/setup@v2
+      - name: Checkout ⬇️
+        uses: actions/checkout@v4
+
+      - name: Setup Linux environment 🐧
+        if: runner.os == 'Linux'
+        run: |
+          echo "ghcup=/usr/local/.ghcup" >> $GITHUB_ENV
+          echo "cabal-store=/home/runner/.cabal/store" >> $GITHUB_ENV
+          # tar doesn't get run with the right permissions when unpacking the
+          # cache on linux, so we just chown the ghcup directory.
+          sudo chown -R $(whoami):$(id -ng) ~/.ghcup/
+
+      - name: Setup MacOS environment 🍎
+        if: runner.os == 'macOS'
+        run: |
+          echo "ghcup=/Users/runner/.ghcup" >> $GITHUB_ENV
+          echo "cabal-store=/Users/runner/.cabal/store" >> $GITHUB_ENV
+
+      - name: Setup Windows environment 🪟
+        if: runner.os == 'Windows'
+        run: |
+          echo @"
+          ghcup<<EOF
+          C:\tools\ghc-*
+          C:\ghcup\bin
+          C:\ghcup\cache\*.yaml
+          EOF
+          "@ >> $env:GITHUB_ENV
+          echo "cabal-store=C:\sr" >> $env:GITHUB_ENV
+        
+      - name: Restore ghcup cache ♻️
+        uses: actions/cache/restore@v4
+        id: ghcup-cache
+        env:
+          key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-      - run: cabal test all --test-options="--no-create"
+          path: ${{ env.ghcup }}
+          key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
+          restore-keys: ${{ env.key }}-
+          
+      # There is no narwhal emoji? Very upsetting.
+      - name: Install GHC ${{ matrix.ghc-version }} and Cabal ${{ matrix.cabal-version }} 🐬
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc-version }}
+          cabal-version: ${{ matrix.cabal-version }}
+
+      - name: Cache ghcup 💾
+        uses: actions/cache/save@v4
+        if: steps.ghcup-cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        with:
+          path: ${{ env.ghcup }}
+          key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
+        
+      # We need to generate the build plan so that we can use it for a caching key.
+      - name: Cabal configure 🧙
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build all --dry-run
+          
+      - name: Restore dependency cache ♻️
+        uses: actions/cache/restore@v4
+        id: cabal-cache
+        env:
+          key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
+        with:
+          path: ${{ env.cabal-store }}
+          key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ env.key }}-
+          
+      - name: Install dependencies ⬇️
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
+        run: cabal build all --only-dependencies
+        
+      - name: Cache dependencies 💾
+        uses: actions/cache/save@v4
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.cabal-store }}
+          key: ${{ steps.cabal-cache.outputs.cache-primary-key }}
+          
+      - name: Build 🛠️
+        run: cabal build all
+        
+      - name: Golden tests 💵  
+        run: cabal test all --test-options="--no-create"
