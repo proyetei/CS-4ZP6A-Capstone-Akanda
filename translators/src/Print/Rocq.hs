@@ -3,18 +3,21 @@ module Print.Rocq
   , runRocq
   ) where
 
-import Grammar
 import Data.Char
 import Data.List (isPrefixOf, intercalate)
 
+import Grammar
+import Print.Generic
+
 printImport :: Import -> String
-printImport (ImportLib "Vec") = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
-printImport (ImportLib "String") = "Require Import Coq.Strings.String."
-printImport (ImportLib _) = ""
-printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
+printImport (ImportLib VecMod) = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
+printImport (ImportLib StringMod) = "Require Import Coq.Strings.String."
+-- the rest are builtin
+printImport (ImportLib NatMod) = ""
+printImport (ImportLib ListMod) = ""
 
 printType :: Type -> String
-printType (Con "Type") = "Type"
+printType (Univ) = "Type"
 printType (Con t) = if  "Cap_" `isPrefixOf` t ||
                         "Record" `isPrefixOf` t
                         then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
@@ -25,7 +28,7 @@ printType (PCon name types) = (map toLower name) ++ " " ++ unwords (map printTyp
 printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Suc t) = "(S " ++ printType t ++ ")" --
+printType (Suc t) = parens $ "S " ++ printType t
 printType (Index names ty) = "forall {" ++ map toLower (unwords names) ++ " : " ++ printType ty ++ "}"
 
 printReturnType :: Type -> String
@@ -34,16 +37,16 @@ printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "should not occur as a return type"
 
 printArg :: Arg -> String
-printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ argty a) ++ ")"
+printArg a = parens $ (arg a) ++ " : " ++ (printType $ argty a)
 
 printExpr :: Expr -> String
 printExpr (Constructor name) = map toLower name
 printExpr (Var var) = var
-printExpr (Int int) = show int
+printExpr (Nat n) = show n
 printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
-printExpr (Paren e) = "(" ++ printExpr e ++ ")"
-printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
+printExpr (Paren e) = parens $ printExpr e
+printExpr (Mon op e) = parens $ op ++ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:ds) expr) =
@@ -84,7 +87,7 @@ printDef (DefRecType name params consName fields _) =
     where
         paramsStr = case params of
             [] -> ""
-            _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
+            _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ " : " ++ printType t) params)
 
 
 printDef (DefRec name recType consName fields) =

@@ -1,5 +1,8 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
+  , KnownMods (..)
   , modname) where
+
+import Numeric.Natural (Natural)
 
 -- grammar
 
@@ -13,8 +16,9 @@ data Module
 modname :: Module -> Name
 modname m = mname m
 
-data Import = ImportLib Lib
-            | ImportFun Name Lib
+data KnownMods = NatMod | ListMod | VecMod | StringMod
+
+newtype Import = ImportLib KnownMods
 
 data Definition
   = DefFun Name (Maybe Type) [Arg] Expr
@@ -43,11 +47,12 @@ data Type = Con Name              -- type constructor
         | TVar Name               -- type variable
         | Suc Type
         | Index [Name] Type
+        | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
 
 data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
-        | Int Int
+        | Nat Natural
         | Bool Bool
         | String String
         | Mon Op Expr
@@ -64,5 +69,4 @@ data Expr = Var Name
 
 -- aliases for readability purposes
 type Name = String
-type Lib = String
 type Op = String

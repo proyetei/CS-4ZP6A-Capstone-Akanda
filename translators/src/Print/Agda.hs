@@ -7,18 +7,17 @@ module Print.Agda
 import Data.List (intercalate)
 
 import Grammar
+import Print.Generic
 
 printImport :: Import -> String
-printImport (ImportLib "Nat") = "open import Agda.Builtin.Nat"
-printImport (ImportLib "Vec") = "open import Data.Vec.Base"
-printImport (ImportLib "List") = "open import Agda.Builtin.List"
-printImport (ImportLib "String") = "open import Agda.Builtin.String"
-printImport (ImportLib _) = ""
-printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
+printImport (ImportLib NatMod) = "open import Agda.Builtin.Nat"
+printImport (ImportLib VecMod) = "open import Data.Vec.Base"
+printImport (ImportLib ListMod) = "open import Agda.Builtin.List"
+printImport (ImportLib StringMod) = "open import Agda.Builtin.String"
 
 -- Print types
 printType :: Type -> String
-printType (Con "Type") = "Set"
+printType (Univ) = "Set"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
@@ -35,11 +34,11 @@ printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}
 printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
-printExpr (Int int) = show int
+printExpr (Nat n) = show n
 printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
-printExpr (Paren e) = "(" ++ printExpr e ++ ")"
-printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
+printExpr (Paren e) = parens $ printExpr e
+printExpr (Mon op e) = parens $ (op ++ printExpr e)
 printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:[]) expr) = "let\n    " ++ printDef d ++ " in\n    " ++ printExpr expr
@@ -88,7 +87,7 @@ printDef (DefRecType name params consName fields _) =
     where
         paramsStr = case params of
             [] -> ""
-            _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
+            _ -> " " ++ unwords (map (\ (Arg n t) -> parens (n ++ " : " ++ printType t)) params)
 
 printDef (DefRec name recType consName fields) =
     "\n" ++ name ++ " : " ++ printType recType ++ "\n" ++
