@@ -16,8 +16,7 @@ modname m = mname m
 
 data KnownMods = NatMod | ListMod | VecMod | StringMod
 
-data Import = ImportLib KnownMods
-            | ImportFun Name Lib
+newtype Import = ImportLib KnownMods
 
 data Definition
   = DefFun Name (Maybe Type) [Arg] Expr
@@ -67,5 +66,4 @@ data Expr = Var Name
 
 -- aliases for readability purposes
 type Name = String
-type Lib = String
 type Op = String

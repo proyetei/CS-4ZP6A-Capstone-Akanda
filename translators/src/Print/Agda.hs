@@ -14,8 +14,6 @@ printImport (ImportLib VecMod) = "open import Data.Vec.Base"
 printImport (ImportLib ListMod) = "open import Agda.Builtin.List"
 printImport (ImportLib StringMod) = "open import Agda.Builtin.String"
 
-printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
-
 -- Print types
 printType :: Type -> String
 printType (Con "Type") = "Set"

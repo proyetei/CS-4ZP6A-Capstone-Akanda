@@ -15,8 +15,6 @@ printImport (ImportLib NatMod) = ""
 printImport (ImportLib StringMod) = ""
 printImport (ImportLib ListMod) = ""
 
-printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
-
 printType :: Type -> String
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2

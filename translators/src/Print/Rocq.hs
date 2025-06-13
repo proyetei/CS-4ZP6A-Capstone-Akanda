@@ -14,8 +14,6 @@ printImport (ImportLib StringMod) = "Require Import Coq.Strings.String."
 printImport (ImportLib NatMod) = ""
 printImport (ImportLib ListMod) = ""
 
-printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
-
 printType :: Type -> String
 printType (Con "Type") = "Type"
 printType (Con t) = if  "Cap_" `isPrefixOf` t ||

@@ -13,8 +13,6 @@ printImport (ImportLib NatMod) = ""
 printImport (ImportLib StringMod) = ""
 printImport (ImportLib ListMod) = ""
 
-printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
-
 -- Print types (unchanged)
 printType :: Type -> String
 printType (Con t) = t
