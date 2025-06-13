@@ -8,9 +8,12 @@ import Data.Char
 import Data.List (isPrefixOf, intercalate)
 
 printImport :: Import -> String
-printImport (ImportLib "Vec") = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
-printImport (ImportLib "String") = "Require Import Coq.Strings.String."
-printImport (ImportLib _) = ""
+printImport (ImportLib VecMod) = "Require Import Coq.Vectors.Vector. \nImport VectorNotations."
+printImport (ImportLib StringMod) = "Require Import Coq.Strings.String."
+-- the rest are builtin
+printImport (ImportLib NatMod) = ""
+printImport (ImportLib ListMod) = ""
+
 printImport (ImportFun name lib) = "Require Import " ++ lib ++ " using (" ++ name ++ ")\n"
 
 printType :: Type -> String

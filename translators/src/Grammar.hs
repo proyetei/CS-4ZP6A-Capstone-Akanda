@@ -1,4 +1,5 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
+  , KnownMods (..)
   , modname) where
 
 -- grammar
@@ -13,7 +14,9 @@ data Module
 modname :: Module -> Name
 modname m = mname m
 
-data Import = ImportLib Lib
+data KnownMods = NatMod | ListMod | VecMod | StringMod
+
+data Import = ImportLib KnownMods
             | ImportFun Name Lib
 
 data Definition

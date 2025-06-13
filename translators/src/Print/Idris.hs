@@ -9,8 +9,12 @@ import Data.List (intercalate)
 import Grammar
 
 printImport :: Import -> String
-printImport (ImportLib "Vec") = "import Data.Vect"
-printImport (ImportLib _) = ""
+printImport (ImportLib VecMod) = "import Data.Vect"
+-- There rest are builtin
+printImport (ImportLib NatMod) = ""
+printImport (ImportLib StringMod) = ""
+printImport (ImportLib ListMod) = ""
+
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
 printType :: Type -> String

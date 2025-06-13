@@ -9,11 +9,11 @@ import Data.List (intercalate)
 import Grammar
 
 printImport :: Import -> String
-printImport (ImportLib "Nat") = "open import Agda.Builtin.Nat"
-printImport (ImportLib "Vec") = "open import Data.Vec.Base"
-printImport (ImportLib "List") = "open import Agda.Builtin.List"
-printImport (ImportLib "String") = "open import Agda.Builtin.String"
-printImport (ImportLib _) = ""
+printImport (ImportLib NatMod) = "open import Agda.Builtin.Nat"
+printImport (ImportLib VecMod) = "open import Data.Vec.Base"
+printImport (ImportLib ListMod) = "open import Agda.Builtin.List"
+printImport (ImportLib StringMod) = "open import Agda.Builtin.String"
+
 printImport (ImportFun name lib) = "open import " ++ lib ++ " using (" ++ name ++ ")"
 
 -- Print types
