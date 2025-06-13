@@ -16,12 +16,23 @@ jobs:
       - name: Checkout ⬇️
         uses: actions/checkout@v4
 
-      - name: Setup environment 🏕️
+      - name: Setup Linux environment
         id: env_setup
         run: |
-          echo "OS: ${{runner.os}}"
-          echo "ghcup=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> "$GITHUB_ENV"
-          echo "cabal-store=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> "$GITHUB_ENV"
+          echo "ghcup=/hom/runner/.ghcup" >> $GITHUB_ENV
+          echo "cabal-store=/hom/runner/.cabal/store >> $GITHUB_ENV
+
+      - name: Setup MacOS environment
+        id: env_setup
+        run: |
+          echo "ghcup=/Users/runner/.ghcup" >> $GITHUB_ENV
+          echo "cabal-store=/Users/runner/.cabal/store >> $GITHUB_ENV
+
+      - name: Setup Windows environment
+        id: env_setup
+        run: |
+          echo "ghcup=C:\ghcup" >> env:$GITHUB_ENV
+          echo "cabal-store=C:\sr >> env:$GITHUB_ENV
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
