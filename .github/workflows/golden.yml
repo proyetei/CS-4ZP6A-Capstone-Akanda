@@ -31,8 +31,8 @@ jobs:
       - name: Setup Windows environment
         if: runner.os == 'Windows'
         run: |
-          echo "ghcup=C:\ghcup" >> env:GITHUB_ENV
-          echo "cabal-store=C:\sr" >> env:GITHUB_ENV
+          echo "ghcup=C:\ghcup" >> $env:GITHUB_ENV
+          echo "cabal-store=C:\sr" >> $env:GITHUB_ENV
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
