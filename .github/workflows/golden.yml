@@ -61,6 +61,11 @@ jobs:
           ghc-version: ${{ matrix.ghc-version }}
           cabal-version: ${{ matrix.cabal-version }}
 
+      - name: Add our GHC to the path on Windows 🚗
+        if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os == 'Windows'
+        run: |
+          echo "C:\tools\ghc-${{matrix.ghc-version}}\bin" >> $env:GITHUB_PATH
+
       - name: Set GHC version to ${{ matrix.ghc-version }} on Windows 👺
         if: steps.ghcup-cache.outputs.cache-hit == 'true' && runner.os == 'Windows'
         run: |
