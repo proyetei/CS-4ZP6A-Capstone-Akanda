@@ -20,8 +20,8 @@ jobs:
         uses: actions/cache/restore@v4
         id: ghcup-cache
         env:
-          ghcup: ${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}
-          cabal-store: ${{ (runner.os == 'Linux' && '/home/runner/.cabal/store') || (runner.os 'macOS' && '/Users/runner/.cabal/store') || (runner.os == 'Windows' && 'C:\sr') }}
+          ghcup: ${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}
+          cabal-store: ${{ (runner.os == 'Linux' && '/home/runner/.cabal/store') || (runner.os == 'macOS' && '/Users/runner/.cabal/store') || (runner.os == 'Windows' && 'C:\sr') }}
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
           path: ${{ env.ghcup }}
