@@ -55,7 +55,7 @@ jobs:
         env:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ (matrix.os.contains('windows') && 'C:\sr') || '~/.cabal/store' }}
+          path: ${{ (contains(matrix.os, 'windows') && 'C:\sr') || '~/.cabal/store' }}
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
           
@@ -67,7 +67,7 @@ jobs:
         uses: actions/cache/save@v4
         if: steps.cabal-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ (matrix.os.contains('windows') && 'C:\sr') || '~/.cabal/store' }}
+          path: ${{ (contains(matrix.os, 'windows') && 'C:\sr') || '~/.cabal/store' }}
           key: ${{ steps.cabal-cache.outputs.cache-primary-key }}
           
       - name: Build 🛠️
