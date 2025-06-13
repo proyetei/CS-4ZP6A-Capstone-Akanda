@@ -17,7 +17,7 @@ printImport (ImportLib StringMod) = "open import Agda.Builtin.String"
 
 -- Print types
 printType :: Type -> String
-printType (Con "Type") = "Set"
+printType (Univ) = "Set"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t

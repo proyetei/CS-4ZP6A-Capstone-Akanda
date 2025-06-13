@@ -17,7 +17,7 @@ printImport (ImportLib NatMod) = ""
 printImport (ImportLib ListMod) = ""
 
 printType :: Type -> String
-printType (Con "Type") = "Type"
+printType (Univ) = "Type"
 printType (Con t) = if  "Cap_" `isPrefixOf` t ||
                         "Record" `isPrefixOf` t
                         then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case

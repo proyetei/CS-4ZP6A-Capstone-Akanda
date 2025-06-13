@@ -47,6 +47,7 @@ data Type = Con Name              -- type constructor
         | TVar Name               -- type variable
         | Suc Type
         | Index [Name] Type
+        | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
 
 data Arg = Arg { arg :: Name, argty :: Type }
 

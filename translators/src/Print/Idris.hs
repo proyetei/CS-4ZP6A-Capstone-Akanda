@@ -17,6 +17,7 @@ printImport (ImportLib StringMod) = ""
 printImport (ImportLib ListMod) = ""
 
 printType :: Type -> String
+printType (Univ) = "Type"
 printType (Con t) = t
 printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
 printType (TVar t) = t
