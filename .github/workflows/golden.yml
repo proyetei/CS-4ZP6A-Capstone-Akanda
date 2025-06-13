@@ -23,7 +23,7 @@ jobs:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
           path: ${{ (contains(matrix.os, 'windows') && 'C:\ghcup') || '~/.ghcup' }}
-          key: ${{ matrix.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
+          key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
           restore-keys: ${{ env.key }}-
           
       # There is no narwhal emoji? Very upsetting.
