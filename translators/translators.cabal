@@ -29,7 +29,8 @@ library
         Tests
     build-depends:
         base ^>=4.17.2.0,
-        containers >= 0.6 && < 0.7
+        containers >= 0.6 && < 0.7,
+        text >= 2.1
     hs-source-dirs: src
     default-language: Haskell2010
 
