@@ -18,12 +18,9 @@ jobs:
 
       - name: Setup environment 🏕️
         id: env
-        outputs:
-          ghcup: ${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}
-          cabal-store: ${{ (runner.os == 'Linux' && '/home/runner/.cabal/store') || (runner.os == 'macOS' && '/Users/runner/.cabal/store') || (runner.os == 'Windows' && 'C:\sr') }}
-        # We need a dummy run step here to stop github from yelling.
         run: |
-          echo "Environments set"
+          echo "{ghcup}=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >>  >> $GITHUB_OUTPUT
+          echo "{cabal-store}=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >>  >> $GITHUB_OUTPUT
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
