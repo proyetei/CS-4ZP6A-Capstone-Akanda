@@ -21,6 +21,9 @@ jobs:
         run: |
           echo "ghcup=/usr/local/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/home/runner/.cabal/store" >> $GITHUB_ENV
+          # tar doesn't get run with the right permissions when unpacking the
+          # cache on linux, so we just chown the ghcup directory.
+          sudo chown -R $(whoami):$(id -ng) ~/.ghcup/
 
       - name: Setup MacOS environment 🍎
         if: runner.os == 'macOS'
