@@ -36,7 +36,8 @@ jobs:
         run: |
           echo @'
           ghcup=C:\tools\ghc-*
-          C:\ghcup\bin`nC:\ghcup\ghc
+          C:\ghcup\bin
+          C:\ghcup\ghc
           C:\ghcup\cache\*.yaml
           '@ >> $env:GITHUB_ENV
           echo "cabal-store=C:\sr" >> $env:GITHUB_ENV
