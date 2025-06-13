@@ -25,7 +25,7 @@ jobs:
       - name: aslkdjflkasjdfl
         run: |
           echo "AJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
-          echo ${{ steps.env_setup.outputs.* }}
+          echo "${{ join(steps.run_tests.outputs.*, '\n') }}"
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
