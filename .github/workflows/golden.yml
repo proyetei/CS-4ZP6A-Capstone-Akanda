@@ -25,11 +25,11 @@ jobs:
           path: ${{ (contains(matrix.os, 'windows') && 'C:\ghcup') || '~/.ghcup' }}
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
           restore-keys: ${{ env.key }}-
-          
-      # There is no narwhal emoji? Very upsetting.
+
+      # We run ghcup even if we have a cache hit, as we still need to call `ghcup set`
+      # to get our versions squared away.
+      # Also, there is no narwhal emoji? Very upsetting.
       - name: Set up GHC ${{ matrix.ghc-version }} 🐬
-        # Only install GHC/cabal if they aren't present in our cache.
-        if: steps.ghcup-cache.outputs.cache-hit != 'true'
         id: setup
         uses: haskell-actions/setup@v2
         with:
@@ -46,8 +46,6 @@ jobs:
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
         run: |
-          ghc --version
-          cabal update
           cabal configure --enable-tests --enable-benchmarks --disable-documentation
           cabal build all --dry-run
           
