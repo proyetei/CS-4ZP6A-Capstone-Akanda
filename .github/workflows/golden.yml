@@ -38,7 +38,6 @@ jobs:
           ghcup<<EOF
           C:\tools\ghc-*
           C:\ghcup\bin
-          C:\ghcup\ghc
           C:\ghcup\cache\*.yaml
           EOF
           "@ >> $env:GITHUB_ENV
@@ -70,7 +69,7 @@ jobs:
 
       - name: Cache ghcup 💾
         uses: actions/cache/save@v4
-        if: steps.ghcup-cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        if: steps.ghcup-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ env.ghcup }}
           key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
@@ -79,6 +78,8 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           ls C:\ghcup\ghc
+          ls C:\ghcup\bin
+          ls C:\ghcup\cache
           # $colItems = Get-ChildItem C:\ghcup\ghc | Where-Object {$_.PSIsContainer -eq $true} | Sort-Object
           # foreach ($i in $colItems) {
           #     $subFolderItems = Get-ChildItem $i.FullName -recurse -force | Where-Object {$_.PSIsContainer -eq $false} | Measure-Object -property Length -sum | Select-Object Sum
