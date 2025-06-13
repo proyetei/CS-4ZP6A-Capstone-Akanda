@@ -15,37 +15,63 @@ jobs:
     steps:
       - name: Checkout ⬇️
         uses: actions/checkout@v4
+        
+      - name: Restore ghcup cache ♻️
+        uses: actions/cache/restore@v4
+        id: ghcup-cache
+        env:
+          key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
+        with:
+          path: ${{ (matrix.os.includes('windows') && 'C:\ghcup') || '~/.ghcup' }}
+          key: ${{ matrix.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
+          restore-keys: ${{ env.key }}-
+          
       # There is no narwhal emoji? Very upsetting.
       - name: Set up GHC ${{ matrix.ghc-version }} 🐬
+        # Only install GHC/cabal if they aren't present in our cache.
+        if: steps.ghcup-cache.outputs.cache-hit != 'true'
         id: setup
         uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc-version }}
           cabal-version: ${{ matrix.cabal-version }}
+          
+      - name: Cache ghcup 💾
+        uses: actions/cache/save@v4
+        if: steps.ghcup-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ (matrix.os.includes('windows') && 'C:\ghcup') || '~/.ghcup' }}
+          key: ${{ steps.ghcup-cache.outputs.cache-primary-key }}
+        
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
         run: |
           cabal configure --enable-tests --enable-benchmarks --disable-documentation
           cabal build all --dry-run
-      - name: Restore cached dependencies ♻️
+          
+      - name: Restore dependency cache ♻️
         uses: actions/cache/restore@v4
-        id: cache
+        id: cabal-cache
         env:
-          key: ${{ matrix.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
+          key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ steps.setup.outputs.cabal-store }}
+          path: ${{ (matrix.os.includes('windows') && 'C:\sr') || '~/.cabal/store' }}
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
-          restore-keys: ${{ env.key }}-        
+          restore-keys: ${{ env.key }}-
+          
       - name: Install dependencies ⬇️
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
         run: cabal build all --only-dependencies
-      - name: Save cached dependencies 💾
+        
+      - name: Cache dependencies 💾
         uses: actions/cache/save@v4
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ steps.setup.outputs.cabal-store }}
-          key: ${{ steps.cache.outputs.cache-primary-key }}
+          path: ${{ (matrix.os.includes('windows') && 'C:\sr') || '~/.cabal/store' }}
+          key: ${{ steps.cabal-cache.outputs.cache-primary-key }}
+          
       - name: Build 🛠️
         run: cabal build all
+        
       - name: Golden tests 💵  
         run: cabal test all --test-options="--no-create"
