@@ -22,6 +22,7 @@ jobs:
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
         id: ghcup-cache
+        env:
           key: ${{ matrix.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
           path: ${{ env.ghcup }}
