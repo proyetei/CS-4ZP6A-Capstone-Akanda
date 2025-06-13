@@ -55,7 +55,6 @@ jobs:
           
       # There is no narwhal emoji? Very upsetting.
       - name: Install GHC ${{ matrix.ghc-version }} and Cabal ${{ matrix.cabal-version }} 🐬
-        if: steps.ghcup-cache.outputs.cache-hit != 'true' || runner.os == 'Windows'
         uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc-version }}
@@ -71,9 +70,6 @@ jobs:
       # We need to generate the build plan so that we can use it for a caching key.
       - name: Cabal configure 🧙
         run: |
-          ghc --version
-          cabal --version
-          cabal update
           cabal configure --enable-tests --enable-benchmarks --disable-documentation
           cabal build all --dry-run
           
