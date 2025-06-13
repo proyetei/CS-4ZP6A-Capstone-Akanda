@@ -7,6 +7,7 @@ module Print.Idris
 import Data.List (intercalate)
 
 import Grammar
+import Print.Generic
 
 printImport :: Import -> String
 printImport (ImportLib VecMod) = "import Data.Vect"
@@ -37,8 +38,8 @@ printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
-printExpr (Paren e) = "(" ++ printExpr e ++ ")"
-printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
+printExpr (Paren e) = parens $ printExpr e
+printExpr (Mon op e) = parens $ op ++ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ " "  ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:[]) expr) = "let \n    " ++ (printDef d) ++ " in \n    " ++ printExpr expr
@@ -73,7 +74,7 @@ printDef (DefRecType name params consName fields _) =
   where
     paramsStr = case params of
         [] -> ""
-        _ -> " " ++ unwords (map (\(Arg n t) -> "(" ++ n ++ " : " ++ printType t ++ ")") params)
+        _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ " : " ++ printType t) params)
 
 printDef (DefRec name recType consName fields) =
     name ++ " : " ++ printType recType ++

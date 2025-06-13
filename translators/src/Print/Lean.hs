@@ -3,8 +3,10 @@ module Print.Lean
   , runLean
   ) where
 
-import Grammar
 import Data.List (intercalate)
+
+import Grammar
+import Print.Generic
 
 printImport :: Import -> String
 printImport (ImportLib VecMod) = "import Init.Data.Vector"
@@ -23,7 +25,7 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Suc t) = "(Nat.succ " ++ printType t ++ ")"  -- Use `Nat.succ` explicitly
+printType (Suc t) = parens $ "Nat.succ " ++ printType t  -- Use `Nat.succ` explicitly
 printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
 
 printReturnType :: Type -> String
@@ -32,7 +34,7 @@ printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "show not occur as a return type"
 
 printArg :: Arg -> String
-printArg a = "(" ++ (arg a) ++ " : " ++ (printType $ argty a) ++ ")"
+printArg a = parens $ (arg a) ++ " : " ++ (printType $ argty a)
 
 -- Print expressions (unchanged)
 printExpr :: Expr -> String
@@ -41,8 +43,8 @@ printExpr (Var var) = var
 printExpr (Int int) = show int
 printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
-printExpr (Paren e) = "(" ++ printExpr e ++ ")"
-printExpr (Mon op e) = "(" ++ op ++ printExpr e ++ ")"
+printExpr (Paren e) = parens $ printExpr e
+printExpr (Mon op e) = parens $ op ++ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr
 printExpr (Let (d:[]) expr) = "let " ++ (printDef [] d) ++ "\n" ++ printExpr expr
