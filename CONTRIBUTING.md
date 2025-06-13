@@ -3,7 +3,7 @@
 You can run the test suite with
 
 ```sh
-cabal test translator
+cabal test translators
 ```
 
 This will output files to `translator/test/staging/`, which are then
