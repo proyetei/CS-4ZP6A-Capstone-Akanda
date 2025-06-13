@@ -19,8 +19,8 @@ jobs:
       - name: Setup environment 🏕️
         id: env
         run: |
-          echo "{ghcup}=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> $GITHUB_OUTPUT
-          echo "{cabal-store}=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> $GITHUB_OUTPUT
+          echo "{ghcup}={${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}}" >> $GITHUB_OUTPUT
+          echo "{cabal-store}={${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}}" >> $GITHUB_OUTPUT
 
       - name: aslkdjflkasjdfl
         run: |
