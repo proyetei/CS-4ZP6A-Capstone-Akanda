@@ -16,13 +16,19 @@ genIndex c m = map (genIndexName c) [1..m]
 optional :: Natural -> [a] -> [a]
 optional n c = if n == 0 then [] else c
 
+v :: Char -> Natural -> Expr
+v c n = Var $ c : show n
+
+vx :: Natural -> Expr
+vx = v 'x'
+
 xs :: Natural -> Expr
 xs n | n == 0    = Nat 1
      | otherwise = Var $ "x" ++ show n
 
 sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = Nat 1
-           | otherwise = Bin " + " (Var $ "x" ++ show n) (Var $ "x" ++ show n)
+           | otherwise = Bin " + " (vx n) (vx n)
 
 -- this is our list of expandable tests. each test should take a Natural as an
 -- argument and return a program written in the internal grammar (see
@@ -37,7 +43,7 @@ _tests =
 
     , \n -> let --2
         lets p =
-            if p==n then Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ Var $ "x" ++ show p
+            if p==n then Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ vx p
             else Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ lets $ p+1
     in Module "LetAddExample" [ImportLib NatMod] $ optional n [DefVar "n" (Just $ Con "Nat") $ lets 1]
 
@@ -54,7 +60,7 @@ _tests =
                             ("f" ++ show p)  -- Function name
                             (Just $ foldr Arr (Con "Nat") (replicate (fromIntegral p) (Con "Nat")))  -- Function type
                             (map (\ i -> Arg ("x" ++ show i) (Con "Nat")) [1 .. p])  -- Function arguments
-                            (foldl (\ acc i -> Bin "+" acc (Var ("x" ++ show i))) (Nat 1) [1 .. p])  -- Fixed expression
+                            (foldl (\ acc i -> Bin "+" acc (vx i)) (Nat 1) [1 .. p])  -- Fixed expression
                         : genFunc (p-1)
 
             -- Generate function call expressions
@@ -218,7 +224,7 @@ _tests =
         varDefs = zipWith (\name val -> DefVar name (Just $ Con "Nat") (Nat val)) varNames [1..n]
 
         -- result = x1 + xn
-        finalExpr = Bin "+" (Var "x1") (Var ("x" ++ show n))
+        finalExpr = Bin "+" (Var "x1") (vx n)
         resultDef = DefVar "result" (Just $ Con "Nat") finalExpr
 
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ iszero n
