@@ -21,6 +21,11 @@ jobs:
         run: |
           echo "{ghcup}=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> $GITHUB_OUTPUT
           echo "{cabal-store}=${{ (runner.os == 'Linux' && '/home/runner/.ghcup') || (runner.os == 'macOS' && '/Users/runner/.ghcup') || (runner.os == 'Windows' && 'C:\ghcup') }}" >> $GITHUB_OUTPUT
+
+      - name: aslkdjflkasjdfl
+        run: |
+          echo "AJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
+          echo ${{ steps.env.outputs.ghcup }}
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
