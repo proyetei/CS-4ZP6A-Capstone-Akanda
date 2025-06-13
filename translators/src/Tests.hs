@@ -16,15 +16,18 @@ genIndex c m = map (genIndexName c) [1..m]
 optional :: Natural -> [a] -> [a]
 optional n c = if n == 0 then [] else c
 
+nm :: Char -> Natural -> String
+nm c n = c : show n
+
 v :: Char -> Natural -> Expr
-v c n = Var $ c : show n
+v c n = Var $ nm c n
 
 vx :: Natural -> Expr
 vx = v 'x'
 
 xs :: Natural -> Expr
 xs n | n == 0    = Nat 1
-     | otherwise = Var $ "x" ++ show n
+     | otherwise = vx n
 
 sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = Nat 1
@@ -38,12 +41,12 @@ _tests =
     [ \n -> let --1
             decl = [DefTVar "n" nat $ lets 0]
             lets :: Natural -> Expr
-            lets p = Let [DefUVar ("x"++ show (p+1)) $ xs p] $ if p == minusNatural n 1 then xs (p+1) else lets (p+1)
+            lets p = Let [DefUVar (nm 'x' (p+1)) $ xs p] $ if p == minusNatural n 1 then xs (p+1) else lets (p+1)
         in Module "LetExample" [ImportLib NatMod] $ optional n decl
 
     , \n -> let --2
         lets p =
-            if p==n then Let [DefUVar ("x"++ show p) $ sum2vars $ p-1] $ vx p
+            if p==n then Let [DefUVar (nm 'x' p) $ sum2vars $ p-1] $ vx p
             else Let [DefUVar ("x"++ show p) $ sum2vars $ p-1] $ lets $ p+1
     in Module "LetAddExample" [ImportLib NatMod] $ optional n [DefTVar "n" nat $ lets 1]
 
@@ -59,7 +62,7 @@ _tests =
             genFunc p = DefNesFun
                             ("f" ++ show p)  -- Function name
                             (Just $ foldr Arr nat (replicate (fromIntegral p) nat))  -- Function type
-                            (map (\ i -> Arg ("x" ++ show i) nat) [1 .. p])  -- Function arguments
+                            (map (\ i -> Arg (nm 'x' i) nat) [1 .. p])  -- Function arguments
                             (foldl (\ acc i -> Bin "+" acc (vx i)) (Nat 1) [1 .. p])  -- Fixed expression
                         : genFunc (p-1)
 
@@ -67,21 +70,18 @@ _tests =
             genCall :: Natural -> Expr
             genCall 1 = FunCall "f1" [Nat 2]
             genCall p = Bin "+"
-                            (FunCall ("f" ++ show p) (map Nat [2 .. p + 1]))
+                            (FunCall (nm 'f' p) (map Nat [2 .. p + 1]))
                             (genCall (p - 1))
 
         in Module "NestedFunction" [ImportLib NatMod] $ iszero n
     , \n -> let --4 A specified number of simple datatype declarations.
         genData 0 = []
         genData 1 = [DefDataType "X1" [("Y1", Con "X1")] Univ]
-        genData m = DefDataType ("X" ++ show m) [("Y" ++ show m, Con ("X" ++ show m))] Univ : genData (m-1)
+        genData m = DefDataType (nm 'X' m) [(nm 'Y' m, Con (nm 'X' m))] Univ : genData (m-1)
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
-    , \n -> let --5 Variable declaration with an identifier of a specified length.
-        iszero 0 = []
-        iszero _ = [DefTVar (genIdentifier n) nat $ Nat 0]
-        genIdentifier 1 = "x"
-        genIdentifier m = 'x' : genIdentifier (m-1)
-        in Module "LongIdentifier" [ImportLib NatMod]  $ iszero n
+    , \n ->     --5 Variable declaration with an identifier of a specified length.
+           Module "LongIdentifier" [ImportLib NatMod]  $ 
+              if n == 0 then [] else [DefTVar (replicate (fromIntegral n) 'x') nat $ Nat 0]
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
