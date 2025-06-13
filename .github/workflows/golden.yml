@@ -17,19 +17,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Linux environment
-        id: env_setup
+        if: runner.os == 'Linux'
         run: |
           echo "ghcup=/hom/runner/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/hom/runner/.cabal/store >> $GITHUB_ENV
 
       - name: Setup MacOS environment
-        id: env_setup
+        if: runner.os == 'macOS'
         run: |
           echo "ghcup=/Users/runner/.ghcup" >> $GITHUB_ENV
           echo "cabal-store=/Users/runner/.cabal/store >> $GITHUB_ENV
 
       - name: Setup Windows environment
-        id: env_setup
+        if: runner.os == 'Windows'
         run: |
           echo "ghcup=C:\ghcup" >> env:$GITHUB_ENV
           echo "cabal-store=C:\sr >> env:$GITHUB_ENV
