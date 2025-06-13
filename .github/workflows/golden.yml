@@ -40,7 +40,8 @@ jobs:
           C:\ghcup\bin
           C:\ghcup\ghc
           C:\ghcup\cache\*.yaml
-          EOF"@ >> $env:GITHUB_ENV
+          EOF
+          "@ >> $env:GITHUB_ENV
           echo "cabal-store=C:\sr" >> $env:GITHUB_ENV
         
       - name: Restore ghcup cache ♻️
