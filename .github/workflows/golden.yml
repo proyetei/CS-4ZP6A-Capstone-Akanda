@@ -25,9 +25,11 @@ jobs:
           cat $GITHUB_OUTPUT
 
       - name: aslkdjflkasjdfl
+        env:
+          PREV_OUTPUTS: ${{ join(steps.run_tests.outputs.*, '\n') }}
         run: |
           echo "AJHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
-          echo "${{ join(steps.run_tests.outputs.*, '\n') }}"
+          echo $PREV_OUTPUTS
         
       - name: Restore ghcup cache ♻️
         uses: actions/cache/restore@v4
