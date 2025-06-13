@@ -1,3 +1,6 @@
+# CI workflow for running golden tests.
+# See https://github.com/haskell-actions/setup/blob/main/docs/examples.md#model-cabal-workflow-with-caching
+
 on: [push, pull_request]
 name: Golden Tests
 
@@ -6,13 +9,42 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['9.4.8']
-        cabal: ['3.12.1.0']
+        ghc-version: ['9.4.8']
+        cabal-version: ['3.12.1.0']
         os: [ubuntu-latest, macOS-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: haskell-actions/setup@v2
+      - name: Checkout ⬇️
+        uses: actions/checkout@v4
+      # There is no narwhal emoji? Very upsetting.
+      - name: Set up GHC ${{ matrix.ghc-version }} 🐬
+        id: setup
+        uses: haskell-actions/setup@v2
         with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-      - run: cabal test all --test-options="--no-create"
+          ghc-version: ${{ matrix.ghc-version }}
+          cabal-version: ${{ matrix.cabal-version }}
+      # We need to generate the build plan so that we can use it for a caching key.
+      - name: Cabal configure 🧙
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build all --dry-run
+      - name: Restore cached dependencies ♻️
+        uses: actions/cache/restore@v4
+        env:
+          key: ${{ matrix.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ env.key }}-        
+      - name: Install dependencies ⬇️
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cabal build all --only-dependencies
+      - name: Save cached dependencies 💾
+        uses: actions/cache/save@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+      - name: Build 🛠️
+        run: cabal build all
+      - name: Golden tests 💵  
+        run: cabal test all --test-options="--no-create"
