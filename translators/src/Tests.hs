@@ -151,39 +151,31 @@ _tests =
     in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n [xDef,exampleInit]
 
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
-        decl = (genRecords n ++ [exampleInit])
-        -- Generate Record Definitions
-        genRecords 0 = []
-        genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] Univ]
-        genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) [] ("Const" ++ show p) [("f" ++ show p, Con "Nat")] Univ]
-        --just "" to prevent inheretence of DefRecType
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Nat 1)]
-    in Module "ChainDefFields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n decl
+        -- Generate Record Definitions
+        genRecords :: Natural -> [Definition]
+        genRecords p = foldl (\b a -> DefRecType ("Record" ++ show a) [] ("Const" ++ show a) [(nm 'f' a, nat)] Univ : b) 
+                             [exampleInit] $ reverse [1..p]
+    in Module "ChainDefFields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n (genRecords n)
 
     , \n -> --12 Description: create a simple datatype with N constructors accepting no parameters
-        let
-            decl = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) Univ]
-        in Module "Constructors_Datatypes" [] $ trivial n decl
+        Module "Constructors_Datatypes" [] $ trivial n [DefDataType "D" (iter n (\ i -> (nm 'C' i, Con "D"))) Univ]
 
     , \n ->  --13 Description: creates a datatype with a single constructor accepting N parameters
         let
-            decl = [DefPDataType "D" (map (\i -> ("p" ++ show i, Univ)) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] Univ]
+            decl = [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ))) [("C", PCon "D" (iter n (Con . nm 'p')))] Univ]
         in Module "Parameters_Datatypes" [] $ trivial n decl
 
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
     let
-        decl = (varDefs ++ [resultDef])
-        -- Generate variable names: x1, x2, ..., xn
-        varNames = map (\i -> "x" ++ show i) [1..n]
-
         -- Generate definitions: x1 = 1, x2 = 2, ..., xn = n
-        varDefs = zipWith (\name val -> DefTVar name nat (Nat val)) varNames [1..n]
+        varDefs = iter n (\i -> DefTVar (nm 'x' i) nat (Nat i))
 
         -- result = x1 + xn
-        finalExpr = Bin "+" (Var "x1") (vx n)
-        resultDef = DefTVar "result" nat finalExpr
+        resultDef = DefTVar "result" nat $ Bin "+" (Var "x1") (vx n)
 
+        decl = (varDefs ++ [resultDef])
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ trivial n decl
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
     \n -> let
