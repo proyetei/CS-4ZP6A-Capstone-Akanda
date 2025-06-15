@@ -4,7 +4,7 @@ open import Agda.Builtin.Nat
 n : Nat
 n = let
     f1 : Nat -> Nat
-f1 x1 = x1 + 1
+f1 x1 = 1 + x1
     f2 : Nat -> Nat -> Nat
 f2 x1 x2 = 1 + x1 + x2
     f3 : Nat -> Nat -> Nat -> Nat

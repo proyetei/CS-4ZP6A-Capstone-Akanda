@@ -44,38 +44,30 @@ sum2vars n | n == 0    = Nat 1
 _tests :: [Natural -> Module] -- todo: add commented Haskell representation for each test
 _tests =
     [ \n -> let --1
-            decl = [DefTVar "n" nat $ lets 0]
-            lets :: Natural -> Expr
-            lets p = Let [DefUVar (nm 'x' (p+1)) $ xs p] $ if p == minusNatural n 1 then xs (p+1) else lets (p+1)
+            decl = [DefTVar "n" nat $ lets n]
+            lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ xs (a-1)] b) (xs p) $ [1..p]
         in Module "LetExample" [ImportLib NatMod] $ trivial n decl
 
     , \n -> let --2
-        lets p =
-            if p==n then Let [DefUVar (nm 'x' p) $ sum2vars $ p-1] $ vx p
-            else Let [DefUVar (nm 'x' p) $ sum2vars $ p-1] $ lets $ p+1
-    in Module "LetAddExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets 1]
+        lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ sum2vars $ a-1] b) (vx p) [1..p]
+    in Module "LetAddExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets n]
 
     , -- 3 Description: Generate Nested Functions
     \n -> let --3
-            decl = [ DefTVar "n" nat (Let (reverse(genFunc n)) (genCall n)) ]
+            decl = [ DefTVar "n" nat (Let (reverse $ genFunc n) (genCall n)) ]
             -- Generate function definitions dynamically based on (1 to n)
             genFunc :: Natural -> [Definition]
-            genFunc 1 = [DefNesFun "f1" (Just $ Arr nat nat)
-                            [Arg "x1" nat]
-                            (Bin "+" (Var "x1") (Nat 1))]
-            genFunc p = DefNesFun
-                            ("f" ++ show p)  -- Function name
-                            (Just $ foldr Arr nat (replicate (fromIntegral p) nat))  -- Function type
-                            (map (\ i -> Arg (nm 'x' i) nat) [1 .. p])  -- Function arguments
-                            (foldl (\ acc i -> Bin "+" acc (vx i)) (Nat 1) [1 .. p])  -- Fixed expression
-                        : genFunc (p-1)
+            genFunc p = foldr (\a b -> DefNesFun (nm 'f' a) 
+                                       (Just $ foldr Arr nat (replicate (fromIntegral a) nat)) 
+                                       (map (\i -> Arg (nm 'x' i) nat) [1..a])
+                                       (foldl (\acc i -> Bin "+" acc (vx i)) (Nat 1) [1..a]) : b)
+                              []
+                              $ reverse [1..p]
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall 1 = FunCall "f1" [Nat 2]
-            genCall p = Bin "+"
-                            (FunCall (nm 'f' p) (iter p (\i -> Nat (i + 1))))
-                            (genCall (p - 1))
+            genCall p = foldr (\a b -> Bin "+" (FunCall (nm 'f' a) (iter a (\i -> Nat $ i + 1))) b)
+                              (FunCall "f1" [Nat 2]) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
     , \n -> let --4 A specified number of simple datatype declarations.
