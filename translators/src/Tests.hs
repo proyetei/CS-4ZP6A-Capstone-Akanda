@@ -12,6 +12,11 @@ import Grammar
 trivial :: Natural -> [a] -> [a]
 trivial n c = if n == 0 then [] else c
 
+-- there is likely a nicer way to say this?
+-- (The code is 1-based, keep that for now)
+iter :: Natural -> (Natural -> a) -> [a]
+iter n f = map f [1..n]
+
 -- various name and variable generators
 nm :: Char -> Natural -> String
 nm c n = c : show n
@@ -47,7 +52,7 @@ _tests =
     , \n -> let --2
         lets p =
             if p==n then Let [DefUVar (nm 'x' p) $ sum2vars $ p-1] $ vx p
-            else Let [DefUVar ("x"++ show p) $ sum2vars $ p-1] $ lets $ p+1
+            else Let [DefUVar (nm 'x' p) $ sum2vars $ p-1] $ lets $ p+1
     in Module "LetAddExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets 1]
 
     , -- 3 Description: Generate Nested Functions
@@ -69,7 +74,7 @@ _tests =
             genCall :: Natural -> Expr
             genCall 1 = FunCall "f1" [Nat 2]
             genCall p = Bin "+"
-                            (FunCall (nm 'f' p) (map Nat [2 .. p + 1]))
+                            (FunCall (nm 'f' p) (iter p (\i -> Nat (i + 1))))
                             (genCall (p - 1))
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
@@ -266,9 +271,8 @@ _tests =
 
         in Module "IndicesConstructors_Datatypes" [ImportLib NatMod] $ trivial n decl
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
-        decl = [DefPDataType "D"
-          (map (\i -> ("p" ++ show i, Univ)) [1 .. n])
-          [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))]
+        decl = [DefPDataType "D" (map (\i -> (nm 'p' i, Univ)) [1 .. n])
+          [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((map (Con . nm 'p')  [1 .. n]) ++ map (Con . nm 'X') [1 .. n])))]
           (Arr (genType n) Univ)]
         genType 1 = Con "Nat"
         genType m = Arr (genType (m-1)) nat
@@ -276,12 +280,12 @@ _tests =
         in Module "IndicesParameters_Datatypes" [ImportLib NatMod] $ trivial n decl
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
         let
-        decl = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) Univ, --create datatype
+        decl = [DefDataType "D" (map (\ i -> (nm 'C' i, Con "D")) [1 .. n]) Univ, --create datatype
           OpenName "D",
-          DefPatt "F" [("C", Con "D")] nat "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], Nat i)) [1..n]),
+          DefPatt "F" [("C", Con "D")] nat "C" (map (\i -> ([Arg (nm 'C' i) (Con "D")], Nat i)) [1..n]),
           DefTVar "N" nat (genCall n)]
-        genCall 1 = FunCall "F" [Constructor "C1"]
-        genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
+        genCall p = foldr (\a b -> Bin "+" (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
+          (reverse [2..p])
     in
        Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl
      ]
