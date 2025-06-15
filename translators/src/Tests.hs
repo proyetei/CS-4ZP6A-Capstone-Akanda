@@ -78,26 +78,17 @@ _tests =
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
-        decl = [xDef, exampleInit]
         -- Generate field definitions dynamically
         genFields :: Natural -> [(String, Type)]
-        genFields 1 = [("f1", Con "Nat")]
-        genFields 2 = genFields 1 ++ [("f2", PCon "Vec" [Con "Nat", TVar "f1"])]
-        genFields p = genFields (minusNatural p 1) ++ [("f" ++ show p, PCon "Vec" [Con "Nat", genSize (minusNatural p 1)])]
+        genFields p = ("f1", nat) :
+                      (foldr (\a b -> (nm 'f' a, PCon "Vec" [nat, genSize (a-1)]) : b) [] $ [2..p])
 
         -- Helper function to correctly reference `suc` or `S`
-        genSize :: Natural -> Type
-        genSize 1 = TVar "f1"
-        genSize p = Suc (genSize (minusNatural p 1)) -- HACK
+        genSize p = foldr (\_ b -> Suc b) (TVar "f1") [2..p]
 
         -- Generate example initialization dynamically
         genExample :: Natural -> [(String, Expr)]
-        genExample k = map (\i -> ("f" ++ show i, buildVecCons i)) [1..k]
-
-        -- Function to correctly build `VecCons`
-        buildVecCons :: Natural -> Expr
-        buildVecCons k | k == 0 = error "needs length at least 1"
-        buildVecCons k          = VecE $ replicate (fromIntegral k) (Nat 1)
+        genExample k = map (\i -> (nm 'f' i, VecE $ replicate (fromIntegral i) (Nat 1))) [1..k]
 
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) Univ
@@ -105,6 +96,7 @@ _tests =
         -- Define the example initialization
         exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
 
+        decl = [xDef, exampleInit]
         in Module "Fields_DependentRecordModule" [ImportLib NatMod, ImportLib VecMod] $ trivial n decl
 
     , --7 Description: Generate a very long chain (N) of dependent record definitions
@@ -112,22 +104,12 @@ _tests =
         decl = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
-        genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] Univ]
-        genRecords level =
-            let prev = "Record" ++ show (minusNatural level 1) -- HACK
-                curr = "Record" ++ show level
-                constructor = "Const" ++ show level
-                field = "f" ++ show level
-            in genRecords (minusNatural level 1) ++ [DefRecType curr [] constructor [(field, Con prev)] Univ]
+        genRecords p = foldr (\(i,c) b -> DefRecType ("Record" ++ show i) [] ("Const" ++ show i) 
+          [(nm 'f' i, c)] Univ : b) [] $ ((1,Con "Nat") : map (\i -> (i, Con ("Record" ++ show (i-1)))) [2..p])
 
         -- Generate Example Init
         genExample :: Natural -> Expr
-        genExample 0 = Nat 10
-        genExample 1 = Paren $ FunCall "Const1" [Nat 10]
-        genExample level =
-            let prevExample = genExample (minusNatural level 1) -- HACK
-                constructor = "Const" ++ show level
-            in Paren $ FunCall constructor [prevExample]
+        genExample p = foldr (\a b -> Paren $ (FunCall ("Const" ++ show a) [b])) (Nat 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("example", genExample $ minusNatural n 1)] -- HACK
 
