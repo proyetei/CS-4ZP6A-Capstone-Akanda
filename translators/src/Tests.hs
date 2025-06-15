@@ -38,15 +38,17 @@ sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = Nat 1
            | otherwise = Bin " + " (vx n) (vx n)
 
+k'ary :: Type -> Natural -> Type
+k'ary t n = foldr Arr t (replicate (fromIntegral n) t)
+
 -- this is our list of expandable tests. each test should take a Natural as an
 -- argument and return a program written in the internal grammar (see
 -- Grammar.hs)
 _tests :: [Natural -> Module] -- todo: add commented Haskell representation for each test
 _tests =
     [ \n -> let --1
-            decl = [DefTVar "n" nat $ lets n]
-            lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ xs (a-1)] b) (xs p) $ [1..p]
-        in Module "LetExample" [ImportLib NatMod] $ trivial n decl
+            lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ xs (a-1)] b) (xs p) [1..p]
+        in Module "LetExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets n]
 
     , \n -> let --2
         lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ sum2vars $ a-1] b) (vx p) [1..p]
@@ -58,7 +60,7 @@ _tests =
             -- Generate function definitions dynamically based on (1 to n)
             genFunc :: Natural -> [Definition]
             genFunc p = foldr (\a b -> DefNesFun (nm 'f' a) 
-                                       (Just $ foldr Arr nat (replicate (fromIntegral a) nat)) 
+                                       (Just $ k'ary nat a)
                                        (iter a (\i -> Arg (nm 'x' i) nat))
                                        (foldl (\acc i -> Bin "+" acc (vx i)) (Nat 1) [1..a]) : b)
                               []
@@ -199,10 +201,7 @@ _tests =
 
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
         decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (Con ("D " ++ unwords (genIndex 'x' n))))] 
-                            (Arr (genType n) Univ)]
-
-        genType m = foldr Arr nat $ replicate (fromIntegral (m-1)) nat
-
+                            (Arr (k'ary nat (n-1)) Univ)]
        in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
 
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
@@ -219,18 +218,12 @@ _tests =
         decl = [DefDataType "D"
            (iter n (\ i -> (nm 'C' i, Arr (Index (genIndex 'x' i) nat)
                                           (PCon "D" $ iter n (\j -> if j <= i then Con (nm 'X' j) else Con "0"))
-                                      ))) (Arr (genType n) Univ)]
-
-        genType m = foldr Arr nat $ replicate (fromIntegral (m-1)) nat
-
+                                      ))) (Arr (k'ary nat (n-1)) Univ)]
         in Module "IndicesConstructors_Datatypes" [ImportLib NatMod] $ trivial n decl
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
         decl = [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ)))
           [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((iter n (Con . nm 'p')) ++ iter n (Con . nm 'X'))))]
-          (Arr (genType n) Univ)]
-
-        genType m = foldr Arr nat $ replicate (fromIntegral (m-1)) nat
-
+          (Arr (k'ary nat (n-1)) Univ)]
         in Module "IndicesParameters_Datatypes" [ImportLib NatMod] $ trivial n decl
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
         let
