@@ -59,25 +59,22 @@ _tests =
             genFunc :: Natural -> [Definition]
             genFunc p = foldr (\a b -> DefNesFun (nm 'f' a) 
                                        (Just $ foldr Arr nat (replicate (fromIntegral a) nat)) 
-                                       (map (\i -> Arg (nm 'x' i) nat) [1..a])
+                                       (iter a (\i -> Arg (nm 'x' i) nat))
                                        (foldl (\acc i -> Bin "+" acc (vx i)) (Nat 1) [1..a]) : b)
                               []
                               $ reverse [1..p]
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall p = foldr (\a b -> Bin "+" (FunCall (nm 'f' a) (iter a (\i -> Nat $ i + 1))) b)
+            genCall p = foldr (\a b -> Bin "+" (FunCall (nm 'f' a) (iter a (Nat . (+ 1)))) b)
                               (FunCall "f1" [Nat 2]) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
     , \n -> let --4 A specified number of simple datatype declarations.
-        genData 0 = []
-        genData 1 = [DefDataType "X1" [("Y1", Con "X1")] Univ]
-        genData m = DefDataType (nm 'X' m) [(nm 'Y' m, Con (nm 'X' m))] Univ : genData (m-1)
+      genData m = foldl (\b a -> DefDataType (nm 'X' a) [(nm 'Y' a, Con (nm 'X' a))] Univ : b) [] [1..m]
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
     , \n ->     --5 Variable declaration with an identifier of a specified length.
-           Module "LongIdentifier" [ImportLib NatMod]  $ 
-              if n == 0 then [] else [DefTVar (replicate (fromIntegral n) 'x') nat $ Nat 0]
+           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') nat $ Nat 0]
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
