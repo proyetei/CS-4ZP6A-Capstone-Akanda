@@ -22,7 +22,7 @@ nm :: Char -> Natural -> String
 nm c n = c : show n
 
 genIndex :: Char -> Natural -> [String]
-genIndex c m = map (nm c) [1..m]
+genIndex c m = iter m (nm c)
 
 v :: Char -> Natural -> Expr
 v c n = Var $ nm c n
@@ -217,24 +217,26 @@ _tests =
 
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         decl = [DefDataType "D"
-           (map (\ i -> ("C" ++ show i, Arr (Index (genIndex 'x' i) nat) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\_ -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) Univ)]
-        genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) nat
+           (iter n (\ i -> (nm 'C' i, Arr (Index (genIndex 'x' i) nat)
+                                          (PCon "D" $ iter n (\j -> if j <= i then Con (nm 'X' j) else Con "0"))
+                                      ))) (Arr (genType n) Univ)]
+
+        genType m = foldr Arr nat $ replicate (fromIntegral (m-1)) nat
 
         in Module "IndicesConstructors_Datatypes" [ImportLib NatMod] $ trivial n decl
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
-        decl = [DefPDataType "D" (map (\i -> (nm 'p' i, Univ)) [1 .. n])
-          [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((map (Con . nm 'p')  [1 .. n]) ++ map (Con . nm 'X') [1 .. n])))]
+        decl = [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ)))
+          [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((iter n (Con . nm 'p')) ++ iter n (Con . nm 'X'))))]
           (Arr (genType n) Univ)]
-        genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) nat
+
+        genType m = foldr Arr nat $ replicate (fromIntegral (m-1)) nat
 
         in Module "IndicesParameters_Datatypes" [ImportLib NatMod] $ trivial n decl
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
         let
-        decl = [DefDataType "D" (map (\ i -> (nm 'C' i, Con "D")) [1 .. n]) Univ, --create datatype
+        decl = [DefDataType "D" (iter n (\ i -> (nm 'C' i, Con "D"))) Univ, --create datatype
           OpenName "D",
-          DefPatt "F" [("C", Con "D")] nat "C" (map (\i -> ([Arg (nm 'C' i) (Con "D")], Nat i)) [1..n]),
+          DefPatt "F" [("C", Con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (Con "D")], Nat i))),
           DefTVar "N" nat (genCall n)]
         genCall p = foldr (\a b -> Bin "+" (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
           (reverse [2..p])
