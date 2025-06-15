@@ -26,8 +26,8 @@ printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Suc t) = parens $ "Nat.succ " ++ printType t  -- Use `Nat.succ` explicitly
 printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
+printType (Embed e) = printExpr e
 
 printReturnType :: Type -> String
 printReturnType (Con t) = t
@@ -42,11 +42,9 @@ printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Nat n) = show n
-printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Mon op e) = parens $ op ++ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
+printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr
 printExpr (Let (d:[]) expr) = "let " ++ (printDef [] d) ++ "\n" ++ printExpr expr
 printExpr (Let (d:ds) expr) = "let " ++ (foldl (\x y -> x ++ "\nlet " ++ y) (printDef [] d) $ map (printDef []) ds) ++ "\n" ++ printExpr expr
@@ -55,6 +53,10 @@ printExpr (Where expr ds) = printExpr expr ++ "\n\twhere " ++ foldl (\x y -> x +
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args)
 printExpr (VecE l) = "#[" ++ intercalate ", " (map printExpr l) ++ "]"
 printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
+printExpr (Suc t) = parens $ "Nat.succ " ++ printExpr t  -- Use `Nat.succ` explicitly
+
+printOp :: Op -> String
+printOp Plus = " + "
 
 printDef :: [Definition] -> Definition -> String
 printDef _ (DefUVar var expr) = var ++ " := " ++ printExpr expr

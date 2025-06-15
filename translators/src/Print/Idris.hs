@@ -27,21 +27,19 @@ printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Suc t) = "(S " ++ printType t ++ ")"
 printType (Index names ty) = "{" ++ unwords' names ++ " : " ++ printType ty ++ "}" where
     unwords' [] = ""
     unwords' [n] = n
     unwords' more = foldl1 (\ x n -> x ++ ", " ++ n) more
+printType (Embed e) = printExpr e
 
 printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Nat n) = show n
-printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Mon op e) = parens $ op ++ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 ++ " "  ++ op ++ " " ++ printExpr e2
+printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:[]) expr) = "let \n    " ++ (printDef d) ++ " in \n    " ++ printExpr expr
 printExpr (Let (d:ds) expr) = "let \n    " ++ (foldl (\x y -> x ++ "\n    " ++ y) (printDef d) $ map printDef ds) ++ "\n    in \n    " ++ printExpr expr -- probably need to recursively indent blocks to make sure everything stays aligned
@@ -50,6 +48,10 @@ printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ foldl 
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
 printExpr (VecE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
 printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
+printExpr (Suc t) = "(S " ++ printExpr t ++ ")"
+
+printOp :: Op -> String
+printOp Plus = " + "
 
 
 printDef :: Definition -> String

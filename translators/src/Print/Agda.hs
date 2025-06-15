@@ -9,17 +9,24 @@ import Data.List (intercalate)
 import Grammar
 import Print.Generic
 
+-- keywords
+import_, univ, arr, typedel :: String
+import_ = "open import " -- separate?
+univ = "Set"
+arr = " -> "
+typedel = " : "
+
 printImport :: Import -> String
-printImport (ImportLib NatMod) = "open import Agda.Builtin.Nat"
-printImport (ImportLib VecMod) = "open import Data.Vec.Base"
-printImport (ImportLib ListMod) = "open import Agda.Builtin.List"
-printImport (ImportLib StringMod) = "open import Agda.Builtin.String"
+printImport (ImportLib NatMod) = import_ ++ "Agda.Builtin.Nat"
+printImport (ImportLib VecMod) = import_ ++ "Data.Vec.Base"
+printImport (ImportLib ListMod) = import_ ++ "Agda.Builtin.List"
+printImport (ImportLib StringMod) = import_ ++ "Agda.Builtin.String"
 
 -- Print types
 printType :: Type -> String
-printType (Univ) = "Set"
+printType (Univ) = univ
 printType (Con t) = t
-printType (Arr t1 t2) = printType t1 ++ " -> " ++ printType t2
+printType (Arr t1 t2) = printType t1 ++ arr ++ printType t2
 printType (TVar t) = t
 printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 -- Ensure `suc` is printed with parentheses
@@ -27,19 +34,17 @@ printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Suc t) = "(suc " ++ printType t ++ ")"
-printType (Index names ty) = "{" ++ unwords names ++ " : " ++ printType ty ++ "}"
+printType (Index names ty) = brackets $ unwords names ++ typedel ++ printType ty
+printType (Embed e) = printExpr e
 
 -- Print expressions
 printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Nat n) = show n
-printExpr (Bool bool) = show bool
-printExpr (String str) = "\"" ++ str ++ "\""
+printExpr (String str) = quote str
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Mon op e) = parens $ (op ++ printExpr e)
-printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
+printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:[]) expr) = "let\n    " ++ printDef d ++ " in\n    " ++ printExpr expr
 printExpr (Let (d:ds) expr) = "let\n    " ++ printDef d ++ concatMap (\x -> "\n    " ++ printDef x) ds ++ "\n    in " ++ printExpr expr -- Changed foldr to concatMap to preserve order
@@ -48,6 +53,10 @@ printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concat
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
 printExpr (VecE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
 printExpr (ListE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
+printExpr (Suc t) = parens $ "suc " ++ printExpr t
+
+printOp :: Op -> String
+printOp Plus = " + "
 
 -- Function to print variable definitions
 printDef :: Definition -> String

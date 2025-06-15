@@ -1,5 +1,5 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
-  , KnownMods (..)
+  , KnownMods (..), Op (..)
   , modname
   , nat) where
 
@@ -49,7 +49,7 @@ data Type = Con Name              -- type constructor
         | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
         | Arr Type Type           -- function type
         | TVar Name               -- type variable
-        | Suc Type
+        | Embed Expr              -- Exprs seen as a type (should later merge properly)
         | Index [Name] Type
         | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
 
@@ -57,10 +57,8 @@ data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
         | Nat Natural
-        | Bool Bool
         | String String
-        | Mon Op Expr
-        | Bin Op Expr Expr
+        | Bin Op Expr Expr       -- only for known, hard-coded binary operations
         | Let [Definition] Expr
         | If Expr Expr Expr
         | Where Expr [Definition]
@@ -69,11 +67,13 @@ data Expr = Var Name
         | ListE [Expr]
         | Paren Expr
         | Constructor Name
+        | Suc Expr               -- hard-coded ??! FIXME
 
+
+data Op = Plus
 
 -- aliases for readability purposes
 type Name = String
-type Op = String
 
 
 --------------------------

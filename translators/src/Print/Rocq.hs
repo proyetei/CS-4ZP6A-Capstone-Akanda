@@ -28,8 +28,8 @@ printType (PCon name types) = (map toLower name) ++ " " ++ unwords (map printTyp
 printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Suc t) = parens $ "S " ++ printType t
 printType (Index names ty) = "forall {" ++ map toLower (unwords names) ++ " : " ++ printType ty ++ "}"
+printType (Embed e) = printExpr e
 
 printReturnType :: Type -> String
 printReturnType (Con t) = map toLower t --required for nested functions
@@ -43,11 +43,9 @@ printExpr :: Expr -> String
 printExpr (Constructor name) = map toLower name
 printExpr (Var var) = var
 printExpr (Nat n) = show n
-printExpr (Bool bool) = show bool
 printExpr (String str) = "\"" ++ str ++ "\""
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Mon op e) = parens $ op ++ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 ++ " " ++ op ++ " " ++ printExpr e2
+printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:ds) expr) =
     foldl (\acc def -> acc ++ "let " ++ printDef def ++ " in\n    ") "" (d:ds) ++ printExpr expr --modified for proper let-in nesting
@@ -56,6 +54,10 @@ printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n\twhere " $ foldl (\
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
 printExpr (VecE l) = "[" ++ intercalate "; " (map printExpr l) ++ "]"
 printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
+printExpr (Suc e) = parens $ "S " ++ printExpr e
+
+printOp :: Op -> String
+printOp Plus = " + "
 
 printDef :: Definition -> String
 printDef (DefUVar var expr) = var ++ " := " ++ printExpr expr
