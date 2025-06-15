@@ -101,7 +101,6 @@ _tests =
 
     , --7 Description: Generate a very long chain (N) of dependent record definitions
     \n -> let
-        decl = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
         genRecords p = foldr (\(i,c) b -> DefRecType ("Record" ++ show i) [] ("Const" ++ show i) 
@@ -112,6 +111,7 @@ _tests =
         genExample p = foldr (\a b -> Paren $ (FunCall ("Const" ++ show a) [b])) (Nat 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("example", genExample $ minusNatural n 1)] -- HACK
+        decl = (genRecords n ++ [exampleInit])
 
         in Module "ChainDef_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
 
@@ -119,44 +119,36 @@ _tests =
     \n -> let
         decl = [recDef, exampleInit]
         -- Helper to build the sum exp 1 + 2 + ... + n
-        buildSum 1 = Nat 1
-        buildSum m = Bin "+" (buildSum (m-1)) (Nat m)
-        sumExpr = buildSum n
+        buildSum m = foldr (\a b -> Bin "+" b (Nat a)) (Nat 1) $ reverse [2..m]
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
-        params = map (\i -> Arg ("f" ++ show i) nat) [1..n]
+        params = iter n (\i -> Arg (nm 'f' i) nat)
 
         -- Define the record X with param, a constructor "Const",
         -- two fields "sums" and "values", and overall type Set.
-        recDef = DefRecType "X" params "Const"
-                 [("sums", Con "Nat")]
-                 (Con "Set")
+        recDef = DefRecType "X" params "Const" [("sums", Con "Nat")] (Con "Set")
 
         -- Build the record type application as a string: "X 1 2 ... n"
         -- recTypeInstance = "X " ++ unwords (map show [1..n])
-        recTypeInstance = DCon "X" [] $ map Nat [1..n]
+        recTypeInstance = DCon "X" [] $ iter n Nat
 
         -- Define the record instance "example" with computed field values:
-        exampleInit = DefRec "example" recTypeInstance "Const"
-                       [("sums", Paren sumExpr)]
+        exampleInit = DefRec "example" recTypeInstance "Const" [("sums", Paren $ buildSum n)]
       in Module "Parameters_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
     , \n -> -- 9
         -- Generate a file with n newlines where n = user input
         File "NewlineFile" $ replicate (fromIntegral n) '\n'
 
     , \n -> let -- 10 Description: A record declaration with N independent fields
-        decl = [xDef,exampleInit]
         -- Generate field definitions dynamically
-        genFields 1 = [("f1", Con "Nat")]
-        genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
+        genFields p = foldr (\a b -> (nm 'f' a, nat) : b) [] [1..p]
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) Univ
         -- Generate example initialization dynamically
-        genExample 1 = [("f1", Nat 1)]
-        genExample p = genExample (p - 1) ++ [("f" ++ show p, Nat 1)]
+        genExample p = foldr (\a b -> (nm 'f' a, Nat 1) : b) [] [1..p]
         -- Define the example initialization
         exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
-    in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n decl
+    in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n [xDef,exampleInit]
 
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
         decl = (genRecords n ++ [exampleInit])
