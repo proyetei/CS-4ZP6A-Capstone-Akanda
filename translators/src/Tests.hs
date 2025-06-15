@@ -196,21 +196,25 @@ _tests =
         $ reverse [1..level]
 
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
+
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
-        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (Con ("D" ++ " " ++ unwords (genIndex 'x' n))))] (Arr (genType n) Univ)]
-        genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) nat
+        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (Con ("D " ++ unwords (genIndex 'x' n))))] 
+                            (Arr (genType n) Univ)]
+
+        genType m = foldr Arr nat $ replicate (fromIntegral (m-1)) nat
 
        in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
+
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
-        decl = [DefTVar "A" (Con "String") $ String (genLongValue n)]
-        genLongValue 1 = "x"
-        genLongValue m = 'x' : genLongValue (m-1)
+        decl = [DefTVar "A" (Con "String") $ String $ replicate (fromIntegral n) 'x']
         in Module "SingleLongLine" [ImportLib StringMod]  $ trivial n decl
+
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         let
-            decl =  [DefPDataType "D" (map (\i -> ("p" ++ show i, Univ)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) Univ]
+            decl =  [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ))) 
+                                 (iter n (\ i -> (nm 'C' i,  PCon "D" (iter n (\j -> Con (nm 'p' j) )))) ) Univ]
         in Module "ConstructorsParameters_Datatypes" [] $ trivial n decl
+
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
         decl = [DefDataType "D"
            (map (\ i -> ("C" ++ show i, Arr (Index (genIndex 'x' i) nat) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\_ -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) Univ)]
