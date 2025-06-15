@@ -169,40 +169,33 @@ _tests =
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
     let
-        -- Generate definitions: x1 = 1, x2 = 2, ..., xn = n
-        varDefs = iter n (\i -> DefTVar (nm 'x' i) nat (Nat i))
-
         -- result = x1 + xn
         resultDef = DefTVar "result" nat $ Bin "+" (Var "x1") (vx n)
 
-        decl = (varDefs ++ [resultDef])
+        decl = foldl (\b a -> DefTVar (nm 'x' a) nat (Nat a) : b) [resultDef] $ reverse [1..n]
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ trivial n decl
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
     \n -> let
-    decl = (genLevelDefs n ++ [resultDef])
     varsPerLevel = 10  -- Number of variables per level
 
     -- Generate variable names format x$level$ L $index$
     varName :: Natural -> Natural -> String
-    varName level idx = "x" ++ show level ++ "L" ++ show idx
+    varName level idx = nm 'x' level ++ nm 'L' idx
 
     -- Define expressions for each variable
     genExpr :: Natural -> Natural -> Expr
-    genExpr 1 idx = Nat idx
-    genExpr level idx = Bin "+" (Var $ varName (level - 1) idx) (Nat idx)
+    genExpr idx level = if level == 0 then Nat idx else Bin "+" (Var $ varName level idx) (Nat idx)
+
+    --  sum of all xN_1 .. xN_10 + 100
+    resultDef = DefTVar "result" nat $ foldl (\acc idx -> Bin "+" acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
 
     -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
-    genLevelDefs 1 = [DefTVar (varName 1 idx) nat (genExpr 1 idx) | idx <- [1..varsPerLevel]]
-    genLevelDefs level = genLevelDefs (level - 1) ++
-        [DefTVar (varName level idx) nat (genExpr level idx) | idx <- [1..varsPerLevel]]
+    genLevelDefs level = 
+        foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) nat (genExpr idx (a-1))) ++ b) [resultDef]
+        $ reverse [1..level]
 
-    --  sum of all xN_1 .. xN_10 + 100
-    sumVars = foldl (\acc idx -> Bin "+" acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
-
-    resultDef = DefTVar "result" nat sumVars
-
-    in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n decl
+    in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
         decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (Con ("D" ++ " " ++ unwords (genIndex 'x' n))))] (Arr (genType n) Univ)]
         genType 1 = Con "Nat"
