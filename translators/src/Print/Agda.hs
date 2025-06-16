@@ -10,11 +10,14 @@ import Grammar
 import Print.Generic
 
 -- keywords
-import_, univ, arr, typedel :: String
+import_, univ, arr, typedel, equals, data_, rec :: String
 import_ = "open import " -- separate?
 univ = "Set"
 arr = " -> "
 typedel = " : "
+equals = " = "
+data_ = "data "
+rec = "record "
 
 printImport :: Import -> String
 printImport (ImportLib NatMod) = import_ ++ "Agda.Builtin.Nat"
@@ -48,10 +51,10 @@ printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let ds expr) = 
   "let\n    " ++ (intercalate "\n    " (map printDef ds)) ++ " in\n    " ++ printExpr expr
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concatMap (\x -> "\n    " ++ printDef x) ds
+printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    "  (map printDef ds)
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
-printExpr (VecE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
-printExpr (ListE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
+printExpr (VecE l) = parens $ sqbrackets $ intercalate " ∷ " (map printExpr l)
+printExpr (ListE l) = parens $ sqbrackets $ intercalate " ∷ " (map printExpr l)
 printExpr (Suc t) = parens $ "suc " ++ printExpr t
 
 printOp :: Op -> String
@@ -60,16 +63,14 @@ printOp Plus = " + "
 -- Function to print variable definitions
 printDef :: Definition -> String
 printDef (DefTVar var t expr) = 
-  var ++ " : " ++ printType t ++ "\n" ++ 
-  var ++ " = " ++ printExpr expr ++ "\n"
-printDef (DefUVar var expr) = 
-  var ++ " = " ++ printExpr expr ++ "\n"
+  line (var ++ typedel ++ printType t) ++ line ( var ++ equals ++ printExpr expr)
+printDef (DefUVar var expr) = line $ var ++ equals ++ printExpr expr
 
 -- Function to print function definitions
-printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ " = " ++ printExpr expr
+printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ equals ++ printExpr expr
     where
         typeSig = case ty of
-            Just t -> var ++ " : " ++ printType t ++ "\n"
+            Just t -> line $ var ++ typedel ++ printType t
             Nothing -> ""
         argsStr = unwords $ map arg args  -- Correctly handle argument names
 
@@ -77,20 +78,23 @@ printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args e
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 --Name [(Name,Type)] Type [([Arg], Expr)]
 printDef (DefPatt var params ty _ cons) =
-    var ++ " : " ++ (printType (foldr (\x y -> Arr x y) ty (map snd params))) ++ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map (\(Arg n _) -> n) a) ++ " = " ++ printExpr e) cons) ++ "\n"
+    var ++ typedel ++ (printType (foldr Arr ty (map snd params))) ++ 
+    (line $ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ equals ++ printExpr e) cons))
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
-  "data " ++ name ++ " : " ++ printType ty ++ " where" ++
-  unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
+  data_ ++ name ++ typedel ++ printType ty ++ " where" ++
+  (line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
 printDef (DefPDataType name params cons ty) =
-  "data " ++ name ++ " " ++
-  unwords (map (\(x, y) -> "(" ++ x ++ " : " ++ printType y ++ ") ") params) ++
-  " : " ++ printType ty ++
-  " where" ++ unwords (map (\(n, t) -> "\n " ++ n ++ " : " ++ printType t) cons) ++ "\n"
+  data_ ++ name ++ " " ++
+  unwords (map (\(x, y) -> parens $ x ++ typedel ++ printType y) params) ++ typedel ++
+  printType ty ++
+  " where" ++ (line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
 
 -- Function for records
 printDef (DefRecType name params consName fields _) =
-    "record " ++ name ++ paramsStr ++ " : Set where\n    constructor " ++ consName ++ "\n    field\n" ++
+    rec ++ name ++ paramsStr ++ typedel ++ 
+    printType Univ ++ (line " where") ++ 
+    "    constructor " ++ consName ++ "\n    field\n" ++
     concatMap (\(fname, ftype) -> "        " ++ fname ++ " : " ++ printType ftype ++ "\n") fields
     where
         paramsStr = case params of
