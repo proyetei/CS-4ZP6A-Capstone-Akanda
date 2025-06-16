@@ -10,12 +10,12 @@ import Grammar
 import Print.Generic
 
 -- keywords
-import_, univ, arr, typedel, equals, data_, rec :: String
+import_, univ, arr, typedel, assign, data_, rec :: String
 import_ = "open import " -- separate?
 univ = "Set"
 arr = " -> "
 typedel = " : "
-equals = " = "
+assign = " = "
 data_ = "data "
 rec = "record "
 
@@ -63,11 +63,11 @@ printOp Plus = " + "
 -- Function to print variable definitions
 printDef :: Definition -> String
 printDef (DefTVar var t expr) = 
-  line (var ++ typedel ++ printType t) ++ line ( var ++ equals ++ printExpr expr)
-printDef (DefUVar var expr) = line $ var ++ equals ++ printExpr expr
+  line (var ++ typedel ++ printType t) ++ line ( var ++ assign ++ printExpr expr)
+printDef (DefUVar var expr) = line $ var ++ assign ++ printExpr expr
 
 -- Function to print function definitions
-printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ equals ++ printExpr expr
+printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ assign ++ printExpr expr
     where
         typeSig = case ty of
             Just t -> line $ var ++ typedel ++ printType t
@@ -79,7 +79,7 @@ printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args
 --Name [(Name,Type)] Type [([Arg], Expr)]
 printDef (DefPatt var params ty _ cons) =
     var ++ typedel ++ (printType (foldr Arr ty (map snd params))) ++ 
-    (line $ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ equals ++ printExpr e) cons))
+    (line $ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e) cons))
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
   data_ ++ name ++ typedel ++ printType ty ++ " where" ++
@@ -103,7 +103,7 @@ printDef (DefRecType name params consName fields _) =
 
 printDef (DefRec name recType consName fields) =
     "\n" ++ name ++ typedel ++ line (printType recType) ++
-    name ++ equals ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
+    name ++ assign ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
 
 printDef (OpenName _) = ""
 printDef (DefModule m) = printModule m
