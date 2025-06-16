@@ -4,7 +4,7 @@
 Module NestedFunction.
 
 
-Definition n : nat := let f1 (x1 : nat) : nat := x1 + 1 in
+Definition n : nat := let f1 (x1 : nat) : nat := 1 + x1 in
     let f2 (x1 : nat) (x2 : nat) : nat := 1 + x1 + x2 in
     let f3 (x1 : nat) (x2 : nat) (x3 : nat) : nat := 1 + x1 + x2 + x3 in
     let f4 (x1 : nat) (x2 : nat) (x3 : nat) (x4 : nat) : nat := 1 + x1 + x2 + x3 + x4 in

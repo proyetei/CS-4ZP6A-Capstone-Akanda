@@ -51,11 +51,11 @@ printExpr (ListE l) = "([" ++ intercalate " ∷ " (map printExpr l) ++ "])"
 
 -- Function to print variable definitions
 printDef :: Definition -> String
-printDef (DefVar var ty expr) = typeSig ++ var ++ " = " ++ printExpr expr ++ "\n"
-    where
-        typeSig = case ty of
-            Just t -> var ++ " : " ++ printType t ++ "\n"
-            Nothing -> ""
+printDef (DefTVar var t expr) = 
+  var ++ " : " ++ printType t ++ "\n" ++ 
+  var ++ " = " ++ printExpr expr ++ "\n"
+printDef (DefUVar var expr) = 
+  var ++ " = " ++ printExpr expr ++ "\n"
 
 -- Function to print function definitions
 printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ " = " ++ printExpr expr

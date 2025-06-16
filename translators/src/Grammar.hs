@@ -1,6 +1,7 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
   , KnownMods (..)
-  , modname) where
+  , modname
+  , nat) where
 
 import Numeric.Natural (Natural)
 
@@ -22,23 +23,26 @@ newtype Import = ImportLib KnownMods
 
 data Definition
   = DefFun Name (Maybe Type) [Arg] Expr
-     -- Constructor for nested functions
   | DefNesFun Name (Maybe Type) [Arg] Expr
-    --function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
+     -- ^ Constructor for nested functions
   | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)]
-  | DefVar Name (Maybe Type) Expr
-    -- datatype name, constructors, usually type is Set
+    -- ^ Function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
+  | DefTVar Name Type Expr
+    -- ^ Define a variable (i.e. 'let') with a type annotation
+  | DefUVar Name  Expr
+    -- ^ Define a variable (i.e. 'let')
   | DefDataType Name [(Name,Type)] Type
-    -- datatype name, parameters, constrcutors, overall type
+    -- ^ Datatype name, constructors, usually type is Set
   | DefPDataType Name [(Name, Type)] [(Name,Type)] Type
-    -- [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
+    -- ^ Datatype name, parameters, constrcutors, overall type
   | DefRecType Name [Arg] Name [(Name,Type)] Type
-    -- record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
+    -- ^ [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
   | DefRec Name Type Name [(String, Expr)]
-    --just for Lean, to refer to user-defined datatypes directly
+    -- ^ Record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
   | OpenName Name
-    -- for nested modules
+    -- ^ Just for Lean, to refer to user-defined datatypes directly
   | DefModule Module
+    -- ^ For nested modules
 
 data Type = Con Name              -- type constructor
         | PCon Name [Type]        -- parameterized type constructor
@@ -70,3 +74,10 @@ data Expr = Var Name
 -- aliases for readability purposes
 type Name = String
 type Op = String
+
+
+--------------------------
+-- useful short-hands for things that are used often
+
+nat :: Type
+nat = Con "Nat"

@@ -7,28 +7,39 @@ import GHC.Natural (minusNatural)
 import Grammar
 
 -- re-usable generators for the tests below
-genIndexName :: Char -> Natural -> String
-genIndexName c i = c : show i
+
+-- the 'n == 0' case is often trivial
+trivial :: Natural -> [a] -> [a]
+trivial n c = if n == 0 then [] else c
+
+-- there is likely a nicer way to say this?
+-- (The code is 1-based, keep that for now)
+iter :: Natural -> (Natural -> a) -> [a]
+iter n f = map f [1..n]
+
+-- various name and variable generators
+nm :: Char -> Natural -> String
+nm c n = c : show n
 
 genIndex :: Char -> Natural -> [String]
-genIndex c m = map (genIndexName c) [1..m]
-
-optional :: Natural -> [a] -> [a]
-optional n c = if n == 0 then [] else c
+genIndex c m = iter m (nm c)
 
 v :: Char -> Natural -> Expr
-v c n = Var $ c : show n
+v c n = Var $ nm c n
 
 vx :: Natural -> Expr
 vx = v 'x'
 
-xs :: Natural -> Expr
-xs n | n == 0    = Nat 1
-     | otherwise = Var $ "x" ++ show n
+vxs :: Natural -> Expr
+vxs n | n == 0    = Nat 1
+      | otherwise = vx n
 
 sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = Nat 1
            | otherwise = Bin " + " (vx n) (vx n)
+
+nary :: Type -> Natural -> Type
+nary t n = foldr Arr t (replicate (fromIntegral n) t)
 
 -- this is our list of expandable tests. each test should take a Natural as an
 -- argument and return a program written in the internal grammar (see
@@ -36,77 +47,50 @@ sum2vars n | n == 0    = Nat 1
 _tests :: [Natural -> Module] -- todo: add commented Haskell representation for each test
 _tests =
     [ \n -> let --1
-            decl = [DefVar "n" (Just $ Con "Nat") $ lets 0]
-            lets :: Natural -> Expr
-            lets p = Let [DefVar ("x"++ show (p+1)) Nothing $ xs p] $ if p == minusNatural n 1 then xs (p+1) else lets (p+1)
-        in Module "LetExample" [ImportLib NatMod] $ optional n decl
+            lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ vxs (a-1)] b) (vxs p) [1..p]
+        in Module "LetExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets n]
 
     , \n -> let --2
-        lets p =
-            if p==n then Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ vx p
-            else Let [DefVar ("x"++ show p) Nothing $ sum2vars $ p-1] $ lets $ p+1
-    in Module "LetAddExample" [ImportLib NatMod] $ optional n [DefVar "n" (Just $ Con "Nat") $ lets 1]
+        lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ sum2vars $ a-1] b) (vx p) [1..p]
+    in Module "LetAddExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets n]
 
     , -- 3 Description: Generate Nested Functions
     \n -> let --3
-            iszero 0 = []
-            iszero _ = [ DefVar "n" (Just $ Con "Nat") (Let (reverse(genFunc n)) (genCall n)) ]
+            decl = [ DefTVar "n" nat (Let (reverse $ genFunc n) (genCall n)) ]
             -- Generate function definitions dynamically based on (1 to n)
             genFunc :: Natural -> [Definition]
-            genFunc 1 = [DefNesFun "f1" (Just $ Arr (Con "Nat") (Con "Nat"))
-                            [Arg "x1" (Con "Nat")]
-                            (Bin "+" (Var "x1") (Nat 1))]
-            genFunc p = DefNesFun
-                            ("f" ++ show p)  -- Function name
-                            (Just $ foldr Arr (Con "Nat") (replicate (fromIntegral p) (Con "Nat")))  -- Function type
-                            (map (\ i -> Arg ("x" ++ show i) (Con "Nat")) [1 .. p])  -- Function arguments
-                            (foldl (\ acc i -> Bin "+" acc (vx i)) (Nat 1) [1 .. p])  -- Fixed expression
-                        : genFunc (p-1)
+            genFunc p = foldr (\a b -> DefNesFun (nm 'f' a) 
+                                       (Just $ nary nat a)
+                                       (iter a (\i -> Arg (nm 'x' i) nat))
+                                       (foldl (\acc i -> Bin "+" acc (vx i)) (Nat 1) [1..a]) : b)
+                              []
+                              $ reverse [1..p]
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall 1 = FunCall "f1" [Nat 2]
-            genCall p = Bin "+"
-                            (FunCall ("f" ++ show p) (map Nat [2 .. p + 1]))
-                            (genCall (p - 1))
+            genCall p = foldr (\a b -> Bin "+" (FunCall (nm 'f' a) (iter a (Nat . (+ 1)))) b)
+                              (FunCall "f1" [Nat 2]) $ reverse [2..p]
 
-        in Module "NestedFunction" [ImportLib NatMod] $ iszero n
+        in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
     , \n -> let --4 A specified number of simple datatype declarations.
-        genData 0 = []
-        genData 1 = [DefDataType "X1" [("Y1", Con "X1")] Univ]
-        genData m = DefDataType ("X" ++ show m) [("Y" ++ show m, Con ("X" ++ show m))] Univ : genData (m-1)
+      genData m = foldl (\b a -> DefDataType (nm 'X' a) [(nm 'Y' a, Con (nm 'X' a))] Univ : b) [] [1..m]
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
-    , \n -> let --5 Variable declaration with an identifier of a specified length.
-        iszero 0 = []
-        iszero _ = [DefVar (genIdentifier n) (Just $ Con "Nat") $ Nat 0]
-        genIdentifier 1 = "x"
-        genIdentifier m = 'x' : genIdentifier (m-1)
-        in Module "LongIdentifier" [ImportLib NatMod]  $ iszero n
+    , \n ->     --5 Variable declaration with an identifier of a specified length.
+           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') nat $ Nat 0]
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
-        iszero :: Natural -> [Definition]
-        iszero 0 = []
-        iszero _ = [xDef, exampleInit]
         -- Generate field definitions dynamically
         genFields :: Natural -> [(String, Type)]
-        genFields 1 = [("f1", Con "Nat")]
-        genFields 2 = genFields 1 ++ [("f2", PCon "Vec" [Con "Nat", TVar "f1"])]
-        genFields p = genFields (minusNatural p 1) ++ [("f" ++ show p, PCon "Vec" [Con "Nat", genSize (minusNatural p 1)])]
+        genFields p = ("f1", nat) :
+                      (foldr (\a b -> (nm 'f' a, PCon "Vec" [nat, genSize (a-1)]) : b) [] $ [2..p])
 
         -- Helper function to correctly reference `suc` or `S`
-        genSize :: Natural -> Type
-        genSize 1 = TVar "f1"
-        genSize p = Suc (genSize (minusNatural p 1)) -- HACK
+        genSize p = foldr (\_ b -> Suc b) (TVar "f1") [2..p]
 
         -- Generate example initialization dynamically
         genExample :: Natural -> [(String, Expr)]
-        genExample k = map (\i -> ("f" ++ show i, buildVecCons i)) [1..k]
-
-        -- Function to correctly build `VecCons`
-        buildVecCons :: Natural -> Expr
-        buildVecCons k | k == 0 = error "needs length at least 1"
-        buildVecCons k          = VecE $ replicate (fromIntegral k) (Nat 1)
+        genExample k = map (\i -> (nm 'f' i, VecE $ replicate (fromIntegral i) (Nat 1))) [1..k]
 
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) Univ
@@ -114,194 +98,143 @@ _tests =
         -- Define the example initialization
         exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
 
-        in Module "Fields_DependentRecordModule" [ImportLib NatMod, ImportLib VecMod] $ iszero n
+        decl = [xDef, exampleInit]
+        in Module "Fields_DependentRecordModule" [ImportLib NatMod, ImportLib VecMod] $ trivial n decl
 
     , --7 Description: Generate a very long chain (N) of dependent record definitions
     \n -> let
-        iszero 0 = []
-        iszero _ = (genRecords n ++ [exampleInit])
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
-        genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] Univ]
-        genRecords level =
-            let prev = "Record" ++ show (minusNatural level 1) -- HACK
-                curr = "Record" ++ show level
-                constructor = "Const" ++ show level
-                field = "f" ++ show level
-            in genRecords (minusNatural level 1) ++ [DefRecType curr [] constructor [(field, Con prev)] Univ]
+        genRecords p = foldr (\(i,c) b -> DefRecType ("Record" ++ show i) [] ("Const" ++ show i) 
+          [(nm 'f' i, c)] Univ : b) [] $ ((1,Con "Nat") : map (\i -> (i, Con ("Record" ++ show (i-1)))) [2..p])
 
         -- Generate Example Init
         genExample :: Natural -> Expr
-        genExample 0 = Nat 10
-        genExample 1 = Paren $ FunCall "Const1" [Nat 10]
-        genExample level =
-            let prevExample = genExample (minusNatural level 1) -- HACK
-                constructor = "Const" ++ show level
-            in Paren $ FunCall constructor [prevExample]
+        genExample p = foldr (\a b -> Paren $ (FunCall ("Const" ++ show a) [b])) (Nat 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("example", genExample $ minusNatural n 1)] -- HACK
+        decl = (genRecords n ++ [exampleInit])
 
-        in Module "ChainDef_DependentRecordModule" [ImportLib NatMod] $ iszero n
+        in Module "ChainDef_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
 
     , -- 8 Description: Generate record with N parameters
     \n -> let
-        iszero 0 = []
-        iszero _ = [recDef, exampleInit]
+        decl = [recDef, exampleInit]
         -- Helper to build the sum exp 1 + 2 + ... + n
-        buildSum 1 = Nat 1
-        buildSum m = Bin "+" (buildSum (m-1)) (Nat m)
-        sumExpr = buildSum n
+        buildSum m = foldr (\a b -> Bin "+" b (Nat a)) (Nat 1) $ reverse [2..m]
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
-        params = map (\i -> Arg ("f" ++ show i) (Con "Nat")) [1..n]
+        params = iter n (\i -> Arg (nm 'f' i) nat)
 
         -- Define the record X with param, a constructor "Const",
         -- two fields "sums" and "values", and overall type Set.
-        recDef = DefRecType "X" params "Const"
-                 [("sums", Con "Nat")]
-                 (Con "Set")
+        recDef = DefRecType "X" params "Const" [("sums", Con "Nat")] (Con "Set")
 
         -- Build the record type application as a string: "X 1 2 ... n"
         -- recTypeInstance = "X " ++ unwords (map show [1..n])
-        recTypeInstance = DCon "X" [] $ map Nat [1..n]
+        recTypeInstance = DCon "X" [] $ iter n Nat
 
         -- Define the record instance "example" with computed field values:
-        exampleInit = DefRec "example" recTypeInstance "Const"
-                       [("sums", Paren sumExpr)]
-      in Module "Parameters_DependentRecordModule" [ImportLib NatMod] $ iszero n
-    , \n -> let -- 9
-    -- Generate a file with n newlines where n = user input
-    newlines = replicate (fromIntegral n) '\n'
-    in File "NewlineFile" newlines
+        exampleInit = DefRec "example" recTypeInstance "Const" [("sums", Paren $ buildSum n)]
+      in Module "Parameters_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
+    , \n -> -- 9
+        -- Generate a file with n newlines where n = user input
+        File "NewlineFile" $ replicate (fromIntegral n) '\n'
 
     , \n -> let -- 10 Description: A record declaration with N independent fields
-        iszero 0 = []
-        iszero _ = [xDef,exampleInit]
         -- Generate field definitions dynamically
-        genFields 1 = [("f1", Con "Nat")]
-        genFields p = genFields (p - 1) ++ [("f" ++ show p, Con "Nat")]
+        genFields p = foldr (\a b -> (nm 'f' a, nat) : b) [] [1..p]
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) Univ
         -- Generate example initialization dynamically
-        genExample 1 = [("f1", Nat 1)]
-        genExample p = genExample (p - 1) ++ [("f" ++ show p, Nat 1)]
+        genExample p = foldr (\a b -> (nm 'f' a, Nat 1) : b) [] [1..p]
         -- Define the example initialization
         exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
-    in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ iszero n
+    in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n [xDef,exampleInit]
 
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
-        iszero 0 = []
-        iszero _ = (genRecords n ++ [exampleInit])
-        -- Generate Record Definitions
-        genRecords 0 = []
-        genRecords 1 = [DefRecType "Record1" [] "Const1" [("f1", Con "Nat")] Univ]
-        genRecords p = genRecords (p - 1) ++ [DefRecType ("Record" ++ show p) [] ("Const" ++ show p) [("f" ++ show p, Con "Nat")] Univ]
-        --just "" to prevent inheretence of DefRecType
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Nat 1)]
-    in Module "ChainDefFields_NonDependentRecordModule" [ImportLib NatMod] $ iszero n
+        -- Generate Record Definitions
+        genRecords :: Natural -> [Definition]
+        genRecords p = foldl (\b a -> DefRecType ("Record" ++ show a) [] ("Const" ++ show a) [(nm 'f' a, nat)] Univ : b) 
+                             [exampleInit] $ reverse [1..p]
+    in Module "ChainDefFields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n (genRecords n)
 
     , \n -> --12 Description: create a simple datatype with N constructors accepting no parameters
-        let
-            iszero 0 = []
-            iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) Univ]
-        in Module "Constructors_Datatypes" [] $ iszero n
+        Module "Constructors_Datatypes" [] $ trivial n [DefDataType "D" (iter n (\ i -> (nm 'C' i, Con "D"))) Univ]
 
     , \n ->  --13 Description: creates a datatype with a single constructor accepting N parameters
         let
-            iszero 0 = []
-            iszero _ = [DefPDataType "D" (map (\i -> ("p" ++ show i, Univ)) [1 .. n]) [("C", PCon "D" (map (\i -> Con ("p" ++ show i) ) [1 .. n]))] Univ]
-        in Module "Parameters_Datatypes" [] $ iszero n
+            decl = [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ))) [("C", PCon "D" (iter n (Con . nm 'p')))] Univ]
+        in Module "Parameters_Datatypes" [] $ trivial n decl
 
     , --14 Description: defines N variables, and uses both the first and last one in a declaration, N>=2
      \n ->
     let
-        iszero 0 = []
-        iszero _ = (varDefs ++ [resultDef])
-        -- Generate variable names: x1, x2, ..., xn
-        varNames = map (\i -> "x" ++ show i) [1..n]
-
-        -- Generate definitions: x1 = 1, x2 = 2, ..., xn = n
-        varDefs = zipWith (\name val -> DefVar name (Just $ Con "Nat") (Nat val)) varNames [1..n]
-
         -- result = x1 + xn
-        finalExpr = Bin "+" (Var "x1") (vx n)
-        resultDef = DefVar "result" (Just $ Con "Nat") finalExpr
+        resultDef = DefTVar "result" nat $ Bin "+" (Var "x1") (vx n)
 
-    in Module "FirstLast_VariableModule" [ImportLib NatMod] $ iszero n
+        decl = foldl (\b a -> DefTVar (nm 'x' a) nat (Nat a) : b) [resultDef] $ reverse [1..n]
+    in Module "FirstLast_VariableModule" [ImportLib NatMod] $ trivial n decl
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
     \n -> let
-    iszero 0 = []
-    iszero _ = (genLevelDefs n ++ [resultDef])
     varsPerLevel = 10  -- Number of variables per level
 
     -- Generate variable names format x$level$ L $index$
     varName :: Natural -> Natural -> String
-    varName level idx = "x" ++ show level ++ "L" ++ show idx
+    varName level idx = nm 'x' level ++ nm 'L' idx
 
     -- Define expressions for each variable
     genExpr :: Natural -> Natural -> Expr
-    genExpr 1 idx = Nat idx
-    genExpr level idx = Bin "+" (Var $ varName (level - 1) idx) (Nat idx)
-
-    -- Generate DefVar for each level
-    genLevelDefs :: Natural -> [Definition]
-    genLevelDefs 1 = [DefVar (varName 1 idx) (Just $ Con "Nat") (genExpr 1 idx) | idx <- [1..varsPerLevel]]
-    genLevelDefs level = genLevelDefs (level - 1) ++
-        [DefVar (varName level idx) (Just $ Con "Nat") (genExpr level idx) | idx <- [1..varsPerLevel]]
+    genExpr idx level = if level == 0 then Nat idx else Bin "+" (Var $ varName level idx) (Nat idx)
 
     --  sum of all xN_1 .. xN_10 + 100
-    sumVars = foldl (\acc idx -> Bin "+" acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
+    resultDef = DefTVar "result" nat $ foldl (\acc idx -> Bin "+" acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
 
-    resultDef = DefVar "result" (Just $ Con "Nat") sumVars
+    -- Generate DefTVar for each level
+    genLevelDefs :: Natural -> [Definition]
+    genLevelDefs level = 
+        foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) nat (genExpr idx (a-1))) ++ b) [resultDef]
+        $ reverse [1..level]
 
-    in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ iszero n
+    in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
+
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
-        iszero 0 = []
-        iszero _ = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) (Con "Nat")) (Con ("D" ++ " " ++ unwords (genIndex 'x' n))))] (Arr (genType n) Univ)]
-        genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) (Con "Nat")
+        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (Con ("D " ++ unwords (genIndex 'x' n))))] 
+                            (Arr (nary nat (n-1)) Univ)]
+       in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
 
-       in Module "DataImplicitIndices" [ImportLib NatMod] $ iszero n
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
-        iszero 0 = []
-        iszero _ = [DefVar "A" (Just (Con "String")) $ String (genLongValue n)]
-        genLongValue 1 = "x"
-        genLongValue m = 'x' : genLongValue (m-1)
-        in Module "SingleLongLine" [ImportLib StringMod]  $ iszero n
+        decl = [DefTVar "A" (Con "String") $ String $ replicate (fromIntegral n) 'x']
+        in Module "SingleLongLine" [ImportLib StringMod]  $ trivial n decl
+
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         let
-            iszero 0 = []
-            iszero _ =  [DefPDataType "D" (map (\i -> ("p" ++ show i, Univ)) [1 .. n]) (map (\ i -> ("C" ++ show i,  PCon "D" (map (\j -> Con ("p" ++ show j) ) [1 .. n]))) [1 .. n]) Univ]
-        in Module "ConstructorsParameters_Datatypes" [] $ iszero n
+            decl =  [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ))) 
+                                 (iter n (\ i -> (nm 'C' i,  PCon "D" (iter n (\j -> Con (nm 'p' j) )))) ) Univ]
+        in Module "ConstructorsParameters_Datatypes" [] $ trivial n decl
+
     , \n -> let -- 19  Description: A single datatype where 'n' represents the number of indices, all needed for 'n' constructors
-        iszero 0 = []
-        iszero _ = [DefDataType "D"
-           (map (\ i -> ("C" ++ show i, Arr (Index (genIndex 'x' i) (Con "Nat")) (PCon "D" ((map (\j -> Con ("X" ++ show j)) [1 .. i]) ++ map (\_ -> Con "0") [i+1..n])))) [1 .. n]) (Arr (genType n) Univ)]
-        genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) (Con "Nat")
-
-        in Module "IndicesConstructors_Datatypes" [ImportLib NatMod] $ iszero n
+        decl = [DefDataType "D"
+           (iter n (\ i -> (nm 'C' i, Arr (Index (genIndex 'x' i) nat)
+                                          (PCon "D" $ iter n (\j -> if j <= i then Con (nm 'X' j) else Con "0"))
+                                      ))) (Arr (nary nat (n-1)) Univ)]
+        in Module "IndicesConstructors_Datatypes" [ImportLib NatMod] $ trivial n decl
     , \n -> let -- 20  Description: A single datatype where 'n' represents the number of 'Type' parameters as well as the number of indices
-        iszero 0 = []
-        iszero _ = [DefPDataType "D"
-          (map (\i -> ("p" ++ show i, Univ)) [1 .. n])
-          [("C", Arr (Index (genIndex 'X' n) (Con "Nat")) (PCon "D" ((map (\i -> Con ("p" ++ show i))  [1 .. n]) ++ map (\j -> Con ("X" ++ show j)) [1 .. n])))]
-          (Arr (genType n) Univ)]
-        genType 1 = Con "Nat"
-        genType m = Arr (genType (m-1)) (Con "Nat")
-
-        in Module "IndicesParameters_Datatypes" [ImportLib NatMod] $ iszero n
+        decl = [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ)))
+          [("C", Arr (Index (genIndex 'X' n) nat) (PCon "D" ((iter n (Con . nm 'p')) ++ iter n (Con . nm 'X'))))]
+          (Arr (nary nat (n-1)) Univ)]
+        in Module "IndicesParameters_Datatypes" [ImportLib NatMod] $ trivial n decl
     ,  \n -> --21 Description: A function pattern matching on 'n' constructors of a datatype
         let
-        iszero 0 = []
-        iszero _ = [DefDataType "D" (map (\ i -> ("C" ++ show i, Con "D")) [1 .. n]) Univ, --create datatype
+        decl = [DefDataType "D" (iter n (\ i -> (nm 'C' i, Con "D"))) Univ, --create datatype
           OpenName "D",
-          DefPatt "F" [("C", Con "D")] (Con "Nat") "C" (map (\i -> ([Arg ("C" ++ show i) (Con "D")], Nat i)) [1..n]),
-          DefVar "N" (Just $ Con "Nat") (genCall n)]
-        genCall 1 = FunCall "F" [Constructor "C1"]
-        genCall p = Bin "+" (FunCall "F" [Constructor ("C" ++ show p)]) (genCall (p-1))
+          DefPatt "F" [("C", Con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (Con "D")], Nat i))),
+          DefTVar "N" nat (genCall n)]
+        genCall p = foldr (\a b -> Bin "+" (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
+          (reverse [2..p])
     in
-       Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ iszero n
+       Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl
      ]
 
 
