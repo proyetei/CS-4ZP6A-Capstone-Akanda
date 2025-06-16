@@ -60,7 +60,7 @@ printExpr (ListE l) = "[" ++ intercalate ", " (map printExpr l) ++ "]"
 printDef :: Definition -> String
 printDef (DefUVar var expr) = var ++ " := " ++ printExpr expr
 printDef (DefTVar var t expr) = 
-  "Definition " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ ". \n"--LEAVING OUT: Compute " ++ var ++ "."
+  "Definition " ++ var ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ ". \n"
 printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ " := " ++ printExpr expr
 printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ " : " ++ printType t ++ " := " ++ printExpr expr ++ "."
 printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ " := " ++ printExpr expr
