@@ -117,9 +117,9 @@ printModule (Module name imports defs) =
         -- Concatenate all definitions
         body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
 
-    in headers ++ "\n" ++ body
+    in line headers ++ body
 
-printModule (File name str) = "module " ++ name ++ " where \n" ++ str
+printModule (File name str) = line ("module " ++ name ++ " where") ++ str
 
 runAgda :: Module -> IO()
 runAgda m = do
