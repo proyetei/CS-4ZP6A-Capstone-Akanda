@@ -1,4 +1,4 @@
-module Fields_DependentRecordModule where 
+module Fields_DependentRecordModule where
 open import Agda.Builtin.Nat
 open import Data.Vec.Base
 

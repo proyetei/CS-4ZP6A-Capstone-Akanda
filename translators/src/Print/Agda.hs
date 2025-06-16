@@ -94,16 +94,16 @@ printDef (DefPDataType name params cons ty) =
 printDef (DefRecType name params consName fields _) =
     rec ++ name ++ paramsStr ++ typedel ++ 
     printType Univ ++ (line " where") ++ 
-    "    constructor " ++ consName ++ "\n    field\n" ++
-    concatMap (\(fname, ftype) -> "        " ++ fname ++ " : " ++ printType ftype ++ "\n") fields
+    "    constructor " ++ line (consName ++ "\n    field") ++
+    concatMap (\(fname, ftype) -> line $ "        " ++ fname ++ typedel ++ printType ftype) fields
     where
         paramsStr = case params of
             [] -> ""
-            _ -> " " ++ unwords (map (\ (Arg n t) -> parens (n ++ " : " ++ printType t)) params)
+            _ -> " " ++ unwords (map (\ (Arg n t) -> parens (n ++ typedel ++ printType t)) params)
 
 printDef (DefRec name recType consName fields) =
-    "\n" ++ name ++ " : " ++ printType recType ++ "\n" ++
-    name ++ " = " ++ consName ++ concatMap (\(_, value) -> " " ++ printExpr value) fields
+    "\n" ++ name ++ typedel ++ line (printType recType) ++
+    name ++ equals ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
 
 printDef (OpenName _) = ""
 printDef (DefModule m) = printModule m
@@ -113,7 +113,7 @@ printDef (DefModule m) = printModule m
 printModule :: Module -> String
 printModule (Module name imports defs) =
     let
-        headers = "module " ++ name ++ " where \n" ++ unlines (map printImport imports)
+        headers = "module " ++ name ++ " where\n" ++ unlines (map printImport imports)
         -- Concatenate all definitions
         body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
 

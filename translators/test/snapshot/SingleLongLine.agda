@@ -1,4 +1,4 @@
-module SingleLongLine where 
+module SingleLongLine where
 open import Agda.Builtin.String
 
 A : String

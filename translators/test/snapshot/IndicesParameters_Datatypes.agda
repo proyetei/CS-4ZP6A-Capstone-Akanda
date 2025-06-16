@@ -1,4 +1,4 @@
-module IndicesParameters_Datatypes where 
+module IndicesParameters_Datatypes where
 open import Agda.Builtin.Nat
 
 data D (p1 : Set) (p2 : Set) (p3 : Set) (p4 : Set) (p5 : Set) : Nat -> Nat -> Nat -> Nat -> Nat -> Set where

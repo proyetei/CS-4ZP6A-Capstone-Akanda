@@ -1,4 +1,4 @@
-module NestedFunction where 
+module NestedFunction where
 open import Agda.Builtin.Nat
 
 n : Nat

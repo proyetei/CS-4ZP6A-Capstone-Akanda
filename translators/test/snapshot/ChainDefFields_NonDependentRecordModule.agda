@@ -1,4 +1,4 @@
-module ChainDefFields_NonDependentRecordModule where 
+module ChainDefFields_NonDependentRecordModule where
 open import Agda.Builtin.Nat
 
 record Record1 : Set where

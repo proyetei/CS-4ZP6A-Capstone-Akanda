@@ -1,4 +1,4 @@
-module LetExample where 
+module LetExample where
 open import Agda.Builtin.Nat
 
 n : Nat

@@ -1,4 +1,4 @@
-module Fields_NonDependentRecordModule where 
+module Fields_NonDependentRecordModule where
 open import Agda.Builtin.Nat
 
 record Cap_X : Set where

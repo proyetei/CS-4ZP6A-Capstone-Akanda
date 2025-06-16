@@ -1,4 +1,4 @@
-module Constructors_Datatypes where 
+module Constructors_Datatypes where
 
 data D : Set where
  C1 : D 
