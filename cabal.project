@@ -1,1 +1,3 @@
-packages: translators/translators.cabal
+packages:
+    translators/translators.cabal
+    site/babelfish-site.cabal

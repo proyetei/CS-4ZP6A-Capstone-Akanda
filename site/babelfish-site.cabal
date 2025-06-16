@@ -1,0 +1,21 @@
+cabal-version:      3.0
+name:               babelfish-site
+version:            0.1.0.0
+synopsis:           A static site generator for babelfish benchmarking results.
+license:            MIT
+author:             Reed Mullanix
+maintainer:         mullanir@mcmaster.ca
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+
+common warnings
+    ghc-options: -Wall
+
+executable site
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.17.2.1,
+        shake >= 0.19
+    hs-source-dirs:   app
+    default-language: Haskell2010

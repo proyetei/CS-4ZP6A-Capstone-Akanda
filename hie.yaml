@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "site/app/Main.hs"
+      component: "babelfish-site:exe:site"
+
+    - path: "translators/src"
+      component: "lib:translators"
+
+    - path: "translators/app/Main.hs"
+      component: "translators:exe:translators"
+
+    - path: "translators/test/golden"
+      component: "translators:test:translators-golden"
