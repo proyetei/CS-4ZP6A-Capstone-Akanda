@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wno-overlapping-patterns #-}
 module Print.Agda
   ( printModule
   , runAgda
