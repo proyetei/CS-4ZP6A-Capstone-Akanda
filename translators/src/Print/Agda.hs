@@ -45,9 +45,8 @@ printExpr (Nat n) = show n
 printExpr (String str) = quote str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
-printExpr (Let [] expr) = printExpr expr -- this should never happen
-printExpr (Let (d:[]) expr) = "let\n    " ++ printDef d ++ " in\n    " ++ printExpr expr
-printExpr (Let (d:ds) expr) = "let\n    " ++ printDef d ++ concatMap (\x -> "\n    " ++ printDef x) ds ++ "\n    in " ++ printExpr expr -- Changed foldr to concatMap to preserve order
+printExpr (Let ds expr) = 
+  "let\n    " ++ (intercalate "\n    " (map printDef ds)) ++ " in\n    " ++ printExpr expr
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = (++) (printExpr expr) $ (++) "\n    where " $ concatMap (\x -> "\n    " ++ printDef x) ds
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
