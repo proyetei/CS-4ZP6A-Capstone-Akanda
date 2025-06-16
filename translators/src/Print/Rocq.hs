@@ -99,17 +99,15 @@ printDef (DefPDataType name params args ty) = let
 
 --Function for Records
 printDef (DefRecType name params consName fields _) =
-    "Record " ++ name ++ paramsStr ++ " : Type := " ++ consName ++ " {\n" ++
-    concatMap (\(fname, ftype) -> "  " ++ fname ++ " : " ++ printType ftype ++ ";\n") fields ++
-    "}.\n"
+    "Record " ++ name ++ paramsStr ++ typedel ++ printType Univ ++ assign ++ consName ++ " " ++
+    line (brackets ("\n" ++ concatMap (\(fname, ftype) -> line $ "  " ++ fname ++ typedel ++ printType ftype ++ ";") fields) ++ ".")
     where
         paramsStr = case params of
             [] -> ""
             _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ " : " ++ printType t) params)
 
-
 printDef (DefRec name recType consName fields) =
-  "Definition " ++ name ++ " : " ++ printType recType ++ " :=\n  " ++ constructorCall ++ ".\n"
+  line ("Definition " ++ name ++ typedel ++ printType recType ++ assign) ++ "  " ++ line (constructorCall ++ ".")
   where
     -- Split the record type into words.
     -- The first word is the record name; any remaining words are the concrete parameter values.
