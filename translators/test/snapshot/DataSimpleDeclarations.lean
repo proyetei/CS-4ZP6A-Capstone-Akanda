@@ -1,6 +1,5 @@
 
 
-
 inductive X5 : Type where 
 | Y5 : X5
 inductive X4 : Type where 

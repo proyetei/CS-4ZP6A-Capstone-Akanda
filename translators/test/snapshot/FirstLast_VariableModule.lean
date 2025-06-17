@@ -1,6 +1,5 @@
 
 
-
 def x1 : Nat := 1
 def x2 : Nat := 2
 def x3 : Nat := 3
