@@ -38,9 +38,6 @@ sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = Nat 1
            | otherwise = Bin Plus (vx n) (vx n)
 
-k'ary :: Type -> Natural -> Type
-k'ary t n = foldr Arr t (replicate (fromIntegral n) t)
-
 nary :: Type -> Natural -> Type
 nary t n = foldr Arr t (replicate (fromIntegral n) t)
 
