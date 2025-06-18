@@ -100,6 +100,9 @@ printDef recs (DefRec name recType consName fields) =
     openLine = if null recNamesList then "" else "open " ++ unwords recNamesList ++ "\n"
 printDef _ (OpenName n) = "open " ++ n
 printDef _ (DefModule m) = printModule m
+printDef _ (Separator c n b) =
+  let s = replicate (fromIntegral n) c in
+  if b then '\n' : line s else s
 
 
 printModule :: Module -> String
@@ -109,8 +112,6 @@ printModule (Module _ imports defs) =
         recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
         body = intercalate "\n" (map (printDef recs) defs)
     in headers ++ "\n" ++ body
-
-printModule (File _ str) = str
 
 runLean :: Module -> IO()
 runLean m = writeFile ("out/" ++ modname m ++ ".lean") $ printModule m

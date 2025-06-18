@@ -10,9 +10,7 @@ import Numeric.Natural (Natural)
 data Module
   = Module { mname :: Name
            , mimports :: [Import]
-           , mdefs :: [Definition] } -- is there anything like 'module Main where' FEL?
-  | File { mname :: Name
-         , con :: String } -- this option is for modules with text instead of definitions -- should not generate invalid programs
+           , mdefs :: [Definition] }
 
 modname :: Module -> Name
 modname m = mname m
@@ -43,6 +41,9 @@ data Definition
     -- ^ Just for Lean, to refer to user-defined datatypes directly
   | DefModule Module
     -- ^ For nested modules
+  | Separator Char Natural Bool
+    -- ^ To allow a "separator line" in the produced code, of that character repeated n times. 
+    -- It is on a line of its own if True, spit out as-is and in-place if false
 
 data Type = Con Name              -- type constructor
         | PCon Name [Type]        -- parameterized type constructor

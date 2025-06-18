@@ -106,6 +106,9 @@ printDef (DefRec name recType consName fields) =
 
 printDef (OpenName _) = ""
 printDef (DefModule m) = printModule m
+printDef (Separator c n b) =
+  let s = replicate (fromIntegral n) c in
+  if b then '\n' : line s else s
 
 
 -- Print the Agda module
@@ -117,8 +120,6 @@ printModule (Module name imports defs) =
         body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
 
     in line headers ++ body
-
-printModule (File name str) = line ("module " ++ name ++ " where") ++ str
 
 runAgda :: Module -> IO()
 runAgda m = do

@@ -139,7 +139,7 @@ _tests =
       in Module "Parameters_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
     , \n -> -- 9
         -- Generate a file with n newlines where n = user input
-        File "NewlineFile" $ replicate (fromIntegral n) '\n'
+        Module "NewlineFile" [] $ [Separator '\n' n False]
 
     , \n -> let -- 10 Description: A record declaration with N independent fields
         -- Generate field definitions dynamically

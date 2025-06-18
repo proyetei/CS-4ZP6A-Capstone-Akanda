@@ -127,6 +127,10 @@ printDef (DefRec name recType consName fields) =
                       else consName ++ " " ++ paramsStr ++ fieldsStr
 printDef (OpenName _) = ""
 printDef (DefModule m) = printModule m
+printDef (Separator c n b) =
+  let s = replicate (fromIntegral n) c in
+  if b then '\n' : line s else s
+
 
 printModule :: Module -> String
 printModule (Module name imports defs) =
@@ -135,12 +139,5 @@ printModule (Module name imports defs) =
         body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
     in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
 
-printModule (File name str) = "Module " ++ name ++ ".\n\n" ++ str ++ "\nEnd " ++ name ++ "."
-
 runRocq :: Module -> IO()
-runRocq m = do
-    writeFile ("out/" ++ name ++ ".v") $ printModule m
-        where
-            name = case m of
-                Module n _ _ -> n
-                File n _ -> n
+runRocq m = writeFile ("out/" ++ modname m ++ ".v") $ printModule m
