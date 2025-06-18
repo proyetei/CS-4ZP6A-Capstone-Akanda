@@ -1,4 +1,4 @@
-module LongIdentifier where 
+module LongIdentifier where
 open import Agda.Builtin.Nat
 
 xxxxx : Nat

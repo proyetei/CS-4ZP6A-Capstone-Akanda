@@ -1,4 +1,4 @@
-module FirstLast_VariableModule where 
+module FirstLast_VariableModule where
 open import Agda.Builtin.Nat
 
 x1 : Nat

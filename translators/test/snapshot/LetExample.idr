@@ -1,7 +1,6 @@
 module Main
 
 
-
 n : Nat
 n = let 
     x1 = 1 in 

@@ -1,4 +1,4 @@
-module DataSimpleDeclarations where 
+module DataSimpleDeclarations where
 open import Agda.Builtin.Nat
 
 data X5 : Set where

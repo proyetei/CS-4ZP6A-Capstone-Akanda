@@ -14,7 +14,7 @@ Record Cap_X : Type := Const {
   f5 : t nat (S (S (S f1)));
 }.
 
-Definition example : Cap_X :=
+Definition example : Cap_X := 
   Const [1] [1; 1] [1; 1; 1] [1; 1; 1; 1] [1; 1; 1; 1; 1].
 
 End Fields_DependentRecordModule.

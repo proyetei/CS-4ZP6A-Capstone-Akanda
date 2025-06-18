@@ -1,4 +1,4 @@
-module Pattern_Matching_Datatypes where 
+module Pattern_Matching_Datatypes where
 open import Agda.Builtin.Nat
 
 data D : Set where

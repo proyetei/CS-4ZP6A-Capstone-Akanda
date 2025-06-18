@@ -1,4 +1,4 @@
-module NewlineFile where 
+module NewlineFile where
 
 
 

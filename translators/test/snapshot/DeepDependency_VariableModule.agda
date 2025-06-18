@@ -1,4 +1,4 @@
-module DeepDependency_VariableModule where 
+module DeepDependency_VariableModule where
 open import Agda.Builtin.Nat
 
 x1L1 : Nat

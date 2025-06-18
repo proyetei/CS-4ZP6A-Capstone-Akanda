@@ -1,6 +1,5 @@
 
 
-
 structure Record1 where
     Const1 ::
     f1 : Nat
