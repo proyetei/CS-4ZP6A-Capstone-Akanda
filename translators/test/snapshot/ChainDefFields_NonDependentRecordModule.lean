@@ -21,4 +21,4 @@ structure Record5 where
     f5 : Nat
 
 open Record1 Record2 Record3 Record4 Record5
-example : Record5 := Const51
+example : Record5 := Const5 1

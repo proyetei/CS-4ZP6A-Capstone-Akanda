@@ -9,4 +9,4 @@ structure Cap_X where
     f5 : Nat
 
 open Cap_X
-example : Cap_X := Const1 1 1 1 1
+example : Cap_X := Const 1 1 1 1 1

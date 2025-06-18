@@ -94,7 +94,7 @@ printDef _ (DefRecType name params consName fields _) =
 -- Exclusive lean syntax needed for simplicity
 printDef recs (DefRec name recType consName fields) =
     openLine ++
-    name ++ typedel ++ printType recType ++ assign ++ consName ++ intercalate " " (map (printExpr . snd) fields)
+    name ++ typedel ++ printType recType ++ assign ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
   where
     recNamesList = [ rName | DefRecType rName _ _ _ _ <- recs ]
     openLine = if null recNamesList then "" else "open " ++ unwords recNamesList ++ "\n"

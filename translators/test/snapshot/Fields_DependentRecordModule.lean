@@ -10,4 +10,4 @@ structure Cap_X where
     f5 : Vector Nat (Nat.succ (Nat.succ (Nat.succ f1)))
 
 open Cap_X
-example : Cap_X := Const#[1] #[1, 1] #[1, 1, 1] #[1, 1, 1, 1] #[1, 1, 1, 1, 1]
+example : Cap_X := Const #[1] #[1, 1] #[1, 1, 1] #[1, 1, 1, 1] #[1, 1, 1, 1, 1]
