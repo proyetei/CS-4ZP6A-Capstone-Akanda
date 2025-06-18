@@ -94,7 +94,6 @@ printDef (Separator c n b) =
   let s = replicate (fromIntegral n) c in
   if b then '\n' : line s else s
 
-
 printModule :: Module -> String
 printModule (Module _ imports defs) =
     let

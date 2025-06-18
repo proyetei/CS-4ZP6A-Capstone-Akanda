@@ -117,7 +117,7 @@ printModule (Module name imports defs) =
     let
         headers = "module " ++ name ++ " where\n" ++ unlines (map printImport imports)
         -- Concatenate all definitions
-        body = concatMap printDef defs  -- Changed foldr to concatMap to preserve order
+        body = concatMap printDef defs
 
     in line headers ++ body
 
