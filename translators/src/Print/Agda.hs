@@ -69,15 +69,20 @@ printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let ds expr) = 
   "let" <+> align (vcat (map printDef ds) <+> "in") <> line <>
   printExpr expr
-  -- "let\n    " ++ (intercalate "\n    " (map (show . printDef) ds)) ++ " in\n    " ++ printExpr expr
 printExpr (If cond thn els) =
   "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
 printExpr (Where expr ds) =
   printExpr expr <> line <>
   indent 4 ("where" <> vcat (map printDef ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (VecE l) = align $ encloseSep (lparen <> lbracket) (rbracket <> rparen) lcons (map printExpr l)
-printExpr (ListE l) = encloseSep (lparen <> lbracket) (rbracket <> rparen) lcons (map (group . printExpr) l)
+printExpr (VecE l) = encloseSep emptyDoc emptyDoc (space <+> lcons <+> lparen <> rparen)
+  (map printExpr l)
+printExpr (listE l) = encloseSep emptyDoc emptyDoc (space <+> lcons <+> lparen <> rparen)
+  (map printExpr l)
+-- printExpr (VecE []) = 
+-- printExpr (VecE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ " ∷ []"
+-- printExpr (ListE []) = "[]"
+-- printExpr (ListE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ " ∷ []"
 printExpr (Suc t) = parens $ "suc" <+> printExpr t
 
 printOp :: Op -> Doc ann

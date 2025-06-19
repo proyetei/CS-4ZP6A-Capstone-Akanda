@@ -2,6 +2,8 @@
 module Main where
 
 import Data.IntMap as IntMap
+import Data.Text.IO.Utf8 as Utf8
+import Data.Text as T
 
 import System.Directory
 import System.FilePath
@@ -45,6 +47,9 @@ stagingPath
 stagingPath fname = "test" </> "staging" </> fname
 
 -- | Create a golden test printing for a language.
+--   The resulting snapshot files will always be encoded
+--   using UTF-8. Moreover, no newline conversion will
+--   be performed, and the users locale will be ignored.
 printTestForLang
   :: String
   -- ^ The name of the language.
@@ -61,7 +66,9 @@ printTestForLang langName printer fileExt base syn =
   goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", ref, new]) snapshotFile stagingFile do
     createDirectoryIfMissing False ("test" </> "staging")
     createFile stagingFile
-    writeBinaryFile stagingFile (printer syn)
+    -- Data.Ext.IO.Utf8 always writes UTF-8, ignores the locale,
+    -- and does not do line ending conversion.
+    Utf8.writeFile stagingFile $ T.pack $ printer syn
   where
     stagingFile = stagingPath (base <.> fileExt)
     snapshotFile = snapshotPath (base <.> fileExt)
