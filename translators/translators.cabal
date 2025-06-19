@@ -57,6 +57,7 @@ test-suite translators-golden
         filepath >= 1.5,
         tasty >= 1.5,
         tasty-golden >= 2.3,
+        text >=2.1
     if os(windows)
         build-depends: Win32 >= 2.12
     else
