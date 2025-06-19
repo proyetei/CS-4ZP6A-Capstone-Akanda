@@ -28,7 +28,7 @@ instance Keywords (Doc ann) where
   univ    = "Set"
   data_   = "data"
   arr     = "->"
-  lcons   = " \x8759 " 
+  lcons   = "\x2237" 
 
 class TypeAnnot rep where
   typeannot :: rep -> rep -> rep
@@ -75,14 +75,10 @@ printExpr (Where expr ds) =
   printExpr expr <> line <>
   indent 4 ("where" <> vcat (map printDef ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (VecE l) = encloseSep emptyDoc emptyDoc (space <+> lcons <+> lparen <> rparen)
-  (map printExpr l)
-printExpr (listE l) = encloseSep emptyDoc emptyDoc (space <+> lcons <+> lparen <> rparen)
-  (map printExpr l)
--- printExpr (VecE []) = 
--- printExpr (VecE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ " ∷ []"
--- printExpr (ListE []) = "[]"
--- printExpr (ListE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ " ∷ []"
+printExpr (VecE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printExpr l)
+printExpr (ListE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printExpr l)
 printExpr (Suc t) = parens $ "suc" <+> printExpr t
 
 printOp :: Op -> Doc ann
