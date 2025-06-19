@@ -53,9 +53,9 @@ printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr t
 printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    "  (map printDef ds)
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
 printExpr (VecE []) = "[]"
-printExpr (VecE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ "∷ []"
+printExpr (VecE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ " ∷ []"
 printExpr (ListE []) = "[]"
-printExpr (ListE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ "∷ []"
+printExpr (ListE l@(_:_)) = parens $ intercalate " ∷ " (map printExpr l) ++ " ∷ []"
 printExpr (Suc t) = parens $ "suc " ++ printExpr t
 
 printOp :: Op -> String

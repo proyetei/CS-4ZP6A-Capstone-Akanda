@@ -3,8 +3,9 @@ module Main where
 
 import Data.IntMap as IntMap
 
-import System.Directory
-import System.FilePath
+import System.Directory (createDirectoryIfMissing)
+import System.FilePath ((</>),(<.>))
+import System.IO (hPutStr, hClose, openFile, IOMode(..))
 
 import Test.Tasty.Golden
 import Test.Tasty
@@ -14,7 +15,7 @@ import Print.Idris qualified as Idris
 import Print.Lean qualified as Lean
 import Print.Rocq qualified as Rocq
 
-import Golden.Util.File
+import Golden.Util.File (createFile)
 
 import Grammar
 import Tests
@@ -58,7 +59,10 @@ printTestForLang langName printer fileExt base syn =
   goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", ref, new]) snapshotFile stagingFile do
     createDirectoryIfMissing False ("test" </> "staging")
     createFile stagingFile
-    writeBinaryFile stagingFile (printer syn)
+    do
+      h <- openFile stagingFile WriteMode
+      hPutStr h (printer syn) -- writeBinaryFile stagingFile (printer syn)
+      hClose h
   where
     stagingFile = stagingPath (base <.> fileExt)
     snapshotFile = snapshotPath (base <.> fileExt)
