@@ -28,7 +28,7 @@ instance Keywords (Doc ann) where
   univ    = "Set"
   data_   = "data"
   arr     = "->"
-  lcons   = " ∷ " 
+  lcons   = " \x8759 " 
 
 class TypeAnnot rep where
   typeannot :: rep -> rep -> rep
