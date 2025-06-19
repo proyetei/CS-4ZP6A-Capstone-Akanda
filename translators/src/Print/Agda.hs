@@ -5,116 +5,138 @@ module Print.Agda
   , runAgda
   ) where
 
-import Prettyprinter (Doc, (<+>), vsep, vcat, pretty)
-import qualified Prettyprinter as PP
-import Data.List (intercalate)
+import Prettyprinter
 
 import Grammar
-import Print.Generic hiding (line)
-import qualified Print.Generic as PG
 
 newtype Agda ann = Agda {get :: Doc ann}
 
--- keywords
-import_, univ, arr, typedel, assign, data_, rec :: String
-import_ = "open import " -- separate?
-univ = "Set"
-arr = " -> "
-typedel = " : "
-assign = " = "
-data_ = "data "
-rec = "record "
+-- to be migrated
+class Keywords rep where
+  import_ :: rep
+  assign  :: rep
+  rec     :: rep
+  univ    :: rep
+  data_   :: rep
+  arr     :: rep
+  lcons   :: rep
 
-printImport :: Import -> String
-printImport (ImportLib NatMod) = import_ ++ "Agda.Builtin.Nat"
-printImport (ImportLib VecMod) = import_ ++ "Data.Vec.Base"
-printImport (ImportLib ListMod) = import_ ++ "Agda.Builtin.List"
-printImport (ImportLib StringMod) = import_ ++ "Agda.Builtin.String"
+instance Keywords (Doc ann) where
+  import_ = "open" <+> "import"
+  assign  = "="
+  rec     = "record"
+  univ    = "Set"
+  data_   = "data"
+  arr     = "->"
+  lcons   = " ∷ " 
+
+class TypeAnnot rep where
+  typeannot :: rep -> rep -> rep
+  ptypeannot :: rep -> rep -> rep
+
+instance TypeAnnot (Doc ann) where
+  typeannot trm typ = trm <+> ":" <+> typ
+  ptypeannot trm typ = parens $ trm <+> ":" <+> typ
+
+printImport :: Import -> Doc ann
+printImport (ImportLib NatMod) = import_ <+> "Agda.Builtin.Nat"
+printImport (ImportLib VecMod) = import_ <+> "Data.Vec.Base"
+printImport (ImportLib ListMod) = import_ <+> "Agda.Builtin.List"
+printImport (ImportLib StringMod) = import_ <+> "Agda.Builtin.String"
 
 -- Print types
-printType :: Type -> String
+printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = t
-printType (Arr t1 t2) = printType t1 ++ arr ++ printType t2
-printType (TVar t) = t
-printType (PCon name types) = name ++ " " ++ unwords (map printType types)
--- Ensure `suc` is printed with parentheses
-printType (DCon name [] exprs) = -- For dependent type constructors (like suc)
-    name ++ " " ++ unwords (map printExpr exprs)
-printType (DCon name types exprs) = -- For dependent type constructors (like suc)
-    name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Index names ty) = brackets $ unwords names ++ typedel ++ printType ty
+printType (Con t) = pretty t
+printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
+printType (TVar t) = pretty t
+printType (PCon name types) = pretty name <+> hsep (map printType types)
+printType (DCon name [] exprs) = -- For dependent type constructors
+    pretty name <+> hsep (map printExpr exprs)
+printType (DCon name types exprs) = -- For dependent type constructors
+    pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (Index names ty) = braces $ typeannot (hsep $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
 
 -- Print expressions
-printExpr :: Expr -> String
-printExpr (Constructor name) = name
-printExpr (Var var) = var
-printExpr (Nat n) = show n
-printExpr (String str) = quote str
+printExpr :: Expr -> Doc ann
+printExpr (Constructor name) = pretty name
+printExpr (Var var) = pretty var
+printExpr (Nat n) = pretty n
+printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
+printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let ds expr) = 
-  "let\n    " ++ (intercalate "\n    " (map printDef ds)) ++ " in\n    " ++ printExpr expr
-printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    "  (map printDef ds)
-printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args) -- Added case for FunCall
-printExpr (VecE l) = parens $ sqbrackets $ intercalate " ∷ " (map printExpr l)
-printExpr (ListE l) = parens $ sqbrackets $ intercalate " ∷ " (map printExpr l)
-printExpr (Suc t) = parens $ "suc " ++ printExpr t
+  "let" <+> align (vcat (map printDef ds) <+> "in") <> line <>
+  printExpr expr
+  -- "let\n    " ++ (intercalate "\n    " (map (show . printDef) ds)) ++ " in\n    " ++ printExpr expr
+printExpr (If cond thn els) =
+  "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
+printExpr (Where expr ds) =
+  printExpr expr <> line <>
+  indent 4 ("where" <> vcat (map printDef ds))
+printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
+printExpr (VecE l) = align $ encloseSep (lparen <> lbracket) (rbracket <> rparen) lcons (map printExpr l)
+printExpr (ListE l) = encloseSep (lparen <> lbracket) (rbracket <> rparen) lcons (map (group . printExpr) l)
+printExpr (Suc t) = parens $ "suc" <+> printExpr t
 
-printOp :: Op -> String
-printOp Plus = " + "
+printOp :: Op -> Doc ann
+printOp Plus = "+"
 
 -- Function to print variable definitions
-printDef :: Definition -> String
+printDef :: Definition -> Doc ann
 printDef (DefTVar var t expr) = 
-  PG.line (var ++ typedel ++ printType t) ++ PG.line ( var ++ assign ++ printExpr expr)
-printDef (DefUVar var expr) = PG.line $ var ++ assign ++ printExpr expr
+  typeannot (pretty var) (printType t) <> line <>
+  pretty var <+> assign <+> align (printExpr expr) <> line
+printDef (DefUVar var expr) = pretty var <+> assign <+> align (printExpr expr) <> softline
 
 -- Function to print function definitions
-printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ assign ++ printExpr expr
+printDef (DefFun var ty args expr) = 
+   typeSig <> pretty var <+> argsStr <+> assign <+> align (printExpr expr)
     where
         typeSig = case ty of
-            Just t -> PG.line $ var ++ typedel ++ printType t
-            Nothing -> ""
-        argsStr = unwords $ map arg args  -- Correctly handle argument names
+            Just t -> typeannot (pretty var) (printType t) <> line
+            Nothing -> mempty
+        argsStr = hsep $ map (pretty . arg) args
 
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
---Name [(Name,Type)] Type [([Arg], Expr)]
 printDef (DefPatt var params ty _ cons) =
-    var ++ typedel ++ (printType (foldr Arr ty (map snd params))) ++ 
-    (PG.line $ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e) cons))
+    typeannot (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
+    vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
-  data_ ++ name ++ typedel ++ printType ty ++ " where" ++
-  (PG.line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
+  data_ <+> typeannot (pretty name) (printType ty) <+> "where" <> line <>
+  indent 1 (vsep (map (\(n, t) -> typeannot (pretty n) (printType t)) cons)) <>
+   line
 printDef (DefPDataType name params cons ty) =
-  data_ ++ name ++ " " ++
-  unwords (map (\(x, y) -> parens $ x ++ typedel ++ printType y) params) ++ typedel ++
-  printType ty ++
-  " where" ++ (PG.line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
+  data_ <+> 
+    typeannot (pretty name <+> hsep (map (\(x, y) -> ptypeannot (pretty x) (printType y)) params))
+              (printType ty) <+> 
+    "where" <> line <>
+    indent 1 (vsep (map (\(n,t) -> typeannot (pretty n) (printType t)) cons)) <>
+    line
 
 -- Function for records
 printDef (DefRecType name params consName fields _) =
-    rec ++ name ++ paramsStr ++ typedel ++ 
-    printType Univ ++ (PG.line " where") ++ 
-    "    constructor " ++ PG.line (consName ++ "\n    field") ++
-    concatMap (\(fname, ftype) -> PG.line $ "        " ++ fname ++ typedel ++ printType ftype) fields
+    rec <+> typeannot pp_params univ <+> "where" <> line <>
+    indent 4 (vsep $ "constructor" <+> pretty consName : "field" : 
+       (indent 4 $ vsep $ map (\(fname, ftype) -> typeannot (pretty fname) (printType ftype)) fields)
+       : []) <>
+    line
     where
-        paramsStr = case params of
-            [] -> ""
-            _ -> " " ++ unwords (map (\ (Arg n t) -> parens (n ++ typedel ++ printType t)) params)
+      ll = map (\(Arg n t) -> ptypeannot (pretty n) (printType t)) params
+      pp_params = if null params then pretty name else pretty name <+> hsep ll
 
 printDef (DefRec name recType consName fields) =
-    "\n" ++ name ++ typedel ++ PG.line (printType recType) ++
-    name ++ assign ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
+    typeannot (pretty name) (printType recType) <> line <> 
+    pretty name <+> assign <+> pretty consName <+> nest 4 (sep (map (printExpr . snd) fields))
 
-printDef (OpenName _) = ""
-printDef (Separator c n b) =
-  let s = replicate (fromIntegral n) c in
-  if b then '\n' : PG.line s else s
+printDef (OpenName _) = mempty
+printDef (Separator '\n' n _) = vcat $ replicate (fromIntegral n) emptyDoc
+printDef (Separator c n b) = 
+  let s = hcat $ replicate (fromIntegral n) (pretty c) in
+  if b then line <> s <> line else s
 
 
 -- Print the Agda module
@@ -122,11 +144,11 @@ printModule :: Module -> Agda ann
 printModule (Module name imports defs) =
     let
         headers = "module" <+> pretty name <+> "where" <>
-          PP.line <> vsep (map (pretty . printImport) imports)
+          line <> vsep (map printImport imports)
         -- Concatenate all definitions
-        body = vcat $ map (pretty . printDef) defs
+        body = vcat $ map printDef defs
 
-    in Agda $ headers <> PP.line <> PP.line <> body
+    in Agda $ headers <> line <> line <> body
 
 runAgda :: Module -> IO()
 runAgda m = do
