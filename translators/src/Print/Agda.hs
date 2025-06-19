@@ -1,12 +1,19 @@
+{-# Language OverloadedStrings #-}
 module Print.Agda
   ( printModule
+  , get
   , runAgda
   ) where
 
+import Prettyprinter (Doc, (<+>), vsep, vcat, pretty)
+import qualified Prettyprinter as PP
 import Data.List (intercalate)
 
 import Grammar
-import Print.Generic
+import Print.Generic hiding (line)
+import qualified Print.Generic as PG
+
+newtype Agda ann = Agda {get :: Doc ann}
 
 -- keywords
 import_, univ, arr, typedel, assign, data_, rec :: String
@@ -62,14 +69,14 @@ printOp Plus = " + "
 -- Function to print variable definitions
 printDef :: Definition -> String
 printDef (DefTVar var t expr) = 
-  line (var ++ typedel ++ printType t) ++ line ( var ++ assign ++ printExpr expr)
-printDef (DefUVar var expr) = line $ var ++ assign ++ printExpr expr
+  PG.line (var ++ typedel ++ printType t) ++ PG.line ( var ++ assign ++ printExpr expr)
+printDef (DefUVar var expr) = PG.line $ var ++ assign ++ printExpr expr
 
 -- Function to print function definitions
 printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ argsStr ++ assign ++ printExpr expr
     where
         typeSig = case ty of
-            Just t -> line $ var ++ typedel ++ printType t
+            Just t -> PG.line $ var ++ typedel ++ printType t
             Nothing -> ""
         argsStr = unwords $ map arg args  -- Correctly handle argument names
 
@@ -78,50 +85,50 @@ printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args
 --Name [(Name,Type)] Type [([Arg], Expr)]
 printDef (DefPatt var params ty _ cons) =
     var ++ typedel ++ (printType (foldr Arr ty (map snd params))) ++ 
-    (line $ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e) cons))
+    (PG.line $ unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e) cons))
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
   data_ ++ name ++ typedel ++ printType ty ++ " where" ++
-  (line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
+  (PG.line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
 printDef (DefPDataType name params cons ty) =
   data_ ++ name ++ " " ++
   unwords (map (\(x, y) -> parens $ x ++ typedel ++ printType y) params) ++ typedel ++
   printType ty ++
-  " where" ++ (line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
+  " where" ++ (PG.line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
 
 -- Function for records
 printDef (DefRecType name params consName fields _) =
     rec ++ name ++ paramsStr ++ typedel ++ 
-    printType Univ ++ (line " where") ++ 
-    "    constructor " ++ line (consName ++ "\n    field") ++
-    concatMap (\(fname, ftype) -> line $ "        " ++ fname ++ typedel ++ printType ftype) fields
+    printType Univ ++ (PG.line " where") ++ 
+    "    constructor " ++ PG.line (consName ++ "\n    field") ++
+    concatMap (\(fname, ftype) -> PG.line $ "        " ++ fname ++ typedel ++ printType ftype) fields
     where
         paramsStr = case params of
             [] -> ""
             _ -> " " ++ unwords (map (\ (Arg n t) -> parens (n ++ typedel ++ printType t)) params)
 
 printDef (DefRec name recType consName fields) =
-    "\n" ++ name ++ typedel ++ line (printType recType) ++
+    "\n" ++ name ++ typedel ++ PG.line (printType recType) ++
     name ++ assign ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
 
 printDef (OpenName _) = ""
-printDef (DefModule m) = printModule m
 printDef (Separator c n b) =
   let s = replicate (fromIntegral n) c in
-  if b then '\n' : line s else s
+  if b then '\n' : PG.line s else s
 
 
 -- Print the Agda module
-printModule :: Module -> String
+printModule :: Module -> Agda ann
 printModule (Module name imports defs) =
     let
-        headers = "module " ++ name ++ " where\n" ++ unlines (map printImport imports)
+        headers = "module" <+> pretty name <+> "where" <>
+          PP.line <> vsep (map (pretty . printImport) imports)
         -- Concatenate all definitions
-        body = concatMap printDef defs
+        body = vcat $ map (pretty . printDef) defs
 
-    in line headers ++ body
+    in Agda $ headers <> PP.line <> PP.line <> body
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ printModule m
+    writeFile ("out/" ++ name ++ ".agda") $ show $ get $ printModule m
     where name = modname m

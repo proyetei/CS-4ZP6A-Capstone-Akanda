@@ -39,8 +39,6 @@ data Definition
     -- ^ Record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
   | OpenName Name
     -- ^ Just for Lean, to refer to user-defined datatypes directly
-  | DefModule Module
-    -- ^ For nested modules
   | Separator Char Natural Bool
     -- ^ To allow a "separator line" in the produced code, of that character repeated n times. 
     -- It is on a line of its own if True, spit out as-is and in-place if false

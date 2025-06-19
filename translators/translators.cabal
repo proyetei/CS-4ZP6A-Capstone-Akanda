@@ -31,6 +31,7 @@ library
     build-depends:
         base >=4.17.2.0,
         prettyprinter >=1.7.1 && < 2.0,
+        text >= 2.0.2 && < 3.0,
         containers >= 0.6 && < 0.7
     hs-source-dirs: src
     default-language: Haskell2010
@@ -42,6 +43,7 @@ executable translators
         translators,
         base >=4.17.2.0,
         prettyprinter >=1.7.1 && < 2.0,
+        text >= 2.0.2 && < 3.0,
         containers >= 0.6 && < 0.7
     hs-source-dirs: app
     default-language: Haskell2010
@@ -56,6 +58,7 @@ test-suite translators-golden
         base >=4.17.2.0,
         containers >= 0.6 && < 0.7,
         prettyprinter >=1.7.1 && < 2.0,
+        text >= 2.0.2 && < 3.0,
         directory >= 1.3,
         filepath >= 1.5,
         tasty >= 1.5,

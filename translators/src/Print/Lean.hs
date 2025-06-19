@@ -99,7 +99,6 @@ printDef recs (DefRec name recType consName fields) =
     recNamesList = [ rName | DefRecType rName _ _ _ _ <- recs ]
     openLine = if null recNamesList then "" else "open " ++ unwords recNamesList ++ "\n"
 printDef _ (OpenName n) = "open " ++ n
-printDef _ (DefModule m) = printModule m
 printDef _ (Separator c n b) =
   let s = replicate (fromIntegral n) c in
   if b then '\n' : line s else s

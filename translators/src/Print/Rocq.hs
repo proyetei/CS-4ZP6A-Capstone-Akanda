@@ -126,7 +126,6 @@ printDef (DefRec name recType consName fields) =
                       then consName ++ fieldsStr
                       else consName ++ " " ++ paramsStr ++ fieldsStr
 printDef (OpenName _) = ""
-printDef (DefModule m) = printModule m
 printDef (Separator c n b) =
   let s = replicate (fromIntegral n) c in
   if b then '\n' : line s else s

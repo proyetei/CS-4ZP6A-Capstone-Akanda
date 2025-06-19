@@ -89,7 +89,6 @@ printDef (DefRec name recType consName fields) =
     name ++ assign ++ consName ++ " " ++ (line $ intercalate " " (map (printExpr . snd) fields))
 
 printDef (OpenName _) = ""
-printDef (DefModule m) = printModule m
 printDef (Separator c n b) =
   let s = replicate (fromIntegral n) c in
   if b then '\n' : line s else s
