@@ -1,11 +1,12 @@
 {-# Language OverloadedStrings #-}
 module Print.Agda
   ( printModule
-  , get
+  , render
   , runAgda
   ) where
 
 import Prettyprinter
+import Prettyprinter.Render.String (renderString)
 
 import Grammar
 
@@ -30,13 +31,13 @@ instance Keywords (Doc ann) where
   arr     = "->"
   lcons   = "\x2237" 
 
-class TypeAnnot rep where
-  typeannot :: rep -> rep -> rep
-  ptypeannot :: rep -> rep -> rep
+class TypeAnn rep where
+  typeAnn :: rep -> rep -> rep
+  teleCell :: rep -> rep -> rep
 
-instance TypeAnnot (Doc ann) where
-  typeannot trm typ = trm <+> ":" <+> typ
-  ptypeannot trm typ = parens $ trm <+> ":" <+> typ
+instance TypeAnn (Doc ann) where
+  typeAnn trm typ = trm <+> ":" <+> typ
+  teleCell trm typ = parens $ trm <+> ":" <+> typ
 
 printImport :: Import -> Doc ann
 printImport (ImportLib NatMod) = import_ <+> "Agda.Builtin.Nat"
@@ -55,7 +56,7 @@ printType (DCon name [] exprs) = -- For dependent type constructors
     pretty name <+> hsep (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors
     pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
-printType (Index names ty) = braces $ typeannot (hsep $ map pretty names) (printType ty)
+printType (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
 
 -- Print expressions
@@ -87,69 +88,72 @@ printOp Plus = "+"
 -- Function to print variable definitions
 printDef :: Definition -> Doc ann
 printDef (DefTVar var t expr) = 
-  typeannot (pretty var) (printType t) <> line <>
-  pretty var <+> assign <+> align (printExpr expr) <> line
-printDef (DefUVar var expr) = pretty var <+> assign <+> align (printExpr expr) <> softline
+  typeAnn (pretty var) (printType t) <> hardline <>
+  pretty var <+> assign <+> align (printExpr expr) <> hardline
+printDef (DefUVar var expr) = pretty var <+> assign <+> align (printExpr expr) <> softline'
 
 -- Function to print function definitions
 printDef (DefFun var ty args expr) = 
    typeSig <> pretty var <+> argsStr <+> assign <+> align (printExpr expr)
     where
         typeSig = case ty of
-            Just t -> typeannot (pretty var) (printType t) <> line
+            Just t -> typeAnn (pretty var) (printType t) <> line
             Nothing -> mempty
         argsStr = hsep $ map (pretty . arg) args
 
 printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
 printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
 printDef (DefPatt var params ty _ cons) =
-    typeannot (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
+    typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
     vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
-  data_ <+> typeannot (pretty name) (printType ty) <+> "where" <> line <>
-  indent 1 (vsep (map (\(n, t) -> typeannot (pretty n) (printType t)) cons)) <>
+  data_ <+> typeAnn (pretty name) (printType ty) <+> "where" <> line <>
+  indent 1 (vsep (map (\(n, t) -> typeAnn (pretty n) (printType t)) cons)) <>
    line
 printDef (DefPDataType name params cons ty) =
   data_ <+> 
-    typeannot (pretty name <+> hsep (map (\(x, y) -> ptypeannot (pretty x) (printType y)) params))
+    typeAnn (pretty name <+> hsep (map (\(x, y) -> teleCell (pretty x) (printType y)) params))
               (printType ty) <+> 
-    "where" <> line <>
-    indent 1 (vsep (map (\(n,t) -> typeannot (pretty n) (printType t)) cons)) <>
-    line
+    "where" <> hardline <>
+    indent 1 (vsep (map (\(n,t) -> typeAnn (pretty n) (printType t)) cons)) <>
+    hardline
 
 -- Function for records
 printDef (DefRecType name params consName fields _) =
-    rec <+> typeannot pp_params univ <+> "where" <> line <>
+    rec <+> typeAnn pp_params univ <+> "where" <> line <>
     indent 4 (vsep $ "constructor" <+> pretty consName : "field" : 
-       (indent 4 $ vsep $ map (\(fname, ftype) -> typeannot (pretty fname) (printType ftype)) fields)
+       (indent 4 $ vsep $ map (\(fname, ftype) -> typeAnn (pretty fname) (printType ftype)) fields)
        : []) <>
-    line
+    hardline
     where
-      ll = map (\(Arg n t) -> ptypeannot (pretty n) (printType t)) params
+      ll = map (\(Arg n t) -> teleCell (pretty n) (printType t)) params
       pp_params = if null params then pretty name else pretty name <+> hsep ll
 
 printDef (DefRec name recType consName fields) =
-    typeannot (pretty name) (printType recType) <> line <> 
+    typeAnn (pretty name) (printType recType) <> hardline <> 
     pretty name <+> assign <+> pretty consName <+> nest 4 (sep (map (printExpr . snd) fields))
 
 printDef (OpenName _) = mempty
 printDef (Separator '\n' n _) = vcat $ replicate (fromIntegral n) emptyDoc
 printDef (Separator c n b) = 
   let s = hcat $ replicate (fromIntegral n) (pretty c) in
-  if b then line <> s <> line else s
+  if b then hardline <> s <> hardline else s
 
 
 -- Print the Agda module
 printModule :: Module -> Agda ann
 printModule (Module name imports defs) =
     let
-        headers = "module" <+> pretty name <+> "where" <>
-          line <> vsep (map printImport imports)
+        headers = "module" <+> pretty name <+> "where" <> hardline <>
+          vsep (map printImport imports)
         -- Concatenate all definitions
         body = vcat $ map printDef defs
 
-    in Agda $ headers <> line <> line <> body
+    in Agda $ headers <> hardline <> hardline <> body
+
+render :: Module -> String
+render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runAgda :: Module -> IO()
 runAgda m = do

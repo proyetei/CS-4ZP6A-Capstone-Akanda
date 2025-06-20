@@ -11,9 +11,6 @@ import System.FilePath
 import Test.Tasty.Golden
 import Test.Tasty
 
-import Prettyprinter
-import Prettyprinter.Render.String (renderString)
-
 import Print.Agda qualified as Agda
 import Print.Idris qualified as Idris
 import Print.Lean qualified as Lean
@@ -84,7 +81,7 @@ printModuleTestGroup
   -> TestTree
 printModuleTestGroup groupName base syn =
   testGroup groupName
-  [ printTestForLang "Agda" (renderString . layoutPretty defaultLayoutOptions . Agda.get . Agda.printModule) ".agda" base syn
+  [ printTestForLang "Agda" Agda.render ".agda" base syn
   , printTestForLang "Idris" Idris.printModule ".idr" base syn
   , printTestForLang "Lean" Lean.printModule ".lean" base syn
   , printTestForLang "Rocq" Rocq.printModule ".v" base syn
