@@ -161,5 +161,5 @@ render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ show $ get $ printModule m
+    writeFile ("out/" ++ name ++ ".agda") $ render m
     where name = modname m

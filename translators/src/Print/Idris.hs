@@ -1,12 +1,47 @@
 module Print.Idris
   ( printModule
+  , render
   , runIdris
   ) where
+
+import qualified Prettyprinter as P
+import Prettyprinter.Render.String (renderString)
 
 import Data.List (intercalate)
 
 import Grammar
-import Print.Generic
+import qualified Print.Generic as G
+
+newtype Idris ann = Idris {get :: P.Doc ann}
+
+-- to be migrated
+{-
+class Keywords rep where
+  import_ :: rep
+  assign  :: rep
+  rec     :: rep
+  univ    :: rep
+  data_   :: rep
+  arr     :: rep
+  lcons   :: rep
+
+instance Keywords (Doc ann) where
+  import_ = "open" <+> "import"
+  assign  = "="
+  rec     = "record"
+  univ    = "Set"
+  data_   = "data"
+  arr     = "->"
+  lcons   = "\x2237" 
+
+class TypeAnn rep where
+  typeAnn :: rep -> rep -> rep
+  teleCell :: rep -> rep -> rep
+
+instance TypeAnn (Doc ann) where
+  typeAnn trm typ = trm <+> ":" <+> typ
+  teleCell trm typ = parens $ trm <+> ":" <+> typ
+-}
 
 import_, univ, arr, typedel, assign :: String
 import_ = "import "
@@ -33,15 +68,15 @@ printType (DCon name [] exprs) = -- For dependent type constructors
     name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors
     name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Index names ty) = brackets $ intercalate ", " names ++ " : " ++ printType ty
+printType (Index names ty) = G.brackets $ intercalate ", " names ++ " : " ++ printType ty
 printType (Embed e) = printExpr e
 
 printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Nat n) = show n
-printExpr (String str) = quote str
-printExpr (Paren e) = parens $ printExpr e
+printExpr (String str) = G.quote str
+printExpr (Paren e) = G.parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
 printExpr (Let (d:[]) expr) = "let \n    " ++ printLocalDefn d ++ " in \n    " ++ printExpr expr
@@ -51,9 +86,9 @@ printExpr (Let (d:ds) expr) =
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
 printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    " (map printLocalDefn ds)
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
-printExpr (VecE l) = sqbrackets $ intercalate ", " (map printExpr l)
-printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
-printExpr (Suc t) = parens $ "S " ++ printExpr t
+printExpr (VecE l) = G.sqbrackets $ intercalate ", " (map printExpr l)
+printExpr (ListE l) = G.sqbrackets $ intercalate ", " (map printExpr l)
+printExpr (Suc t) = G.parens $ "S " ++ printExpr t
 
 printOp :: Op -> String
 printOp Plus = " + "
@@ -66,16 +101,16 @@ printLocalDefn (LocDefFun var ty args expr) =
 
 printDef :: Definition -> String
 printDef (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
-printDef (DefTVar var (Just t) expr) = line (var ++ typedel ++ printType t) ++ var ++ assign ++ printExpr expr
+printDef (DefTVar var (Just t) expr) = G.line (var ++ typedel ++ printType t) ++ var ++ assign ++ printExpr expr
 printDef (DefFun var ty args expr) = printLocalDefn (LocDefFun var ty args expr)
 printDef (DefPatt var params ty _ cons) =
     var ++ typedel ++ printType (foldr Arr ty (map snd params)) ++
     unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e ) cons)
 printDef (DefDataType name cons ty) = "data " ++ name ++ typedel ++ printType ty ++ " where" ++
-    (line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
+    (G.line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
 printDef (DefPDataType name params cons ty) = "data " ++ name ++ typedel ++
-    foldr (\(x, y) z -> parens (x ++ typedel ++ printType y) ++ arr ++ z) (printType ty) params ++ " where" ++ 
-    unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ line (intercalate arr (map fst params) ++ arr ++ printType t)) cons)
+    foldr (\(x, y) z -> G.parens (x ++ typedel ++ printType y) ++ arr ++ z) (printType ty) params ++ " where" ++ 
+    unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ G.line (intercalate arr (map fst params) ++ arr ++ printType t)) cons)
 
 -- Record Defn
 printDef (DefRecType name params consName fields _) =
@@ -84,24 +119,31 @@ printDef (DefRecType name params consName fields _) =
   where
     paramsStr = case params of
         [] -> ""
-        _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ typedel ++ printType t) params)
+        _ -> " " ++ unwords (map (\(Arg n t) -> G.parens $ n ++ typedel ++ printType t) params)
 
 printDef (DefRec name recType consName fields) =
-    (line $ name ++ typedel ++ printType recType) ++
-    name ++ assign ++ consName ++ " " ++ (line $ intercalate " " (map (printExpr . snd) fields))
+    (G.line $ name ++ typedel ++ printType recType) ++
+    name ++ assign ++ consName ++ " " ++ (G.line $ intercalate " " (map (printExpr . snd) fields))
 
 printDef (OpenName _) = ""
 printDef (Separator c n b) =
   let s = replicate (fromIntegral n) c in
-  if b then '\n' : line s else s
+  if b then '\n' : G.line s else s
 
-printModule :: Module -> String
+printModule :: Module -> Idris ann
 printModule (Module _ imports defs) =
     let
-        headers = line ("module Main") ++ unlines (map printImport imports)
-        body = intercalate "\n" $ map printDef defs
-            -- foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
-    in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
+        headers = P.pretty "module Main" <> P.hardline <>
+          (if null imports then mempty else P.vsep (map (P.pretty . printImport) imports) <> P.hardline)
+        -- Concatenate all definitions
+        body = P.vcat $ map (P.pretty . printDef) defs
+
+    in Idris $ headers <> P.hardline <> body <> P.hardline <>
+               P.pretty "main : IO()" <> P.hardline <>
+               P.pretty "main = putStrLn " <> P.dquote <> P.dquote
+
+render :: Module -> String
+render = renderString . P.layoutPretty P.defaultLayoutOptions . get . printModule
 
 runIdris :: Module -> IO()
-runIdris m = writeFile ("out/" ++ modname m ++ ".idr") $ printModule m
+runIdris m = writeFile ("out/" ++ modname m ++ ".idr") $ render m

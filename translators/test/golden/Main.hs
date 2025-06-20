@@ -82,7 +82,7 @@ printModuleTestGroup
 printModuleTestGroup groupName base syn =
   testGroup groupName
   [ printTestForLang "Agda" Agda.render ".agda" base syn
-  , printTestForLang "Idris" Idris.printModule ".idr" base syn
+  , printTestForLang "Idris" Idris.render ".idr" base syn
   , printTestForLang "Lean" Lean.printModule ".lean" base syn
   , printTestForLang "Rocq" Rocq.printModule ".v" base syn
   ]
