@@ -44,12 +44,12 @@ printExpr (String str) = quote str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr -- this should never happen
-printExpr (Let (d:[]) expr) = "let \n    " ++ (printDef d) ++ " in \n    " ++ printExpr expr
+printExpr (Let (d:[]) expr) = "let \n    " ++ printLocalDefn d ++ " in \n    " ++ printExpr expr
 printExpr (Let (d:ds) expr) = 
-  "let \n    " ++ intercalate "\n    " (map printDef (d:ds)) ++
+  "let \n    " ++ intercalate "\n    " (map printLocalDefn (d:ds)) ++
   "\n    in \n    " ++ printExpr expr -- probably need to recursively indent blocks to make sure everything stays aligned
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    " (map printDef ds)
+printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    " (map printLocalDefn ds)
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
 printExpr (VecE l) = sqbrackets $ intercalate ", " (map printExpr l)
 printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
@@ -58,14 +58,16 @@ printExpr (Suc t) = parens $ "S " ++ printExpr t
 printOp :: Op -> String
 printOp Plus = " + "
 
+printLocalDefn :: LocalDefn -> String
+printLocalDefn (LocDefFun var ty args expr) = 
+  typeSig ++ var ++ targ ++ assign ++ printExpr expr
+    where typeSig = maybe "" (\t -> var ++ typedel ++ printType t ++ "\n    ") ty
+          targ = if null args then "" else " " ++ intercalate " " (map arg args)
 
 printDef :: Definition -> String
-printDef (DefUVar var expr) = var ++ assign ++ printExpr expr
-printDef (DefTVar var t expr) = line (var ++ typedel ++ printType t) ++ var ++ assign ++ printExpr expr
-printDef (DefFun var ty args expr) = typeSig ++ var ++ " " ++ (intercalate " " $ map arg args) ++ assign ++ printExpr expr
-    where typeSig = maybe "" (\t -> var ++ typedel ++ printType t ++ "\n    ") ty
-printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
-printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
+printDef (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
+printDef (DefTVar var (Just t) expr) = line (var ++ typedel ++ printType t) ++ var ++ assign ++ printExpr expr
+printDef (DefFun var ty args expr) = printLocalDefn (LocDefFun var ty args expr)
 printDef (DefPatt var params ty _ cons) =
     var ++ typedel ++ printType (foldr Arr ty (map snd params)) ++
     unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e ) cons)

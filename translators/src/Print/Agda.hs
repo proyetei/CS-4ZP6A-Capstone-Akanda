@@ -68,13 +68,13 @@ printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let ds expr) = 
-  "let" <+> align (vcat (map printDef ds) <+> "in") <> line <>
+  "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
   printExpr expr
 printExpr (If cond thn els) =
   "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
 printExpr (Where expr ds) =
   printExpr expr <> line <>
-  indent 4 ("where" <> vcat (map printDef ds))
+  indent 4 ("where" <> vcat (map printLocalDefn ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
 printExpr (VecE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
   (space <> lcons <> space) (map printExpr l)
@@ -85,24 +85,28 @@ printExpr (Suc t) = parens $ "suc" <+> printExpr t
 printOp :: Op -> Doc ann
 printOp Plus = "+"
 
--- Function to print variable definitions
-printDef :: Definition -> Doc ann
-printDef (DefTVar var t expr) = 
-  typeAnn (pretty var) (printType t) <> hardline <>
-  pretty var <+> assign <+> align (printExpr expr) <> hardline
-printDef (DefUVar var expr) = pretty var <+> assign <+> align (printExpr expr) <> softline'
-
--- Function to print function definitions
-printDef (DefFun var ty args expr) = 
-   typeSig <> pretty var <+> argsStr <+> assign <+> align (printExpr expr)
+printLocalDefn :: LocalDefn -> Doc ann
+printLocalDefn (LocDefFun var ty args expr) =
+   typeSig <> tvar <+> assign <+> align (printExpr expr)
     where
         typeSig = case ty of
             Just t -> typeAnn (pretty var) (printType t) <> line
             Nothing -> mempty
-        argsStr = hsep $ map (pretty . arg) args
+        tvar = case args of
+            [] -> pretty var
+            (_:_) -> pretty var <+> (hsep $ map (pretty . arg) args)
 
-printDef (DefNesFun var Nothing args expr) = printDef (DefFun var Nothing args expr)
-printDef (DefNesFun var (Just t) args expr) = printDef (DefFun var (Just t) args expr)
+-- Function to print variable definitions
+printDef :: Definition -> Doc ann
+printDef (DefTVar var Nothing expr) = 
+  pretty var <+> assign <+> align (printExpr expr) <> softline'
+printDef (DefTVar var (Just t) expr) = 
+  typeAnn (pretty var) (printType t) <> hardline <>
+  pretty var <+> assign <+> align (printExpr expr) <> hardline
+
+-- Function to print function definitions
+printDef (DefFun var ty args expr) = printLocalDefn (LocDefFun var ty args expr)
+
 printDef (DefPatt var params ty _ cons) =
     typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
     vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)

@@ -54,9 +54,9 @@ printExpr (String str) = quote str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let ds expr) =
-    foldl (\acc def -> acc ++ "let " ++ printDef def ++ " in\n    ") "" ds ++ printExpr expr --modified for proper let-in nesting
+    foldl (\acc def -> acc ++ "let " ++ printLocalDefn def ++ " in\n    ") "" ds ++ printExpr expr --modified for proper let-in nesting
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-printExpr (Where expr ds) = line (printExpr expr) ++ "\twhere " ++ foldl (\x y -> x ++ "\n\t" ++ y) "" (map printDef ds)
+printExpr (Where expr ds) = line (printExpr expr) ++ "\twhere " ++ foldl (\x y -> x ++ "\n\t" ++ y) "" (map printLocalDefn ds)
 printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
 printExpr (VecE l) = sqbrackets $ intercalate "; " (map printExpr l)
 printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
@@ -65,16 +65,20 @@ printExpr (Suc e) = parens $ "S " ++ printExpr e
 printOp :: Op -> String
 printOp Plus = " + "
 
+printLocalDefn :: LocalDefn -> String
+printLocalDefn (LocDefFun var Nothing args expr) = var ++ targs ++ assign ++ printExpr expr
+  where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
+printLocalDefn (LocDefFun var (Just t) args expr) = var ++ targs ++ typedel ++
+  printReturnType t ++ assign ++ printExpr expr
+  where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
+
 printDef :: Definition -> String
-printDef (DefUVar var expr) = var ++ assign ++ printExpr expr
-printDef (DefTVar var t expr) = 
+printDef (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
+printDef (DefTVar var (Just t) expr) = 
   line $ "Definition " ++ var ++ typedel ++ printType t ++ assign ++ printExpr expr ++ ". "
 printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ assign ++ printExpr expr
 printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ 
   (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ typedel ++ printType t ++ assign ++ printExpr expr ++ "."
-printDef (DefNesFun var Nothing args expr) = var ++ " " ++ (unwords $ map arg args) ++ assign ++ printExpr expr
-printDef (DefNesFun var (Just t) args expr) = var ++ " " ++ (unwords $ map printArg args) ++ typedel ++
-  printReturnType t ++ assign ++ printExpr expr
 
 printDef (DefPatt var params ty m cons) = "Fixpoint " ++ var ++ " " ++ 
   (unwords $ map (\(x, y) -> " " ++ parens (x ++ typedel ++ printType y)) params) ++ 
@@ -129,7 +133,6 @@ printDef (OpenName _) = ""
 printDef (Separator c n b) =
   let s = replicate (fromIntegral n) c in
   if b then '\n' : line s else s
-
 
 printModule :: Module -> String
 printModule (Module name imports defs) =

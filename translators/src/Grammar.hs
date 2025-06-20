@@ -1,5 +1,5 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
-  , KnownMods (..), Op (..)
+  , KnownMods (..), Op (..), LocalDefn (..)
   , modname
   , nat) where
 
@@ -21,18 +21,14 @@ newtype Import = ImportLib KnownMods
 
 data Definition
   = DefFun Name (Maybe Type) [Arg] Expr
-  | DefNesFun Name (Maybe Type) [Arg] Expr
-     -- ^ Constructor for nested functions
   | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)]
     -- ^ Function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
-  | DefTVar Name Type Expr
-    -- ^ Define a variable (i.e. 'let') with a type annotation
-  | DefUVar Name  Expr
-    -- ^ Define a variable (i.e. 'let')
+  | DefTVar Name (Maybe Type) Expr
+    -- ^ Define a variable (i.e. 'let') with an optional type annotation
   | DefDataType Name [(Name,Type)] Type
     -- ^ Datatype name, constructors, usually type is Set
   | DefPDataType Name [(Name, Type)] [(Name,Type)] Type
-    -- ^ Datatype name, parameters, constrcutors, overall type
+    -- ^ Datatype name, parameters, constructors, overall type
   | DefRecType Name [Arg] Name [(Name,Type)] Type
     -- ^ [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
   | DefRec Name Type Name [(String, Expr)]
@@ -42,6 +38,9 @@ data Definition
   | Separator Char Natural Bool
     -- ^ To allow a "separator line" in the produced code, of that character repeated n times. 
     -- It is on a line of its own if True, spit out as-is and in-place if false
+
+data LocalDefn
+  = LocDefFun Name (Maybe Type) [Arg] Expr
 
 data Type = Con Name              -- type constructor
         | PCon Name [Type]        -- parameterized type constructor
@@ -58,9 +57,9 @@ data Expr = Var Name
         | Nat Natural
         | String String
         | Bin Op Expr Expr       -- only for known, hard-coded binary operations
-        | Let [Definition] Expr
+        | Let [LocalDefn] Expr
         | If Expr Expr Expr
-        | Where Expr [Definition]
+        | Where Expr [LocalDefn]
         | FunCall Name [Expr]    --constructor to call function
         | VecE [Expr]
         | ListE [Expr]
