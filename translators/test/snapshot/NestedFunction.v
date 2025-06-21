@@ -1,8 +1,6 @@
 
 
-
 Module NestedFunction.
-
 
 Definition n : nat := let f1 (x1 : nat) : nat := 1 + x1 in
     let f2 (x1 : nat) (x2 : nat) : nat := 1 + x1 + x2 in

@@ -1,8 +1,6 @@
 
 
-
 Module LongIdentifier.
-
 
 Definition xxxxx : nat := 0. 
 

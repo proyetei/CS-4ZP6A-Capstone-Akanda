@@ -1,8 +1,6 @@
 
 
-
 Module Fields_NonDependentRecordModule.
-
 
 Record Cap_X : Type := Const {
   f1 : nat;

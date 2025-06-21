@@ -1,8 +1,6 @@
 
 
-
 Module Pattern_Matching_Datatypes.
-
 
 Inductive d : Type := 
 | c1 : d 

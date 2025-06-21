@@ -2,9 +2,7 @@
 Require Import Coq.Vectors.Vector. 
 Import VectorNotations.
 
-
 Module Fields_DependentRecordModule.
-
 
 Record Cap_X : Type := Const {
   f1 : nat;

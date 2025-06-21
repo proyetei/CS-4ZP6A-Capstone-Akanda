@@ -1,8 +1,6 @@
 
 
-
 Module LetAddExample.
-
 
 Definition n : nat := let x1 := 1 in
     let x2 := x1 + x1 in

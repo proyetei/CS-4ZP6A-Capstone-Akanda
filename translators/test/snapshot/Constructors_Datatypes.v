@@ -1,7 +1,4 @@
-
-
 Module Constructors_Datatypes.
-
 
 Inductive d : Type := 
 | c1 : d 

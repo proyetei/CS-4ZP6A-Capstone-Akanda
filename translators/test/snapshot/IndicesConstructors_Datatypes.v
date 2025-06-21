@@ -1,8 +1,6 @@
 
 
-
 Module IndicesConstructors_Datatypes.
-
 
 Inductive d : nat -> nat -> nat -> nat -> nat -> Type := 
 | c1 : forall {x1 : nat}, d x1 0 0 0 0 

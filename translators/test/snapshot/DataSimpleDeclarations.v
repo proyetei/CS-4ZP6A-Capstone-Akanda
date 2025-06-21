@@ -1,8 +1,6 @@
 
 
-
 Module DataSimpleDeclarations.
-
 
 Inductive x5 : Type := 
 | y5 : x5.

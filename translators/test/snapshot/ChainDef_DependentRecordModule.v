@@ -1,8 +1,6 @@
 
 
-
 Module ChainDef_DependentRecordModule.
-
 
 Record Record1 : Type := Const1 {
   f1 : nat;
