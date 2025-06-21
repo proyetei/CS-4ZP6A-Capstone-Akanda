@@ -47,19 +47,19 @@ nary t n = foldr Arr t (replicate (fromIntegral n) t)
 _tests :: [Natural -> Module] -- todo: add commented Haskell representation for each test
 _tests =
     [ \n -> let --1
-            lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ vxs (a-1)] b) (vxs p) [1..p]
-        in Module "LetExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets n]
+            lets p = foldr (\a b -> Let [LocDefFun (nm 'x' a) Nothing [] $ vxs (a-1)] b) (vxs p) [1..p]
+        in Module "LetExample" [ImportLib NatMod] $ trivial n [DefTVar "n" (Just nat) $ lets n]
 
     , \n -> let --2
-        lets p = foldr (\a b -> Let [DefUVar (nm 'x' a) $ sum2vars $ a-1] b) (vx p) [1..p]
-    in Module "LetAddExample" [ImportLib NatMod] $ trivial n [DefTVar "n" nat $ lets n]
+        lets p = foldr (\a b -> Let [LocDefFun (nm 'x' a) Nothing [] $ sum2vars $ a-1] b) (vx p) [1..p]
+    in Module "LetAddExample" [ImportLib NatMod] $ trivial n [DefTVar "n" (Just nat) $ lets n]
 
     , -- 3 Description: Generate Nested Functions
     \n -> let --3
-            decl = [ DefTVar "n" nat (Let (reverse $ genFunc n) (genCall n)) ]
+            decl = [ DefTVar "n" (Just nat) (Let (reverse $ genFunc n) (genCall n)) ]
             -- Generate function definitions dynamically based on (1 to n)
-            genFunc :: Natural -> [Definition]
-            genFunc p = foldr (\a b -> DefNesFun (nm 'f' a) 
+            genFunc :: Natural -> [LocalDefn]
+            genFunc p = foldr (\a b -> LocDefFun (nm 'f' a) 
                                        (Just $ nary nat a)
                                        (iter a (\i -> Arg (nm 'x' i) nat))
                                        (foldl (\acc i -> Bin Plus acc (vx i)) (Nat 1) [1..a]) : b)
@@ -76,7 +76,7 @@ _tests =
       genData m = foldl (\b a -> DefDataType (nm 'X' a) [(nm 'Y' a, Con (nm 'X' a))] Univ : b) [] [1..m]
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
     , \n ->     --5 Variable declaration with an identifier of a specified length.
-           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') nat $ Nat 0]
+           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') (Just nat) $ Nat 0]
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
@@ -139,7 +139,7 @@ _tests =
       in Module "Parameters_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
     , \n -> -- 9
         -- Generate a file with n newlines where n = user input
-        File "NewlineFile" $ replicate (fromIntegral n) '\n'
+        Module "NewlineFile" [] $ [Separator '\n' n False]
 
     , \n -> let -- 10 Description: A record declaration with N independent fields
         -- Generate field definitions dynamically
@@ -172,9 +172,9 @@ _tests =
      \n ->
     let
         -- result = x1 + xn
-        resultDef = DefTVar "result" nat $ Bin Plus (Var "x1") (vx n)
+        resultDef = DefTVar "result" (Just nat) $ Bin Plus (Var "x1") (vx n)
 
-        decl = foldl (\b a -> DefTVar (nm 'x' a) nat (Nat a) : b) [resultDef] $ reverse [1..n]
+        decl = foldl (\b a -> DefTVar (nm 'x' a) (Just nat) (Nat a) : b) [resultDef] $ reverse [1..n]
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ trivial n decl
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
     \n -> let
@@ -189,12 +189,12 @@ _tests =
     genExpr idx level = if level == 0 then Nat idx else Bin Plus (Var $ varName level idx) (Nat idx)
 
     --  sum of all xN_1 .. xN_10 + 100
-    resultDef = DefTVar "result" nat $ foldl (\acc idx -> Bin Plus acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
+    resultDef = DefTVar "result" (Just nat) $ foldl (\acc idx -> Bin Plus acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
 
     -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
     genLevelDefs level = 
-        foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) nat (genExpr idx (a-1))) ++ b) [resultDef]
+        foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) (Just nat) (genExpr idx (a-1))) ++ b) [resultDef]
         $ reverse [1..level]
 
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
@@ -205,7 +205,7 @@ _tests =
        in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
 
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
-        decl = [DefTVar "A" (Con "String") $ String $ replicate (fromIntegral n) 'x']
+        decl = [DefTVar "A" (Just $ Con "String") $ String $ replicate (fromIntegral n) 'x']
         in Module "SingleLongLine" [ImportLib StringMod]  $ trivial n decl
 
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
@@ -230,7 +230,7 @@ _tests =
         decl = [DefDataType "D" (iter n (\ i -> (nm 'C' i, Con "D"))) Univ, --create datatype
           OpenName "D",
           DefPatt "F" [("C", Con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (Con "D")], Nat i))),
-          DefTVar "N" nat (genCall n)]
+          DefTVar "N" (Just nat) (genCall n)]
         genCall p = foldr (\a b -> Bin Plus (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
           (reverse [2..p])
     in

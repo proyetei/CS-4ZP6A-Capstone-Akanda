@@ -52,10 +52,10 @@ printExpr (String str) = quote str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr
-printExpr (Let (d:[]) expr) = line ("let " ++ (printDef [] d)) ++ printExpr expr
-printExpr (Let (d:ds) expr) = "let " ++ intercalate "\nlet " (map (printDef []) (d:ds)) ++ "\n" ++ printExpr expr
+printExpr (Let (d:[]) expr) = line ("let " ++ (printLocalDefn d)) ++ printExpr expr
+printExpr (Let (d:ds) expr) = "let " ++ intercalate "\nlet " (map printLocalDefn (d:ds)) ++ "\n" ++ printExpr expr
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then \n\t" ++ printExpr thn ++ "\nelse " ++ printExpr els
-printExpr (Where expr ds) = printExpr expr ++ "\n\twhere " ++ intercalate "\n\t" (map (printDef []) ds)
+printExpr (Where expr ds) = printExpr expr ++ "\n\twhere " ++ intercalate "\n\t" (map printLocalDefn ds)
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args)
 printExpr (VecE l) = '#' : sqbrackets (intercalate ", " (map printExpr l))
 printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
@@ -64,14 +64,19 @@ printExpr (Suc t) = parens $ "Nat.succ " ++ printExpr t  -- Use `Nat.succ` expli
 printOp :: Op -> String
 printOp Plus = " + "
 
+printLocalDefn :: LocalDefn -> String
+printLocalDefn (LocDefFun var Nothing args expr) = var ++ targs ++ assign ++ printExpr expr
+  where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
+  -- same as DefFun
+printLocalDefn (LocDefFun var (Just t) args expr) = var ++ targs ++ typedel ++ printReturnType t ++ assign ++ printExpr expr
+  where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
+
 printDef :: [Definition] -> Definition -> String
-printDef _ (DefUVar var expr) = var ++ assign ++ printExpr expr
-printDef _ (DefTVar var t expr) = "def " ++ var ++ typedel ++ printType t ++ assign ++ printExpr expr
-printDef _ (DefFun var Nothing args expr) = var ++ " " ++ (intercalate " " $ map arg args) ++ assign ++ printExpr expr
-printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ " " ++ (intercalate " " $ map printArg args) ++ typedel ++
+printDef _ (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
+printDef _ (DefTVar var (Just t) expr) = "def " ++ var ++ typedel ++ printType t ++ assign ++ printExpr expr
+printDef _ (DefFun var Nothing args expr) = var ++ " " ++ intercalate " " (map arg args) ++ assign ++ printExpr expr
+printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ " " ++ intercalate " " (map printArg args) ++ typedel ++
   printType t ++ assign ++ printExpr expr
-printDef _ (DefNesFun var Nothing args expr) = var ++ " " ++ unwords (map arg args) ++ assign ++ printExpr expr
-printDef _ (DefNesFun var (Just t) args expr) = var ++ " " ++ unwords (map printArg args) ++ typedel ++ printReturnType t ++ assign ++ printExpr expr
 printDef _ (DefPatt var params ty _ cons) =
     "def " ++ var ++ typedel ++ printType (foldr Arr ty (map snd params)) ++
     unwords (map (\(a,e) -> "\n| " ++ (unwords $ map arg a) ++ " => " ++ printExpr e ) cons)
@@ -99,7 +104,9 @@ printDef recs (DefRec name recType consName fields) =
     recNamesList = [ rName | DefRecType rName _ _ _ _ <- recs ]
     openLine = if null recNamesList then "" else "open " ++ unwords recNamesList ++ "\n"
 printDef _ (OpenName n) = "open " ++ n
-printDef _ (DefModule m) = printModule m
+printDef _ (Separator c n b) =
+  let s = replicate (fromIntegral n) c in
+  if b then '\n' : line s else s
 
 
 printModule :: Module -> String
@@ -109,8 +116,6 @@ printModule (Module _ imports defs) =
         recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
         body = intercalate "\n" (map (printDef recs) defs)
     in headers ++ "\n" ++ body
-
-printModule (File _ str) = str
 
 runLean :: Module -> IO()
 runLean m = writeFile ("out/" ++ modname m ++ ".lean") $ printModule m
