@@ -22,7 +22,7 @@ Record Record5 : Type := Const5 {
   f5 : Record4;
 }.
 
-Definition example : Record5 := 
+Definition example : Record5 :=
   Const5 (Const4 (Const3 (Const2 (Const1 10)))).
 
 End ChainDef_DependentRecordModule.

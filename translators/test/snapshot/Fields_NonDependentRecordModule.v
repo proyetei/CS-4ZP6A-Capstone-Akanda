@@ -10,7 +10,7 @@ Record Cap_X : Type := Const {
   f5 : nat;
 }.
 
-Definition example : Cap_X := 
+Definition example : Cap_X :=
   Const 1 1 1 1 1.
 
 End Fields_NonDependentRecordModule.
