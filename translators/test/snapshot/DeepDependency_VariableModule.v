@@ -102,6 +102,7 @@ Definition x5L9 : nat := x4L9 + 9.
 
 Definition x5L10 : nat := x4L10 + 10.
 
-Definition result : nat := 100 + x5L1 + x5L2 + x5L3 + x5L4 + x5L5 + x5L6 + x5L7 + x5L8 + x5L9 + x5L10.
+Definition result : nat :=
+    100 + x5L1 + x5L2 + x5L3 + x5L4 + x5L5 + x5L6 + x5L7 + x5L8 + x5L9 + x5L10.
 
 End DeepDependency_VariableModule.
