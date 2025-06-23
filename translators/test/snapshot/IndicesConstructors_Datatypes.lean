@@ -1,5 +1,4 @@
 
-
 inductive D : Nat -> Nat -> Nat -> Nat -> Nat -> Type where 
 | C1 : {x1 : Nat} -> D X1 0 0 0 0 
 | C2 : {x1 x2 : Nat} -> D X1 X2 0 0 0 

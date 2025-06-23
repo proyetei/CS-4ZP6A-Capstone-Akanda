@@ -1,26 +1,60 @@
+{-# Language OverloadedStrings #-}
 module Print.Lean
   ( printModule
   , runLean
+  , render
   ) where
 
 import Data.List (intercalate)
 
-import Grammar
-import Print.Generic
+import Prettyprinter
+import Prettyprinter.Render.String (renderString)
 
-import_, univ, arr, typedel, assign :: String
-import_ = "import "
+import Grammar
+import qualified Print.Generic as G
+
+newtype Lean ann = Lean {get :: Doc ann}
+
+class Keywords rep where
+  import_ :: rep
+{-
+  assign  :: rep
+  data_   :: rep
+  rec     :: rep
+  univ    :: rep
+  arr     :: rep
+-}
+instance Keywords (Doc ann) where
+  import_ = "import"
+{-
+  assign  = "="
+  data_   = "data"
+  rec     = "record"
+  univ    = "Type"
+  arr     = "->"
+
+class TypeAnn rep where
+  typeAnn :: rep -> rep -> rep
+  teleCell :: rep -> rep -> rep
+
+instance TypeAnn (Doc ann) where
+  typeAnn trm typ = trm <+> ":" <+> typ
+  teleCell trm typ = parens $ trm <+> ":" <+> typ
+-}
+
+univ, arr, typedel, assign :: String
 univ = "Type"
 arr = " -> "
 typedel = " : "
 assign = " := "
 
-printImport :: Import -> String
-printImport (ImportLib VecMod) = import_ ++ "Init.Data.Vector"
+-- append an Import if needed
+printWithImport :: Import -> Doc ann -> Doc ann
+printWithImport (ImportLib VecMod) m = m <> import_ <+> "Init.Data.Vector" <> hardline
 -- There rest are builtin
-printImport (ImportLib NatMod) = ""
-printImport (ImportLib StringMod) = ""
-printImport (ImportLib ListMod) = ""
+printWithImport (ImportLib NatMod) m = m
+printWithImport (ImportLib StringMod) m = m
+printWithImport (ImportLib ListMod) m = m
 
 -- Print types (unchanged)
 printType :: Type -> String
@@ -32,7 +66,7 @@ printType (PCon "Vec" args) = "Vector " ++ unwords (map printType args)
 printType (PCon name types) = name ++ " " ++ unwords (map printType types)
 printType (DCon name [] exprs) = name ++ " " ++ unwords (map printExpr exprs)
 printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Index names ty) = brackets $ unwords names ++ typedel ++ printType ty
+printType (Index names ty) = G.brackets $ unwords names ++ typedel ++ printType ty
 printType (Embed e) = printExpr e
 
 printReturnType :: Type -> String
@@ -41,25 +75,25 @@ printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "show not occur as a return type"
 
 printArg :: Arg -> String
-printArg a = parens $ (arg a) ++ typedel ++ (printType $ argty a)
+printArg a = G.parens $ (arg a) ++ typedel ++ (printType $ argty a)
 
 -- Print expressions (unchanged)
 printExpr :: Expr -> String
 printExpr (Constructor name) = name
 printExpr (Var var) = var
 printExpr (Nat n) = show n
-printExpr (String str) = quote str
-printExpr (Paren e) = parens $ printExpr e
+printExpr (String str) = G.quote str
+printExpr (Paren e) = G.parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
 printExpr (Let [] expr) = printExpr expr
-printExpr (Let (d:[]) expr) = line ("let " ++ (printLocalDefn d)) ++ printExpr expr
+printExpr (Let (d:[]) expr) = G.line ("let " ++ (printLocalDefn d)) ++ printExpr expr
 printExpr (Let (d:ds) expr) = "let " ++ intercalate "\nlet " (map printLocalDefn (d:ds)) ++ "\n" ++ printExpr expr
 printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then \n\t" ++ printExpr thn ++ "\nelse " ++ printExpr els
 printExpr (Where expr ds) = printExpr expr ++ "\n\twhere " ++ intercalate "\n\t" (map printLocalDefn ds)
 printExpr (FunCall fun args) = fun ++ " " ++ unwords (map printExpr args)
-printExpr (VecE l) = '#' : sqbrackets (intercalate ", " (map printExpr l))
-printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
-printExpr (Suc t) = parens $ "Nat.succ " ++ printExpr t  -- Use `Nat.succ` explicitly
+printExpr (VecE l) = '#' : G.sqbrackets (intercalate ", " (map printExpr l))
+printExpr (ListE l) = G.sqbrackets $ intercalate ", " (map printExpr l)
+printExpr (Suc t) = G.parens $ "Nat.succ " ++ printExpr t  -- Use `Nat.succ` explicitly
 
 printOp :: Op -> String
 printOp Plus = " + "
@@ -82,7 +116,7 @@ printDef _ (DefPatt var params ty _ cons) =
     unwords (map (\(a,e) -> "\n| " ++ (unwords $ map arg a) ++ " => " ++ printExpr e ) cons)
 printDef _ (DefDataType str args t) = "inductive " ++ str ++ typedel ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ typedel ++ printType y) args)
 printDef _ (DefPDataType str params args t) =
-   "inductive " ++ str ++ " " ++ unwords (map (\(x, y) -> parens (x ++ typedel ++ printType y)) params) ++ typedel ++
+   "inductive " ++ str ++ " " ++ unwords (map (\(x, y) -> G.parens (x ++ typedel ++ printType y)) params) ++ typedel ++
    printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ typedel ++ (printType y)) args)
 
 -- records Def
@@ -92,7 +126,7 @@ printDef _ (DefRecType name params consName fields _) =
     where
         paramsStr = case params of
             [] -> ""
-            _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ typedel ++ printType t) params)
+            _ -> " " ++ unwords (map (\(Arg n t) -> G.parens $ n ++ typedel ++ printType t) params)
 
 
 -- OpenLine: It takes a list of record definitions (recs) and uses it to build an open line.
@@ -106,16 +140,19 @@ printDef recs (DefRec name recType consName fields) =
 printDef _ (OpenName n) = "open " ++ n
 printDef _ (Separator c n b) =
   let s = replicate (fromIntegral n) c in
-  if b then '\n' : line s else s
+  if b then '\n' : G.line s else s
 
 
-printModule :: Module -> String
+printModule :: Module -> Lean ann
 printModule (Module _ imports defs) =
     let
-        headers = unlines (map printImport imports)
-        recs = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
-        body = intercalate "\n" (map (printDef recs) defs)
-    in headers ++ "\n" ++ body
+        headers = foldr printWithImport emptyDoc imports
+        ctx = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
+        body = vcat (map (pretty . printDef ctx) defs)
+    in Lean $ if null imports then body else headers <> hardline <> body
+
+render :: Module -> String
+render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runLean :: Module -> IO()
-runLean m = writeFile ("out/" ++ modname m ++ ".lean") $ printModule m
+runLean m = writeFile ("out/" ++ modname m ++ ".lean") $ render m

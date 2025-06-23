@@ -1,5 +1,4 @@
 
-
 structure Cap_X where
     Const ::
     f1 : Nat
