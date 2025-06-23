@@ -1,145 +1,186 @@
+{-# Language OverloadedStrings #-}
 module Print.Rocq
   ( printModule
+  , render
   , runRocq
   ) where
 
-import Data.Char
-import Data.List (isPrefixOf, intercalate)
+import Data.Char (toLower)
+import Data.List (isPrefixOf)
+
+import Prettyprinter
+import Prettyprinter.Render.String (renderString)
 
 import Grammar
-import Print.Generic
+import Print.Generic (prettyArgs)
 
-import_, univ, arr, typedel, assign :: String
-import_ = "Require Import " -- separate?
-univ = "Type"
-arr = " -> "
-typedel = " : "
-assign = " := "
+newtype Rocq ann = Rocq {get :: Doc ann}
+
+-- to be migrated
+class Keywords rep where
+  import_ :: rep
+  assign  :: rep
+  univ    :: rep
+  rec     :: rep
+  arr     :: rep
+
+instance Keywords (Doc ann) where
+  import_ = "Require" <+> "Import"
+  assign  = ":="
+  rec     = "Record"
+  univ    = "Type"
+  arr     = "->"
 
 
-printImport :: Import -> String
-printImport (ImportLib VecMod) = line (import_ ++ "Coq.Vectors.Vector. ") ++ "Import VectorNotations."
-printImport (ImportLib StringMod) = import_ ++ "Coq.Strings.String."
+class TypeAnn rep where
+  typeAnn :: rep -> rep -> rep
+  teleCell :: rep -> rep -> rep
+
+instance TypeAnn (Doc ann) where
+  typeAnn trm typ = trm <+> ":" <+> typ
+  teleCell trm typ = parens $ trm <+> ":" <+> typ
+
+
+-- FIXME: end '.' should not be hard-coded
+printImport :: Import -> Doc ann
+printImport (ImportLib VecMod) = import_ <+> "Coq.Vectors.Vector." <> hardline <>
+  "Import VectorNotations." -- FIXME
+printImport (ImportLib StringMod) = import_ <+> "Coq.Strings.String."
 -- the rest are builtin
-printImport (ImportLib NatMod) = ""
-printImport (ImportLib ListMod) = ""
+printImport (ImportLib NatMod) = emptyDoc
+printImport (ImportLib ListMod) = emptyDoc
 
-printType :: Type -> String
+printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = if  "Cap_" `isPrefixOf` t ||
-                        "Record" `isPrefixOf` t
-                        then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
-printType (Arr t1 t2) = printType t1 ++ arr ++ printType t2
-printType (TVar t) = t
-printType (PCon "Vec" args) = "t " ++ unwords (map printType args)
-printType (PCon name types) = (map toLower name) ++ " " ++ unwords (map printType types)
-printType (DCon name [] exprs) = name ++ " " ++ unwords (map printExpr exprs)
-printType (DCon name types exprs) = name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Index names ty) = "forall " ++ brackets (map toLower (unwords names) ++ typedel ++ printType ty)
+printType (Con t) = pretty $ if  "Cap_" `isPrefixOf` t || "Record" `isPrefixOf` t
+                             then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
+printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
+printType (TVar t) = pretty t
+printType (PCon "Vec" args) = "Vect" <+> hsep (map printType args)
+printType (PCon name types) = pretty (map toLower name) <+> hsep (map printType types)
+printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
+printType (DCon name types exprs) = pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (Index names ty) = "forall" <+> brackets (typeAnn (pretty $ map toLower (unwords names)) (printType ty))
 printType (Embed e) = printExpr e
 
-printReturnType :: Type -> String
-printReturnType (Con t) = map toLower t --required for nested functions
+printReturnType :: Type -> Doc ann
+printReturnType (Con t) = pretty $ map toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "should not occur as a return type"
 
-printArg :: Arg -> String
-printArg a = parens $ (arg a) ++ typedel ++ (printType $ argty a)
+printArg :: Arg -> Doc ann
+printArg a = parens $ typeAnn (pretty $ arg a) (printType $ argty a)
 
-printExpr :: Expr -> String
-printExpr (Constructor name) = map toLower name
-printExpr (Var var) = var
-printExpr (Nat n) = show n
-printExpr (String str) = quote str
+printExpr :: Expr -> Doc ann
+printExpr (Constructor name) = pretty $ map toLower name
+printExpr (Var var) = pretty var
+printExpr (Nat n) = pretty n
+printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
+printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let ds expr) =
-    foldl (\acc def -> acc ++ "let " ++ printLocalDefn def ++ " in\n    ") "" ds ++ printExpr expr --modified for proper let-in nesting
-printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-printExpr (Where expr ds) = line (printExpr expr) ++ "\twhere " ++ foldl (\x y -> x ++ "\n\t" ++ y) "" (map printLocalDefn ds)
-printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
-printExpr (VecE l) = sqbrackets $ intercalate "; " (map printExpr l)
-printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
-printExpr (Suc e) = parens $ "S " ++ printExpr e
+  "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
+  printExpr expr
+printExpr (If cond thn els) = "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
+printExpr (Where expr ds) = 
+  printExpr expr <> hardline <>
+  indent 4 ("where " <+> vcat (map printLocalDefn ds))
+printExpr (FunCall fun args) = pretty fun <+> (hsep $ map printExpr args)
+printExpr (VecE l) = encloseSep lbracket rbracket (semi <> space) (map printExpr l)
+printExpr (ListE l) = encloseSep lbracket rbracket (comma <> space) (map printExpr l)
+printExpr (Suc e) = parens $ "S" <+> printExpr e
 
-printOp :: Op -> String
-printOp Plus = " + "
+printOp :: Op -> Doc ann
+printOp Plus = "+"
 
-printLocalDefn :: LocalDefn -> String
-printLocalDefn (LocDefFun var Nothing args expr) = var ++ targs ++ assign ++ printExpr expr
-  where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
-printLocalDefn (LocDefFun var (Just t) args expr) = var ++ targs ++ typedel ++
-  printReturnType t ++ assign ++ printExpr expr
-  where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
+printLocalDefn :: LocalDefn -> Doc ann
+printLocalDefn (LocDefFun var Nothing args expr) = 
+  prettyArgs var printArg args <+> assign <+> printExpr expr
+printLocalDefn (LocDefFun var (Just t) args expr) = typeAnn targs (printReturnType t) <+> assign <+>
+  printExpr expr
+  where targs = prettyArgs var printArg args
 
-printDef :: Definition -> String
-printDef (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
+printDef :: Definition -> Doc ann
+printDef (DefTVar var Nothing expr) = pretty var <+> assign <+> printExpr expr
 printDef (DefTVar var (Just t) expr) = 
-  line $ "Definition " ++ var ++ typedel ++ printType t ++ assign ++ printExpr expr ++ ". "
-printDef (DefFun var Nothing args expr) = var ++ (foldl (\x y -> x ++ " " ++ y) "" $ map arg args) ++ assign ++ printExpr expr
-printDef (DefFun var (Just t) args expr) = "Definition " ++ var ++ 
-  (foldl (\x y -> x ++ " " ++ y) "" $ map printArg args) ++ typedel ++ printType t ++ assign ++ printExpr expr ++ "."
-
-printDef (DefPatt var params ty m cons) = "Fixpoint " ++ var ++ " " ++ 
-  (unwords $ map (\(x, y) -> " " ++ parens (x ++ typedel ++ printType y)) params) ++ 
-  typedel ++ printType ty ++ assign ++ 
-  "\nmatch " ++ m ++ " with" ++
-   unwords (map (\(a, e) -> "\n| " ++ (unwords $ map (map toLower . arg) a) ++ " => " ++ printExpr e) cons) ++ " end."
+  nest 4 ("Definition" <+> typeAnn (pretty var) (printType t) <+> assign <> softline <>
+  (printExpr expr <> dot <> hardline))
+printDef (DefFun var Nothing args expr) = pretty var <+> (hsep $ map (pretty . arg) args) <+> assign <+> printExpr expr
+printDef (DefFun var (Just t) args expr) = "Definition" <+> pretty var <+>
+  typeAnn (hsep $ map printArg args) (printType t) <+> assign <> softline' <> printExpr expr <> 
+  "." <> hardline
+printDef (DefPatt var params ty m cons) = "Fixpoint" <+> pretty var <+>
+  typeAnn (hsep $ map (\(x, y) -> teleCell (pretty x) (printType y)) params)
+          (printType ty) <+> assign <> hardline <>
+  "match" <+> pretty m <+> "with" <> hardline <>
+  vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . map toLower . arg) a) <+> "=>" <+> printExpr e) cons) 
+  <> softline' <> "end" <> dot <> hardline
 printDef (DefDataType name args ty) = let
-    printIndices :: Type -> String
-    printIndices (Arr (Index n t) ctype) = printType(Index n t)  ++ ", " ++ printType ctype
+    printIndices :: Type -> Doc ann
+    printIndices (Arr (Index n t) ctype) = printType (Index n t) <> comma <+> printType ctype
     printIndices t = printType t
     in
-        "Inductive " ++ map toLower name ++ typedel ++ printType ty ++ assign ++ unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ " : " ++ printIndices y) args) ++ "."
+        "Inductive" <+> typeAnn (pretty $ map toLower name) (printType ty) <+>
+        assign <> hardline <>
+        (vsep (map (\(x, y) -> pipe <+> typeAnn (pretty $ map toLower x) (printIndices y)) args)) <> "."
 printDef (DefPDataType name params args ty) = let
-    printIndices :: Type -> String
-    printIndices (Arr (Index n t) ctype) = printType(Index n t)  ++ ", " ++ printType ctype
+    printIndices :: Type -> Doc ann
+    printIndices (Arr (Index n t) ctype) = (printType (Index n t)) <> comma <+> (printType ctype)
     printIndices t = printType t
     in
-        "Inductive " ++ map toLower name ++
-         unwords (map (\(x, y) -> " " ++ parens (map toLower x ++ typedel ++ printType y)) params) ++
-         typedel ++ printType ty ++ assign ++
-         unwords (map (\(x, y) -> "\n| " ++ map toLower x ++ typedel ++ printIndices y) args) ++ "."
+        "Inductive" <+> (pretty $ map toLower name) <+>
+         typeAnn (hsep (map (\(x, y) -> teleCell (pretty $ map toLower x) (printType y)) params))
+                 (printType ty) <+> assign <> hardline <>
+         vsep (map (\(x, y) -> pipe <+> typeAnn (pretty $ map toLower x) (printIndices y)) args) <> dot
 
 --Function for Records
 printDef (DefRecType name params consName fields _) =
-    "Record " ++ name ++ paramsStr ++ typedel ++ printType Univ ++ assign ++ consName ++ " " ++
-    line (brackets ("\n" ++ concatMap (\(fname, ftype) -> line $ "  " ++ fname ++ typedel ++ printType ftype ++ ";") fields) ++ ".")
+    rec <+> typeAnn recName univ <+> assign <+> pretty consName <+>
+    lbrace <> hardline <>
+      indent 2 (vsep (map (\(fname, ftype) -> typeAnn (pretty fname) (printType ftype) <> semi) fields))
+      <> hardline <> rbrace <> dot <> hardline
     where
-        paramsStr = case params of
-            [] -> ""
-            _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ " : " ++ printType t) params)
+        recName = case params of
+            [] -> pretty name
+            _ -> pretty name <+> hsep (map (\(Arg n t) -> teleCell (pretty n) (printType t)) params)
 
 printDef (DefRec name recType consName fields) =
-  line ("Definition " ++ name ++ typedel ++ printType recType ++ assign) ++ "  " ++ line (constructorCall ++ ".")
+  "Definition" <+> typeAnn (pretty name) (printType recType) <+> assign <> hardline <>
+  indent 2 constructorCall <> dot <> hardline
   where
-    -- Split the record type into words.
-    -- The first word is the record name; any remaining words are the concrete parameter values.
-    recWords = words $ printType recType
-    paramsStr = case recWords of
-                  (_:ps) -> unwords ps
-                  _      -> ""
-
+    hasParams = case recType of
+      (DCon _ tys exps) -> Just (tys, exps)
+      (Con _)           -> Nothing
+      _                 -> error "invalid type for a record"
+    parameters = maybe emptyDoc (\(tys, exps) -> (hsep $ map printType tys) <+> 
+                                                 (hsep $ map printExpr exps)) hasParams
     -- Use the provided constructor name if available; otherwise, look up the default.
 
-    -- Build a string for the field values; each field value is preceded by a space.
-    fieldsStr = concatMap (\(_, value) -> " " ++ printExpr value) fields
+    fieldsStr = hsep $ map (printExpr . snd) fields
 
     -- If there are parameters, insert them between the constructor name and the field values.
-    constructorCall = if null paramsStr
-                      then consName ++ fieldsStr
-                      else consName ++ " " ++ paramsStr ++ fieldsStr
-printDef (OpenName _) = ""
-printDef (Separator c n b) =
-  let s = replicate (fromIntegral n) c in
-  if b then '\n' : line s else s
+    constructorCall = 
+      case hasParams of
+        Nothing -> pretty consName <+> fieldsStr
+        Just _  -> pretty consName <+> parameters <+> fieldsStr
 
-printModule :: Module -> String
+printDef (OpenName _) = emptyDoc
+printDef (Separator c n b) =
+  let s = pretty $ replicate (fromIntegral n) c in
+  if b then hardline <> s <> hardline else s
+
+
+printModule :: Module -> Rocq ann
 printModule (Module name imports defs) =
-    let
-        headers = unlines (map printImport imports) ++ "\n\nModule " ++ name ++ ".\n"
-        body = foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
-    in headers ++ "\n" ++ body ++ "\nEnd " ++ name ++ "."
+    let headers =
+          (if null imports then emptyDoc
+                      else vsep (map printImport imports) <> hardline <> hardline) <>
+            "Module" <+> pretty name <> dot <> hardline
+        body = vcat (map printDef defs)
+    in Rocq $ headers <> hardline <> body <> hardline <> "End" <+> pretty name <> dot
+
+render :: Module -> String
+render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runRocq :: Module -> IO()
-runRocq m = writeFile ("out/" ++ modname m ++ ".v") $ printModule m
+runRocq m = writeFile ("out/" ++ modname m ++ ".v") $ render m
