@@ -1,3 +1,4 @@
+jobs: $ncpus
 packages:
     translators/translators.cabal
-    site/babelfish-site.cabal
+    site/panbench-site.cabal

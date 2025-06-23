@@ -12,12 +12,12 @@
 /**
 @brief Benchmarking statistics.
 */
-struct BenchmarkStats {
+typedef struct {
   Time bench_user_time; /**< Amount of time we spent in user code, measured in nanoseconds. */
-  Time bench_system_time; /**< Amount of time we spent in user code, measured in nanoseconds. */
-  long bench_max_rss; /**< Max resident set size, measured in kilobytes.*/
+  Time bench_system_time; /**< Amount of time we spent in system code, measured in nanoseconds. */
+  long bench_max_rss; /**< Max resident set size, measured in bytes.*/
   int bench_exit_code; /**< Exit code of benchmarked executable. */
-};
+} BenchmarkStats;
 
 /**
 @brief Pause the GHC RTS, run an executable, record runtime statistics, and resume the RTS.
@@ -31,7 +31,7 @@ executable, etc.), we return -1, keep {@code errno} set, and resume the RTS.
 @param[out] bench The results of a benchmarking run.
 @return 0 if we were able to run the executable, -1 if there was some fatal error.
 */
-int c_benchmark(const char *path, char *const argv[], char *const envp[], struct BenchmarkStats *const bench) {
+int c_benchmark(const char *path, char *const argv[], char *const envp[], BenchmarkStats *const bench) {
   // Pause the entire GHC runtime system.
   // This includes:
   // * All haskell threads.

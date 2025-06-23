@@ -1,7 +1,7 @@
 cradle:
   cabal:
     - path: "site/app/Main.hs"
-      component: "babelfish-site:exe:site"
+      component: "panbench-site:exe:site"
 
     - path: "translators/src"
       component: "lib:translators"
