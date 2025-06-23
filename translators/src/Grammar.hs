@@ -7,10 +7,11 @@ import Numeric.Natural (Natural)
 
 -- grammar
 
-data Module
-  = Module { mname :: Name
-           , mimports :: [Import]
-           , mdefs :: [Definition] }
+data Module = Module 
+  { mname :: Name
+  , mimports :: [Import]
+  , mdefs :: [Definition]
+  }
 
 modname :: Module -> Name
 modname m = mname m

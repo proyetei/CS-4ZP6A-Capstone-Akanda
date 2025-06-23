@@ -1,17 +1,12 @@
 module Main
 
-
 n : Nat
-n = let 
-    x1 = 1 in 
-    let 
-    x2 = x1 in 
-    let 
-    x3 = x2 in 
-    let 
-    x4 = x3 in 
-    let 
-    x5 = x4 in 
+n = let x1 = 1 in
+    let x2 = x1 in
+    let x3 = x2 in
+    let x4 = x3 in
+    let x5 = x4 in
     x5
+
 main : IO()
 main = putStrLn ""

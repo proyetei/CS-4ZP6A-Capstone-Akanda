@@ -1,6 +1,5 @@
 module Main
 
-
 record Cap_X where
     constructor Const
     f1 : Nat
