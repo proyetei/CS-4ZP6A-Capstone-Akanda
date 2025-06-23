@@ -12,6 +12,7 @@ import Prettyprinter
 import Prettyprinter.Render.String (renderString)
 
 import Grammar
+import Print.Generic (prettyArgs)
 
 newtype Rocq ann = Rocq {get :: Doc ann}
 
@@ -93,11 +94,11 @@ printOp :: Op -> Doc ann
 printOp Plus = "+"
 
 printLocalDefn :: LocalDefn -> Doc ann
-printLocalDefn (LocDefFun var Nothing args expr) = targs <+> assign <+> printExpr expr
-  where targs = if null args then pretty var else pretty var <+> hsep (map printArg args)
+printLocalDefn (LocDefFun var Nothing args expr) = 
+  prettyArgs var printArg args <+> assign <+> printExpr expr
 printLocalDefn (LocDefFun var (Just t) args expr) = typeAnn targs (printReturnType t) <+> assign <+>
   printExpr expr
-  where targs = if null args then pretty var else pretty var <+> hsep (map printArg args)
+  where targs = prettyArgs var printArg args
 
 printDef :: Definition -> Doc ann
 printDef (DefTVar var Nothing expr) = pretty var <+> assign <+> printExpr expr
