@@ -1,6 +1,5 @@
 module Main
 
-
 data D : (p1 : Type) -> (p2 : Type) -> (p3 : Type) -> (p4 : Type) -> (p5 : Type) -> Nat -> Nat -> Nat -> Nat -> Nat -> Type where
  C : p1
   -> p2

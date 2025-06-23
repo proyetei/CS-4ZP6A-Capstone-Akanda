@@ -1,6 +1,5 @@
 module Main
 
-
 A : String
 A = "xxxxx"
 

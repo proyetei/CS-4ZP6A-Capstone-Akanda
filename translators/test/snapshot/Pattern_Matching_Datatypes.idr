@@ -1,6 +1,5 @@
 module Main
 
-
 data D : Type where
  C1 : D
  C2 : D

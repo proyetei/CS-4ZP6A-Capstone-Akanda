@@ -9,6 +9,7 @@ import Prettyprinter
 import Prettyprinter.Render.String (renderString)
 
 import Grammar
+import Print.Generic (blanklines)
 
 newtype Idris ann = Idris {get :: Doc ann}
 
@@ -37,12 +38,13 @@ instance TypeAnn (Doc ann) where
   typeAnn trm typ = trm <+> ":" <+> typ
   teleCell trm typ = parens $ trm <+> ":" <+> typ
 
-printImport :: Import -> Doc ann
-printImport (ImportLib VecMod) = import_ <+> "Data.Vect"
+-- append an Import if needed
+printWithImport :: Import -> Doc ann -> Doc ann
+printWithImport (ImportLib VecMod) m = m <> import_ <+> "Data.Vect" <> hardline
 -- There rest are builtin
-printImport (ImportLib NatMod) = mempty
-printImport (ImportLib StringMod) = mempty
-printImport (ImportLib ListMod) = mempty
+printWithImport (ImportLib NatMod) m = m
+printWithImport (ImportLib StringMod) m = m
+printWithImport (ImportLib ListMod) m = m
 
 printType :: Type -> Doc ann
 printType (Univ) = univ
@@ -71,11 +73,11 @@ printExpr (Let ds expr) =
 printExpr (If cond thn els) =
   "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
 printExpr (Where expr ds) =
-  printExpr expr <> line <>
+  printExpr expr <> hardline <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (VecE l) = encloseSep lbracket rbracket (comma <> space) (map printExpr l)
-printExpr (ListE l) = encloseSep lbracket rbracket (comma <> space) (map printExpr l)
+printExpr (VecE l) =  brackets $ fillSep $ punctuate comma $ map printExpr l
+printExpr (ListE l) = brackets $ fillSep $ punctuate comma $ map printExpr l
 printExpr (Suc t) = parens $ "S" <+> printExpr t
 
 printOp :: Op -> Doc ann
@@ -109,11 +111,16 @@ printDef (DefDataType name cons ty) =
    hardline
 printDef (DefPDataType name params cons ty) =
   data_ <+> 
-    typeAnn (pretty name) (concatWith (\x y -> x <+> arr <+> y) (map (\(x, y) -> teleCell (pretty x) (printType y)) params)) <+> arr <+> (printType ty) <+> 
-    "where" <> hardline <>
-    indent 1 (vsep (map (\(n,t) -> typeAnn (pretty n) 
-                                   (encloseSep emptyDoc (space <> arr) (space <> arr <> space) (map (pretty.fst) params)) <+> printType t) cons)) <>
-    hardline
+    typeAnn (pretty name) prettyParams <+> arr <+> (printType ty) <+> 
+    "where" <> hardline <> indent 1 (vsep (map prettyCon cons)) <> hardline
+    where
+      -- FIXME: do we really need this many arrows in the definitions?
+      prettyParams = concatWith (\x y -> x <+> arr <+> y) $
+                                map (\(x, y) -> teleCell (pretty x) (printType y)) params
+      prettyCon (n, t) = typeAnn (pretty n) 
+                                 (encloseSep emptyDoc (space <> arr) (space <> arr <> space) 
+                                      (map (pretty.fst) params)) <+> 
+                         printType t
 
 printDef (DefRecType name params consName fields _) =
     rec <+> pp_params <+> "where" <> hardline <>
@@ -131,7 +138,7 @@ printDef (DefRec name recType consName fields) =
     hardline
 
 printDef (OpenName _) = emptyDoc
-printDef (Separator '\n' n _) = vcat $ replicate (fromIntegral n) emptyDoc
+printDef (Separator '\n' n _) = blanklines n
 printDef (Separator c n b) = 
   let s = hcat $ replicate (fromIntegral n) (pretty c) in
   if b then hardline <> s <> hardline else s
@@ -139,8 +146,8 @@ printDef (Separator c n b) =
 printModule :: Module -> Idris ann
 printModule (Module _ imports defs) =
     let
-        headers = "module Main" <> hardline <>
-          (if null imports then mempty else vsep (map printImport imports) <> hardline)
+        mmain = "module Main" <> hardline
+        headers = foldr printWithImport mmain imports
         -- Concatenate all definitions
         body = vcat $ map printDef defs
 

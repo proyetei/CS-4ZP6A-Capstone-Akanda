@@ -1,6 +1,5 @@
 module Main
 
-
 x1L1 : Nat
 x1L1 = 1
 

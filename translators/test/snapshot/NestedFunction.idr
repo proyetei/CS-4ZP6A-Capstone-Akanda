@@ -1,6 +1,5 @@
 module Main
 
-
 n : Nat
 n = let f1 : Nat -> Nat
         f1 x1 = 1 + x1
