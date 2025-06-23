@@ -1,8 +1,6 @@
 
 
-
 Module ChainDefFields_NonDependentRecordModule.
-
 
 Record Record1 : Type := Const1 {
   f1 : nat;
@@ -24,7 +22,7 @@ Record Record5 : Type := Const5 {
   f5 : nat;
 }.
 
-Definition example : Record5 := 
+Definition example : Record5 :=
   Const5 1.
 
 End ChainDefFields_NonDependentRecordModule.

@@ -131,7 +131,6 @@ _tests =
         recDef = DefRecType "X" params "Const" [("sums", Con "Nat")] (Con "Set")
 
         -- Build the record type application as a string: "X 1 2 ... n"
-        -- recTypeInstance = "X " ++ unwords (map show [1..n])
         recTypeInstance = DCon "X" [] $ iter n Nat
 
         -- Define the record instance "example" with computed field values:

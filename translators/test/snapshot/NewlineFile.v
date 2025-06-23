@@ -1,7 +1,4 @@
-
-
 Module NewlineFile.
-
 
 
 
