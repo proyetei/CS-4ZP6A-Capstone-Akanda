@@ -1,107 +1,162 @@
+{-# Language OverloadedStrings #-}
 module Print.Idris
   ( printModule
+  , render
   , runIdris
   ) where
 
-import Data.List (intercalate)
+import Prettyprinter
+import Prettyprinter.Render.String (renderString)
 
 import Grammar
-import Print.Generic
+import Print.Generic (blanklines)
 
-import_, univ, arr, typedel, assign :: String
-import_ = "import "
-univ = "Type"
-arr = " -> "
-typedel = " : "
-assign = " = "
+newtype Idris ann = Idris {get :: Doc ann}
 
-printImport :: Import -> String
-printImport (ImportLib VecMod) = import_ ++ "Data.Vect"
+-- to be migrated
+class Keywords rep where
+  import_ :: rep
+  assign  :: rep
+  data_   :: rep
+  rec     :: rep
+  univ    :: rep
+  arr     :: rep
+
+instance Keywords (Doc ann) where
+  import_ = "import"
+  assign  = "="
+  data_   = "data"
+  rec     = "record"
+  univ    = "Type"
+  arr     = "->"
+
+class TypeAnn rep where
+  typeAnn :: rep -> rep -> rep
+  teleCell :: rep -> rep -> rep
+
+instance TypeAnn (Doc ann) where
+  typeAnn trm typ = trm <+> ":" <+> typ
+  teleCell trm typ = parens $ trm <+> ":" <+> typ
+
+-- append an Import if needed
+printWithImport :: Import -> Doc ann -> Doc ann
+printWithImport (ImportLib VecMod) m = m <> import_ <+> "Data.Vect" <> hardline
 -- There rest are builtin
-printImport (ImportLib NatMod) = ""
-printImport (ImportLib StringMod) = ""
-printImport (ImportLib ListMod) = ""
+printWithImport (ImportLib NatMod) m = m
+printWithImport (ImportLib StringMod) m = m
+printWithImport (ImportLib ListMod) m = m
 
-printType :: Type -> String
+printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = t
-printType (Arr t1 t2) = printType t1 ++ arr ++ printType t2
-printType (TVar t) = t
-printType (PCon "Vec" [Con baseType, size]) = "Vect " ++ printType size ++ " " ++ baseType
-printType (PCon name types) = name ++ " " ++ unwords (map printType types)
-printType (DCon name [] exprs) = -- For dependent type constructors
-    name ++ " " ++ unwords (map printExpr exprs)
+printType (Con t) = pretty t
+printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
+printType (TVar t) = pretty t
+printType (PCon "Vec" [Con baseType, size]) = "Vect" <+> printType size <+> pretty baseType
+printType (PCon name types) = pretty name <+> hsep (map printType types)
+printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors
-    name ++ " " ++ unwords (map printType types) ++ " " ++ unwords (map printExpr exprs)
-printType (Index names ty) = brackets $ intercalate ", " names ++ " : " ++ printType ty
+    pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (Index names ty) = braces $ typeAnn (hsep $ punctuate comma $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
 
-printExpr :: Expr -> String
-printExpr (Constructor name) = name
-printExpr (Var var) = var
-printExpr (Nat n) = show n
-printExpr (String str) = quote str
+
+printExpr :: Expr -> Doc ann
+printExpr (Constructor name) = pretty name
+printExpr (Var var) = pretty var
+printExpr (Nat n) = pretty n
+printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 ++ printOp op ++ printExpr e2
-printExpr (Let [] expr) = printExpr expr -- this should never happen
-printExpr (Let (d:[]) expr) = "let \n    " ++ printLocalDefn d ++ " in \n    " ++ printExpr expr
-printExpr (Let (d:ds) expr) = 
-  "let \n    " ++ intercalate "\n    " (map printLocalDefn (d:ds)) ++
-  "\n    in \n    " ++ printExpr expr -- probably need to recursively indent blocks to make sure everything stays aligned
-printExpr (If cond thn els) = "if " ++ printExpr cond ++ " then " ++ printExpr thn ++ " else " ++ printExpr els
-printExpr (Where expr ds) = printExpr expr ++ "\n    where " ++ intercalate "\n    " (map printLocalDefn ds)
-printExpr (FunCall fun args) = fun ++ " " ++ (unwords $ map printExpr args) -- Added case for FunCall
-printExpr (VecE l) = sqbrackets $ intercalate ", " (map printExpr l)
-printExpr (ListE l) = sqbrackets $ intercalate ", " (map printExpr l)
-printExpr (Suc t) = parens $ "S " ++ printExpr t
+printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
+printExpr (Let ds expr) = 
+  "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
+  printExpr expr
+printExpr (If cond thn els) =
+  "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
+printExpr (Where expr ds) =
+  printExpr expr <> hardline <>
+  indent 4 ("where" <> vcat (map printLocalDefn ds))
+printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
+printExpr (VecE l) =  brackets $ fillSep $ punctuate comma $ map printExpr l
+printExpr (ListE l) = brackets $ fillSep $ punctuate comma $ map printExpr l
+printExpr (Suc t) = parens $ "S" <+> printExpr t
 
-printOp :: Op -> String
-printOp Plus = " + "
+printOp :: Op -> Doc ann
+printOp Plus = "+"
 
-printLocalDefn :: LocalDefn -> String
+printLocalDefn :: LocalDefn -> Doc ann
 printLocalDefn (LocDefFun var ty args expr) = 
-  typeSig ++ var ++ targ ++ assign ++ printExpr expr
-    where typeSig = maybe "" (\t -> var ++ typedel ++ printType t ++ "\n    ") ty
-          targ = if null args then "" else " " ++ intercalate " " (map arg args)
+  typeSig <> tvar <+> assign <+> align (printExpr expr)
+    where
+        typeSig = case ty of
+            Just t -> typeAnn (pretty var) (printType t) <> line
+            Nothing -> mempty
+        tvar = case args of
+            [] -> pretty var
+            (_:_) -> pretty var <+> (hsep $ map (pretty . arg) args)
 
-printDef :: Definition -> String
-printDef (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
-printDef (DefTVar var (Just t) expr) = line (var ++ typedel ++ printType t) ++ var ++ assign ++ printExpr expr
+printDef :: Definition -> Doc ann
+printDef (DefTVar var Nothing expr) = 
+  pretty var <+> assign <+> align (printExpr expr) <> softline'
+printDef (DefTVar var (Just t) expr) = 
+  typeAnn (pretty var) (printType t) <> hardline <>
+  pretty var <+> assign <+> align (printExpr expr) <> hardline
+
 printDef (DefFun var ty args expr) = printLocalDefn (LocDefFun var ty args expr)
 printDef (DefPatt var params ty _ cons) =
-    var ++ typedel ++ printType (foldr Arr ty (map snd params)) ++
-    unwords (map (\(a,e) -> "\n" ++ var ++ " " ++ (unwords $ map arg a) ++ assign ++ printExpr e ) cons)
-printDef (DefDataType name cons ty) = "data " ++ name ++ typedel ++ printType ty ++ " where" ++
-    (line $ unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ printType t) cons))
-printDef (DefPDataType name params cons ty) = "data " ++ name ++ typedel ++
-    foldr (\(x, y) z -> parens (x ++ typedel ++ printType y) ++ arr ++ z) (printType ty) params ++ " where" ++ 
-    unwords (map (\(n, t) -> "\n " ++ n ++ typedel ++ line (intercalate arr (map fst params) ++ arr ++ printType t)) cons)
+    typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
+    vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)
+printDef (DefDataType name cons ty) =
+  data_ <+> typeAnn (pretty name) (printType ty) <+> "where" <> hardline <>
+  indent 1 (vsep (map (\(n, t) -> typeAnn (pretty n) (printType t)) cons)) <>
+   hardline
+printDef (DefPDataType name params cons ty) =
+  data_ <+> 
+    typeAnn (pretty name) prettyParams <+> arr <+> (printType ty) <+> 
+    "where" <> hardline <> indent 1 (vsep (map prettyCon cons)) <> hardline
+    where
+      -- FIXME: do we really need this many arrows in the definitions?
+      prettyParams = concatWith (\x y -> x <+> arr <+> y) $
+                                map (\(x, y) -> teleCell (pretty x) (printType y)) params
+      prettyCon (n, t) = typeAnn (pretty n) 
+                                 (encloseSep emptyDoc (space <> arr) (space <> arr <> space) 
+                                      (map (pretty.fst) params)) <+> 
+                         printType t
 
--- Record Defn
 printDef (DefRecType name params consName fields _) =
-    "record " ++ name ++ paramsStr ++ " where\n    constructor " ++ consName ++ "\n" ++
-    unlines (map (\(fname, ftype) -> "    " ++ fname ++ typedel ++ printType ftype) fields)
-  where
-    paramsStr = case params of
-        [] -> ""
-        _ -> " " ++ unwords (map (\(Arg n t) -> parens $ n ++ typedel ++ printType t) params)
+    rec <+> pp_params <+> "where" <> hardline <>
+    indent 4 (vsep $ "constructor" <+> pretty consName :
+       (vsep $ map (\(fname, ftype) -> typeAnn (pretty fname) (printType ftype)) fields)
+       : []) <>
+    hardline
+    where
+      ll = map (\(Arg n t) -> teleCell (pretty n) (printType t)) params
+      pp_params = if null params then pretty name else pretty name <+> hsep ll
 
 printDef (DefRec name recType consName fields) =
-    (line $ name ++ typedel ++ printType recType) ++
-    name ++ assign ++ consName ++ " " ++ (line $ intercalate " " (map (printExpr . snd) fields))
+    typeAnn (pretty name) (printType recType) <> hardline <> 
+    pretty name <+> assign <+> pretty consName <+> nest 4 (sep (map (printExpr . snd) fields)) <>
+    hardline
 
-printDef (OpenName _) = ""
-printDef (Separator c n b) =
-  let s = replicate (fromIntegral n) c in
-  if b then '\n' : line s else s
+printDef (OpenName _) = emptyDoc
+printDef (Separator '\n' n _) = blanklines n
+printDef (Separator c n b) = 
+  let s = hcat $ replicate (fromIntegral n) (pretty c) in
+  if b then hardline <> s <> hardline else s
 
-printModule :: Module -> String
+printModule :: Module -> Idris ann
 printModule (Module _ imports defs) =
     let
-        headers = line ("module Main") ++ unlines (map printImport imports)
-        body = intercalate "\n" $ map printDef defs
-            -- foldl (\x y -> x ++ "\n" ++ y) "" $ map printDef defs
-    in headers ++ "\n" ++ body ++ "\nmain : IO()\nmain = putStrLn \"\""
+        mmain = "module Main" <> hardline
+        headers = foldr printWithImport mmain imports
+        -- Concatenate all definitions
+        body = vcat $ map printDef defs
+
+    in Idris $ headers <> hardline <> body <> hardline <>
+               "main : IO()" <> hardline <>
+               "main = putStrLn " <> dquote <> dquote
+
+render :: Module -> String
+render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runIdris :: Module -> IO()
-runIdris m = writeFile ("out/" ++ modname m ++ ".idr") $ printModule m
+runIdris m = writeFile ("out/" ++ modname m ++ ".idr") $ render m

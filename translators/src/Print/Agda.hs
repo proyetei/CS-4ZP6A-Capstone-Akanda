@@ -112,7 +112,7 @@ printDef (DefPatt var params ty _ cons) =
     vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
-  data_ <+> typeAnn (pretty name) (printType ty) <+> "where" <> line <>
+  data_ <+> typeAnn (pretty name) (printType ty) <+> "where" <> hardline <>
   indent 1 (vsep (map (\(n, t) -> typeAnn (pretty n) (printType t)) cons)) <>
    line
 printDef (DefPDataType name params cons ty) =
@@ -161,5 +161,5 @@ render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ show $ get $ printModule m
+    writeFile ("out/" ++ name ++ ".agda") $ render m
     where name = modname m
