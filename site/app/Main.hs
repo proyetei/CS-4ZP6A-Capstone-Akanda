@@ -1,10 +1,11 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE ImportQualifiedPost #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 module Main where
@@ -13,13 +14,19 @@ import Control.Exception
 import Control.Monad.IO.Class
 import Control.Monad
 
-import Data.Aeson
+import Data.Functor
 import Data.List
 import Data.Map.Strict (Map)
+import Data.Set (Set)
+import Data.Traversable
 
+import Data.Aeson qualified as JSON
 import Data.ByteString.Lazy qualified as LBS
 import Data.IntMap.Strict qualified as IntMap
 import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
+import Data.Text.Lazy.Encoding qualified as LT
+
 
 import Text.Read (readMaybe)
 import Numeric.Natural
@@ -27,6 +34,9 @@ import GHC.Generics
 
 import Development.Shake
 import Development.Shake.Classes (Hashable, Binary, NFData)
+
+import Graphics.Vega.VegaLite (VegaLite)
+import Graphics.Vega.VegaLite qualified as VL
 
 import System.Directory qualified as Dir
 import System.Directory (findExecutable)
@@ -98,19 +108,25 @@ modules = Map.fromList
 
 -- | Supported languages.
 data Lang = Agda | Idris | Lean | Rocq
-  deriving stock (Show, Eq, Ord, Generic)
+  deriving stock (Show, Eq, Ord, Enum, Bounded, Generic)
   deriving anyclass (Hashable, Binary, NFData)
 
--- | Lowercase string representations of each language name.
---
--- Used for determining the language from a path.
-langNames :: Map String Lang
-langNames = Map.fromList
-  [ ("agda", Agda)
-  , ("idris", Idris)
-  , ("lean", Lean)
-  , ("rocq", Rocq)
-  ]
+instance JSON.ToJSON Lang where
+  toJSON Agda = JSON.String "agda"
+  toJSON Idris = JSON.String "idris"
+  toJSON Lean = JSON.String "lean"
+  toJSON Rocq = JSON.String "rocq"
+
+
+-- [FIXME: Reed M, 24/06/2025] This is all kinda bad.
+-- Should think about a general mechanism for what a language is.
+
+-- | Get the name of a language.
+langName :: Lang -> String
+langName Agda = "agda"
+langName Idris = "idris"
+langName Lean = "lean"
+langName Rocq = "rocq"
 
 -- | Get the extension type for a given @Lang@.
 langExt :: Lang -> String
@@ -119,12 +135,22 @@ langExt Idris = ".idr"
 langExt Lean = ".lean"
 langExt Rocq = ".v"
 
+-- | Get the name of the binary for a language.
 langBinName :: Lang -> String
 langBinName Agda = "agda"
 langBinName Idris = "idris2"
 langBinName Lean = "lean"
 langBinName Rocq = "coqc"
 
+-- | Lowercase string representations of each language name.
+--
+-- Used for determining the language from a path.
+langNames :: Map String Lang
+langNames =
+  Map.fromList $ [minBound..maxBound] <&> \lang ->
+    (langName lang, lang)
+
+-- | Rule for finding a language's binary.
 findLangBin :: Lang -> Action String
 findLangBin lang =
   liftIO (findExecutable (langBinName lang)) >>= \case
@@ -209,23 +235,100 @@ moduleRules =
 -- > _build/lang/n/bench/mod.json
 
 -- | Rules for producing benchmarking results relative to a benchmark oracle.
-langBenchmarkRules :: (Benchmark -> Action BenchmarkStats) -> Rules ()
-langBenchmarkRules benchmark =
-  "_build/*/*/bench/*.json" %> \out -> do
-    -- Nasty directory munging. Could probably be more elegant,
-    -- but doesn't really matter.
-    lang <- parseModulePathLang (takeDirectory out)
-    let dir = takeDirectory $ takeDirectory out
-    let file = takeBaseName out -<.> langExt lang
-    need [dir </> file]
-    -- [FIXME: Reed M, 23/06/2025] Pull this out into an oracle.
-    bin <- findLangBin lang
-    -- [FIXME: Reed M, 23/06/2025] Language options.
-    stats <- benchmark (Benchmark bin [file] [] dir)
-    writeBinaryFileChanged out $ encode stats
+
+data BenchmarkLang = BenchmarkLang
+  { benchLang :: Lang
+  , benchSize :: Natural
+  , benchModuleName :: String
+  }
+  deriving stock (Show, Eq, Ord, Generic)
+  deriving anyclass (Hashable, Binary, NFData)
+
+type instance RuleResult BenchmarkLang = BenchmarkExecStats
+
+benchmarkLangOracle
+  :: (BenchmarkExec -> Action BenchmarkExecStats)
+  -> BenchmarkLang -> Action BenchmarkExecStats
+benchmarkLangOracle benchmark BenchmarkLang{..} = do
+  let dir = "_build" </> langName benchLang </> show benchSize
+  let file = benchModuleName -<.> langExt benchLang
+  need [dir </> file]
+  bin <- findLangBin benchLang
+  benchmark (BenchmarkExec bin [file] [] dir)
+
+-- * Plotting
+--
+-- We use version 4.15 of the [vega-lite](https://vega.github.io/vega-lite/) standard for
+-- plotting our data. This is a reasonably popular standard that isn't tied
+-- to a particular renderer.
+
+-- | Benchmarking plot query.
+data BenchmarkPlot = BenchmarkPlot
+  { benchPlotLangs :: Set Lang
+  -- ^ What languages should we include in the plot?
+  , benchPlotSamples :: [Natural]
+  -- ^ Parameters to sample at.
+  , benchPlotModuleName :: String
+  -- ^ Module to benchmark.
+  }
+  deriving stock (Show, Eq, Ord, Generic)
+  deriving anyclass (Hashable, Binary, NFData)
+
+type instance RuleResult BenchmarkPlot = VegaLite
+
+benchmarkPlotOracle
+  :: (BenchmarkLang -> Action BenchmarkExecStats)
+  -> BenchmarkPlot -> Action VegaLite
+benchmarkPlotOracle benchLang BenchmarkPlot{..} = do
+  rows <-
+    for ((,) <$> Set.toList benchPlotLangs <*> benchPlotSamples) \(lang, n) -> do
+      BenchmarkExecStats{..} <- benchLang (BenchmarkLang lang n benchPlotModuleName)
+      pure $ JSON.object
+        [ ("lang", JSON.toJSON lang)
+        , ("size", JSON.toJSON n)
+        , ("user", JSON.toJSON benchUserTime)
+        , ("system", JSON.toJSON benchSystemTime)
+        , ("rss", JSON.toJSON benchMaxRss)
+        ]
+  pure $ VL.toVegaLite
+    [ VL.dataFromSource "data" []
+    , VL.datasets [("data", VL.dataFromJson (JSON.toJSON rows) [])]
+    -- Line plot with markers on points.
+    , VL.mark VL.Line [VL.MPoint $ VL.PMMarker []]
+    -- Let's just do user time for now.
+    , VL.encoding
+      $ VL.position VL.X
+        [ VL.PName "size"
+        , VL.PmType VL.Ordinal
+        , VL.PAxis [VL.AxTitle "Input size"]
+        ]
+      $ VL.position VL.Y
+        [ VL.PName "user"
+        , VL.PmType VL.Quantitative
+        , VL.PAxis [VL.AxTitle "User time (nanoseconds)"]
+        ]
+      $ []
+    ]
+
+benchmarkHtmlRules
+  :: (BenchmarkPlot -> Action VegaLite)
+  -> Rules ()
+benchmarkHtmlRules plot =
+  "_build/index.html" %> \out -> do
+    -- [TODO: Reed M, 24/06/2025] Fancier HTML
+    vega <- plot $ BenchmarkPlot
+      { benchPlotLangs = Set.fromList [Agda]
+      , benchPlotSamples = [10 * n | n <- [1..10]]
+      , benchPlotModuleName = "LetExample"
+      }
+    writeBinaryFileChanged out $ LT.encodeUtf8 $ VL.toHtml vega
 
 main :: IO ()
 main = shakeArgs (shakeOptions {shakeFiles="_build"}) do
-  benchmark <- addBenchmarkOracle
-  langBenchmarkRules benchmark
+  benchmarkExec <- addOracle benchmarkExecOracle
+  benchmarkLang <- addOracle (benchmarkLangOracle benchmarkExec)
+  benchmarkHtmlRules (benchmarkPlotOracle benchmarkLang)
   moduleRules
+
+  phony "clean" do
+    removeFilesAfter "_build" ["agda/*", "lean/*", "idris/*", "rocq/*", "*.html"]

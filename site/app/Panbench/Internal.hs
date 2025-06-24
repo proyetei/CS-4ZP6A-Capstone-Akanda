@@ -8,9 +8,9 @@
 module Panbench.Internal
   (
   -- $shake
-    Benchmark(..)
-  , BenchmarkStats(..)
-  , addBenchmarkOracle
+    BenchmarkExec(..)
+  , BenchmarkExecStats(..)
+  , benchmarkExecOracle
   ) where
 
 import Data.Aeson
@@ -35,7 +35,7 @@ import System.Directory
 -- $bench
 
 -- | Benchmarking statistics gathered by @benchmark@.
-data BenchmarkStats = BenchmarkStats
+data BenchmarkExecStats = BenchmarkExecStats
   { benchUserTime :: !Int64
   -- ^ The time spent in user code, measured in nanoseconds.
   , benchSystemTime :: !Int64
@@ -48,10 +48,10 @@ data BenchmarkStats = BenchmarkStats
   deriving stock (Generic, Show, Eq)
   deriving anyclass (Hashable, Binary, NFData, FromJSON)
 
-instance ToJSON BenchmarkStats where
+instance ToJSON BenchmarkExecStats where
     toEncoding = genericToEncoding defaultOptions
 
-instance Storable BenchmarkStats where
+instance Storable BenchmarkExecStats where
   sizeOf _ = 4 * sizeOf (undefined :: Int64)
   alignment _ = alignment (undefined :: Int64)
   peek sp = do
@@ -60,15 +60,15 @@ instance Storable BenchmarkStats where
     benchSystemTime <- peekElemOff p 1
     benchMaxRss <- peekElemOff p 2
     benchExitCode <- peekElemOff p 3
-    pure (BenchmarkStats {..})
-  poke sp (BenchmarkStats{..}) = do
+    pure (BenchmarkExecStats {..})
+  poke sp (BenchmarkExecStats{..}) = do
     p <- pure $ castPtr sp
     poke p benchUserTime
     pokeElemOff p 1 benchSystemTime
     pokeElemOff p 2 benchMaxRss
     pokeElemOff p 3 benchExitCode
 
-foreign import capi "benchmark.h c_benchmark" c_benchmark :: CString -> Ptr CString -> Ptr CString -> Ptr BenchmarkStats -> IO CInt
+foreign import capi "benchmark.h c_benchmark" c_benchmark :: CString -> Ptr CString -> Ptr CString -> Ptr BenchmarkExecStats -> IO CInt
 
 -- | Collect benchmarking stats for a single run of an executable.
 --
@@ -77,12 +77,12 @@ foreign import capi "benchmark.h c_benchmark" c_benchmark :: CString -> Ptr CStr
 -- variables @env@ set, and unpause the RTS.
 --
 -- If the executable exits with a non-zero exit code, then this
--- is reported in the returned @BenchmarkStats@. If there was some
+-- is reported in the returned @BenchmarkExecStats@. If there was some
 -- other fatal error (executable not found, out of file descriptors, etc),
 -- an @IOError@ is thrown.
 --
--- For documentation on benchmarking statistics gathered, see @BenchmarkStats@.
-benchmark :: FilePath -> [String] -> [String] -> IO BenchmarkStats
+-- For documentation on benchmarking statistics gathered, see @BenchmarkExecStats@.
+benchmark :: FilePath -> [String] -> [String] -> IO BenchmarkExecStats
 benchmark path args env = do
   p <- malloc
   r <-
@@ -103,7 +103,7 @@ benchmark path args env = do
 -- $shake
 
 -- | Generic benchmarking query.
-data Benchmark = Benchmark
+data BenchmarkExec = BenchmarkExec
   { benchExec :: FilePath
   , benchArgs :: [FilePath]
   , benchEnv :: [FilePath]
@@ -112,15 +112,11 @@ data Benchmark = Benchmark
   deriving stock (Generic, Show, Eq)
   deriving anyclass (Hashable, Binary, NFData)
 
-type instance RuleResult Benchmark = BenchmarkStats
+type instance RuleResult BenchmarkExec = BenchmarkExecStats
 
--- | Create a benchmarking oracle.
---
--- See @'addOracle'@ for documentation on shake oracles.
-addBenchmarkOracle :: Rules (Benchmark -> Action BenchmarkStats)
-addBenchmarkOracle =
-  versioned 1 $
-  addOracle \Benchmark{..} ->
-    traced "benchmark" $
-    withCurrentDirectory benchWorkingDir $
-    benchmark benchExec benchArgs benchEnv
+-- | Executable benchmarking oracle.
+benchmarkExecOracle :: BenchmarkExec -> Action BenchmarkExecStats
+benchmarkExecOracle BenchmarkExec{..} =
+  traced "benchmark" $
+  withCurrentDirectory benchWorkingDir $
+  benchmark benchExec benchArgs benchEnv

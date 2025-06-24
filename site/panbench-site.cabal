@@ -20,10 +20,12 @@ executable site
         base >=4.17.2.1,
         aeson >= 2.2,
         bytestring >= 0.12,
-        directory >= 1.3,
         containers >= 0.6,
+        directory >= 1.3,
         filepath >= 1.5,
+        hvega >= 0.12,
         shake >= 0.19,
+        text >= 2.1,
         translators
     hs-source-dirs:
         app
