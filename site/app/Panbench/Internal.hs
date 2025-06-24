@@ -1,12 +1,24 @@
 {-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeFamilies #-}
 module Panbench.Internal
-  ( BenchmarkStats(..)
-  , benchmark
+  (
+  -- $shake
+    Benchmark(..)
+  , BenchmarkStats(..)
+  , addBenchmarkOracle
   ) where
 
 import Data.Int
+
+import Development.Shake.Classes (Hashable, Binary, NFData)
+import Development.Shake
+
+import GHC.Generics
 
 import Foreign.C
 import Foreign.Marshal.Alloc
@@ -14,6 +26,10 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+
+-- * Benchmarking tools
+--
+-- $bench
 
 -- | Benchmarking statistics gathered by @benchmark@.
 data BenchmarkStats = BenchmarkStats
@@ -26,7 +42,8 @@ data BenchmarkStats = BenchmarkStats
   , benchExitCode :: !Int64
   -- ^ The exit code of the benchmarked executable.
   }
-  deriving (Show)
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (Hashable, Binary, NFData)
 
 instance Storable BenchmarkStats where
   sizeOf _ = 4 * sizeOf (undefined :: Int64)
@@ -74,3 +91,27 @@ benchmark path args env = do
   else
     peek p
 {-# NOINLINE benchmark #-}
+
+-- * Shake Oracles
+--
+-- $shake
+
+-- | Generic benchmarking query.
+data Benchmark = Benchmark
+  { benchExec :: FilePath
+  , benchArgs :: [FilePath]
+  , benchEnv :: [FilePath]
+  }
+  deriving stock (Generic, Show, Eq)
+  deriving anyclass (Hashable, Binary, NFData)
+
+type instance RuleResult Benchmark = BenchmarkStats
+
+-- | Create a benchmarking oracle.
+--
+-- See @'addOracle'@ for documentation on shake oracles.
+addBenchmarkOracle :: Rules (Benchmark -> Action BenchmarkStats)
+addBenchmarkOracle =
+  versioned 1 $
+  addOracle \Benchmark{..} ->
+    traced "benchmark" $ benchmark benchExec benchArgs benchEnv
