@@ -13,6 +13,7 @@ module Panbench.Internal
   , addBenchmarkOracle
   ) where
 
+import Data.Aeson
 import Data.Int
 
 import Development.Shake.Classes (Hashable, Binary, NFData)
@@ -26,6 +27,8 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+
+import System.Directory
 
 -- * Benchmarking tools
 --
@@ -43,7 +46,10 @@ data BenchmarkStats = BenchmarkStats
   -- ^ The exit code of the benchmarked executable.
   }
   deriving stock (Generic, Show, Eq)
-  deriving anyclass (Hashable, Binary, NFData)
+  deriving anyclass (Hashable, Binary, NFData, FromJSON)
+
+instance ToJSON BenchmarkStats where
+    toEncoding = genericToEncoding defaultOptions
 
 instance Storable BenchmarkStats where
   sizeOf _ = 4 * sizeOf (undefined :: Int64)
@@ -101,6 +107,7 @@ data Benchmark = Benchmark
   { benchExec :: FilePath
   , benchArgs :: [FilePath]
   , benchEnv :: [FilePath]
+  , benchWorkingDir :: FilePath
   }
   deriving stock (Generic, Show, Eq)
   deriving anyclass (Hashable, Binary, NFData)
@@ -114,4 +121,6 @@ addBenchmarkOracle :: Rules (Benchmark -> Action BenchmarkStats)
 addBenchmarkOracle =
   versioned 1 $
   addOracle \Benchmark{..} ->
-    traced "benchmark" $ benchmark benchExec benchArgs benchEnv
+    traced "benchmark" $
+    withCurrentDirectory benchWorkingDir $
+    benchmark benchExec benchArgs benchEnv
