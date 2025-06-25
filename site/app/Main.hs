@@ -155,6 +155,12 @@ langBinName Idris = "idris2"
 langBinName Lean = "lean"
 langBinName Rocq = "coqc"
 
+langBuildArtifacts :: Lang -> [FilePath]
+langBuildArtifacts Agda = ["*.agdai"]
+langBuildArtifacts Idris = ["build/*"]
+langBuildArtifacts Lean = []
+langBuildArtifacts Rocq = ["*.vo", "*.vok", "*.vos", "*.glob"]
+
 -- | Lowercase string representations of each language name.
 --
 -- Used for determining the language from a path.
@@ -264,6 +270,7 @@ benchmarkLangOracle
 benchmarkLangOracle benchmark BenchmarkLang{..} = do
   let dir = "_build" </> langName benchLang </> show benchSize
   let file = benchModuleName -<.> langExt benchLang
+  removeFilesAfter dir (langBuildArtifacts benchLang)
   need [dir </> file]
   bin <- findLangBin benchLang
   benchmark (BenchmarkExec bin (langFlags benchLang file) [] dir)
