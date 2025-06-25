@@ -38,6 +38,10 @@ userTimeLayer dataSource width height =
         , VL.PmType VL.Quantitative
         , VL.PAxis [VL.AxTitle "User time (seconds)"]
         ]
+      $ VL.tooltips
+        [ [VL.TName "lang", VL.TmType VL.Nominal]
+        , [VL.TName "user", VL.TmType VL.Quantitative]
+        ]
       $ []
   , VL.transform
     $ nanosecondTransform "user"
@@ -70,6 +74,10 @@ systemTimeLayer dataSource width height =
         , VL.PmType VL.Quantitative
         , VL.PAxis [VL.AxTitle "System time (seconds)"]
         ]
+      $ VL.tooltips
+        [ [VL.TName "lang", VL.TmType VL.Nominal]
+        , [VL.TName "system", VL.TmType VL.Quantitative]
+        ]
       $ []
   , VL.transform
     $ nanosecondTransform "system"
@@ -101,6 +109,10 @@ maxRssLayer dataSource width height =
         [ VL.PName "rss"
         , VL.PmType VL.Quantitative
         , VL.PAxis [VL.AxTitle "Max resident set size", VL.AxFormat "s"]
+        ]
+      $ VL.tooltips
+        [ [VL.TName "lang", VL.TmType VL.Nominal]
+        , [VL.TName "rss", VL.TmType VL.Quantitative, VL.TFormat "s"]
         ]
       $ []
   , VL.transform
