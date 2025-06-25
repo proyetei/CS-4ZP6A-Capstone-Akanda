@@ -60,7 +60,7 @@ printTestForLang
   -- ^ The thing to print.
   -> TestTree
 printTestForLang langName printer fileExt base syn =
-  goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", ref, new]) snapshotFile stagingFile do
+  goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", "--color=always", ref, new]) snapshotFile stagingFile do
     createDirectoryIfMissing False ("test" </> "staging")
     createFile stagingFile
     -- Data.Ext.IO.Utf8 always writes UTF-8, ignores the locale,

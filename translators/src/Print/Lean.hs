@@ -17,8 +17,8 @@ newtype Lean ann = Lean {get :: Doc ann}
 
 class Keywords rep where
   import_ :: rep
-{-
   assign  :: rep
+{-
   data_   :: rep
   rec     :: rep
   univ    :: rep
@@ -26,12 +26,13 @@ class Keywords rep where
 -}
 instance Keywords (Doc ann) where
   import_ = "import"
+  assign  = ":="
 {-
-  assign  = "="
   data_   = "data"
   rec     = "record"
   univ    = "Type"
   arr     = "->"
+-}
 
 class TypeAnn rep where
   typeAnn :: rep -> rep -> rep
@@ -40,13 +41,11 @@ class TypeAnn rep where
 instance TypeAnn (Doc ann) where
   typeAnn trm typ = trm <+> ":" <+> typ
   teleCell trm typ = parens $ trm <+> ":" <+> typ
--}
 
-univ, arr, typedel, assign :: String
+univ, arr, typedel :: String
 univ = "Type"
 arr = " -> "
 typedel = " : "
-assign = " := "
 
 -- append an Import if needed
 printWithImport :: Import -> Doc ann -> Doc ann
@@ -75,7 +74,10 @@ printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "show not occur as a return type"
 
 printArg :: Arg -> String
-printArg a = G.parens $ (arg a) ++ typedel ++ (printType $ argty a)
+printArg a = G.parens $ arg a ++ typedel ++ printType (argty a)
+
+printArg' :: Arg -> Doc ann
+printArg' a = teleCell (pretty $ arg a) (pretty $ printType $ argty a)
 
 -- Print expressions (unchanged)
 printExpr :: Expr -> String
@@ -99,48 +101,60 @@ printOp :: Op -> String
 printOp Plus = " + "
 
 printLocalDefn :: LocalDefn -> String
-printLocalDefn (LocDefFun var Nothing args expr) = var ++ targs ++ assign ++ printExpr expr
+printLocalDefn (LocDefFun var Nothing args expr) = var ++ targs ++ " := " ++ printExpr expr
   where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
   -- same as DefFun
-printLocalDefn (LocDefFun var (Just t) args expr) = var ++ targs ++ typedel ++ printReturnType t ++ assign ++ printExpr expr
+printLocalDefn (LocDefFun var (Just t) args expr) = var ++ targs ++ typedel ++ printReturnType t ++ " := " ++ printExpr expr
   where targs = if null args then "" else " " ++ intercalate " " (map printArg args)
 
-printDef :: [Definition] -> Definition -> String
-printDef _ (DefTVar var Nothing expr) = var ++ assign ++ printExpr expr
-printDef _ (DefTVar var (Just t) expr) = "def " ++ var ++ typedel ++ printType t ++ assign ++ printExpr expr
-printDef _ (DefFun var Nothing args expr) = var ++ " " ++ intercalate " " (map arg args) ++ assign ++ printExpr expr
-printDef _ (DefFun var (Just t) args expr) = "def " ++ var ++ " " ++ intercalate " " (map printArg args) ++ typedel ++
-  printType t ++ assign ++ printExpr expr
+printDef :: [Definition] -> Definition -> Doc ann
+printDef _ (DefTVar var Nothing expr) = pretty var <+> assign <+> (pretty $ printExpr expr)
+printDef _ (DefTVar var (Just t) expr) = "def" <+> typeAnn (pretty var) (pretty $ printType t) <+>
+  assign <+> (pretty $ printExpr expr) 
+printDef _ (DefFun var Nothing args expr) = pretty var <+> hsep (map (pretty . arg) args) <+> assign <+>
+  (pretty $ printExpr expr)
+printDef _ (DefFun var (Just t) args expr) = "def " <+> typeAnn (pretty var <+> hsep (map printArg' args)) 
+  (pretty $ printType t) <+> assign <+> (pretty $ printExpr expr)
 printDef _ (DefPatt var params ty _ cons) =
-    "def " ++ var ++ typedel ++ printType (foldr Arr ty (map snd params)) ++
-    unwords (map (\(a,e) -> "\n| " ++ (unwords $ map arg a) ++ " => " ++ printExpr e ) cons)
-printDef _ (DefDataType str args t) = "inductive " ++ str ++ typedel ++ printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ typedel ++ printType y) args)
-printDef _ (DefPDataType str params args t) =
-   "inductive " ++ str ++ " " ++ unwords (map (\(x, y) -> G.parens (x ++ typedel ++ printType y)) params) ++ typedel ++
-   printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ typedel ++ (printType y)) args)
+    "def" <+> typeAnn (pretty var) (pretty $ printType (foldr Arr ty (map snd params))) <> hardline <>
+    vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . arg) a) <+> "=>" <+> (pretty $ printExpr e)) cons) 
+printDef _ (DefDataType var args t) =
+  "inductive" <+> typeAnn (pretty var) (pretty $ printType t) <+> "where" <> hardline <>
+   vsep (map (\(x, y) -> pipe <+> typeAnn (pretty x) (pretty $ printType y)) args)
+printDef _ (DefPDataType var params args t) =
+   "inductive" <+> 
+       typeAnn (pretty var <+> hsep (map (\(x, y) -> teleCell (pretty x) (pretty $ printType y)) params))
+       (pretty $ printType t) <+> "where" <> hardline <>
+   vsep (map (\(x, y) -> pipe <+> typeAnn (pretty x) (pretty $ printType y)) args)
+   -- unwords (map (\(x, y) -> G.parens (x ++ typedel ++ printType y)) params) ++ typedel ++
+   -- printType t ++ " where " ++ unwords (map (\(x, y) -> "\n| " ++ x ++ typedel ++ (printType y)) args)
 
 -- records Def
 printDef _ (DefRecType name params consName fields _) =
-    "structure " ++ name ++ paramsStr ++ " where\n    " ++ consName ++ " ::\n" ++
-    concatMap (\(fname, ftype) -> "    " ++ fname ++ " : " ++ printType ftype ++ "\n") fields
-    where
-        paramsStr = case params of
-            [] -> ""
-            _ -> " " ++ unwords (map (\(Arg n t) -> G.parens $ n ++ typedel ++ printType t) params)
+    "structure" <+> prettyParams <+> "where" <> hardline <>
+    indent 4 (pretty consName <+> "::" <> hardline <>
+    vsep (map (\(fname, ftype) -> typeAnn (pretty fname) (pretty $ printType ftype)) fields)) <>
+    hardline
+      where
+        prettyParams = case params of
+            [] -> pretty name
+            _ -> pretty name <+> hsep (map (\(Arg n t) -> teleCell (pretty n) (pretty $ printType t)) params)
 
 
 -- OpenLine: It takes a list of record definitions (recs) and uses it to build an open line.
 -- Exclusive lean syntax needed for simplicity
 printDef recs (DefRec name recType consName fields) =
-    openLine ++
-    name ++ typedel ++ printType recType ++ assign ++ consName ++ " " ++ intercalate " " (map (printExpr . snd) fields)
+    openLine <> 
+    typeAnn (pretty name) (pretty $ printType recType) <+> assign <+> pretty consName <+>
+    hsep (map (pretty . printExpr . snd) fields)
   where
     recNamesList = [ rName | DefRecType rName _ _ _ _ <- recs ]
-    openLine = if null recNamesList then "" else "open " ++ unwords recNamesList ++ "\n"
-printDef _ (OpenName n) = "open " ++ n
-printDef _ (Separator c n b) =
-  let s = replicate (fromIntegral n) c in
-  if b then '\n' : G.line s else s
+    openLine = if null recNamesList then emptyDoc else "open" <+> hsep (map pretty recNamesList) <> hardline
+printDef _ (OpenName n) = "open" <+> pretty n
+printDef _ (Separator '\n' n _) = G.blanklines n
+printDef _ (Separator c n b) = 
+  let s = hcat $ replicate (fromIntegral n) (pretty c) in
+  if b then hardline <> s <> hardline else s
 
 
 printModule :: Module -> Lean ann
@@ -148,7 +162,7 @@ printModule (Module _ imports defs) =
     let
         headers = foldr printWithImport emptyDoc imports
         ctx = [ d | d@(DefRecType _ _ _ _ _) <- defs ]  -- extract record definitions from the module
-        body = vcat (map (pretty . printDef ctx) defs)
+        body = vcat (map (printDef ctx) defs)
     in Lean $ if null imports then body else headers <> hardline <> body
 
 render :: Module -> String
