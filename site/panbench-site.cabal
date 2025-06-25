@@ -16,9 +16,12 @@ executable site
     main-is:          Main.hs
     other-modules:
         Panbench.Internal
+        Panbench.HTML
+        Panbench.Vega
     build-depends:
         base >=4.17.2.1,
         aeson >= 2.2,
+        blaze-html >= 0.9,
         bytestring >= 0.12,
         containers >= 0.6,
         directory >= 1.3,

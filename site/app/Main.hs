@@ -6,6 +6,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 module Main where
@@ -17,14 +18,18 @@ import Control.Monad
 import Data.Functor
 import Data.List
 import Data.Map.Strict (Map)
+import Data.String
 import Data.Set (Set)
+import Data.Text (Text)
 import Data.Traversable
 
 import Data.Aeson qualified as JSON
+import Data.Aeson.Encoding qualified as JSON
 import Data.ByteString.Lazy qualified as LBS
 import Data.IntMap.Strict qualified as IntMap
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
+import Data.Text.IO qualified as T
 import Data.Text.Lazy.Encoding qualified as LT
 
 
@@ -44,7 +49,10 @@ import System.FilePath
 import System.IO.Error
 import System.IO
 
+import Text.Blaze.Html.Renderer.Utf8 qualified as H
+
 import Panbench.Internal
+import Panbench.HTML
 
 import Print.Agda qualified as Agda
 import Print.Idris qualified as Idris
@@ -117,7 +125,6 @@ instance JSON.ToJSON Lang where
   toJSON Lean = JSON.String "lean"
   toJSON Rocq = JSON.String "rocq"
 
-
 -- [FIXME: Reed M, 24/06/2025] This is all kinda bad.
 -- Should think about a general mechanism for what a language is.
 
@@ -134,6 +141,12 @@ langExt Agda = ".agda"
 langExt Idris = ".idr"
 langExt Lean = ".lean"
 langExt Rocq = ".v"
+
+langFlags :: Lang -> FilePath -> [String]
+langFlags Agda file = ["+RTS", "-M3.0G", "-RTS", file]
+langFlags Idris file = ["--check", file]
+langFlags Lean file = ["-D", "maxRecDepth=2000", "-D", "maxHeartbeats=0", file]
+langFlags Rocq file = [file]
 
 -- | Get the name of the binary for a language.
 langBinName :: Lang -> String
@@ -234,8 +247,7 @@ moduleRules =
 --
 -- > _build/lang/n/bench/mod.json
 
--- | Rules for producing benchmarking results relative to a benchmark oracle.
-
+-- | Query for benchmarking a module against a single size and language.
 data BenchmarkLang = BenchmarkLang
   { benchLang :: Lang
   , benchSize :: Natural
@@ -254,81 +266,76 @@ benchmarkLangOracle benchmark BenchmarkLang{..} = do
   let file = benchModuleName -<.> langExt benchLang
   need [dir </> file]
   bin <- findLangBin benchLang
-  benchmark (BenchmarkExec bin [file] [] dir)
+  benchmark (BenchmarkExec bin (langFlags benchLang file) [] dir)
 
--- * Plotting
---
--- We use version 4.15 of the [vega-lite](https://vega.github.io/vega-lite/) standard for
--- plotting our data. This is a reasonably popular standard that isn't tied
--- to a particular renderer.
-
--- | Benchmarking plot query.
-data BenchmarkPlot = BenchmarkPlot
-  { benchPlotLangs :: Set Lang
-  -- ^ What languages should we include in the plot?
-  , benchPlotSamples :: [Natural]
+-- | Benchmarking matrix query.
+data BenchmarkMatrix = BenchmarkMatrix
+  { benchMatrixLangs :: Set Lang
+  -- ^ What languages should we include in the matrix?
+  , benchMatrixSamples :: [Natural]
   -- ^ Parameters to sample at.
-  , benchPlotModuleName :: String
+  , benchMatrixModuleName :: String
   -- ^ Module to benchmark.
   }
   deriving stock (Show, Eq, Ord, Generic)
   deriving anyclass (Hashable, Binary, NFData)
 
-type instance RuleResult BenchmarkPlot = VegaLite
 
-benchmarkPlotOracle
-  :: (BenchmarkLang -> Action BenchmarkExecStats)
-  -> BenchmarkPlot -> Action VegaLite
-benchmarkPlotOracle benchLang BenchmarkPlot{..} = do
-  rows <-
-    for ((,) <$> Set.toList benchPlotLangs <*> benchPlotSamples) \(lang, n) -> do
-      BenchmarkExecStats{..} <- benchLang (BenchmarkLang lang n benchPlotModuleName)
-      pure $ JSON.object
+newtype BenchmarkMatrixResult = BenchmarkMatrixResult (Map Lang [(Natural, BenchmarkExecStats)])
+  deriving stock (Show, Eq, Generic)
+  deriving anyclass (Hashable, Binary, NFData)
+
+-- | We need this somewhat annoying instance to make our data a bit more @vega-lite@
+-- friendly.
+instance JSON.ToJSON BenchmarkMatrixResult where
+  toJSON (BenchmarkMatrixResult results) =
+    JSON.toJSON $ concat $ Map.toList results <&> \(lang, stats) ->
+      stats <&> \(n, BenchmarkExecStats{..}) ->
+        JSON.object
         [ ("lang", JSON.toJSON lang)
         , ("size", JSON.toJSON n)
         , ("user", JSON.toJSON benchUserTime)
         , ("system", JSON.toJSON benchSystemTime)
         , ("rss", JSON.toJSON benchMaxRss)
         ]
-  pure $ VL.toVegaLite
-    [ VL.dataFromSource "data" []
-    , VL.datasets [("data", VL.dataFromJson (JSON.toJSON rows) [])]
-    -- Line plot with markers on points.
-    , VL.mark VL.Line [VL.MPoint $ VL.PMMarker []]
-    -- Let's just do user time for now.
-    , VL.encoding
-      $ VL.position VL.X
-        [ VL.PName "size"
-        , VL.PmType VL.Ordinal
-        , VL.PAxis [VL.AxTitle "Input size"]
-        ]
-      $ VL.position VL.Y
-        [ VL.PName "user"
-        , VL.PmType VL.Quantitative
-        , VL.PAxis [VL.AxTitle "User time (nanoseconds)"]
-        ]
-      $ []
-    ]
 
-benchmarkHtmlRules
-  :: (BenchmarkPlot -> Action VegaLite)
-  -> Rules ()
-benchmarkHtmlRules plot =
-  "_build/index.html" %> \out -> do
-    -- [TODO: Reed M, 24/06/2025] Fancier HTML
-    vega <- plot $ BenchmarkPlot
-      { benchPlotLangs = Set.fromList [Agda]
-      , benchPlotSamples = [10 * n | n <- [1..10]]
-      , benchPlotModuleName = "LetExample"
-      }
-    writeBinaryFileChanged out $ LT.encodeUtf8 $ VL.toHtml vega
+type instance RuleResult BenchmarkMatrix = BenchmarkMatrixResult
+
+benchmarkMatrixOracle
+  :: (BenchmarkLang -> Action BenchmarkExecStats)
+  -> BenchmarkMatrix -> Action BenchmarkMatrixResult
+benchmarkMatrixOracle benchmark BenchmarkMatrix{..} =
+  fmap BenchmarkMatrixResult $
+  sequence $
+  flip Map.fromSet benchMatrixLangs \lang ->
+  for benchMatrixSamples \n -> do
+    stats <- benchmark (BenchmarkLang lang n benchMatrixModuleName)
+    pure (n, stats)
+
+-- * Report rendering
 
 main :: IO ()
 main = shakeArgs (shakeOptions {shakeFiles="_build"}) do
   benchmarkExec <- addOracle benchmarkExecOracle
   benchmarkLang <- addOracle (benchmarkLangOracle benchmarkExec)
-  benchmarkHtmlRules (benchmarkPlotOracle benchmarkLang)
+  -- Why isn't this caching?
+  benchmarkMatrix <- addOracleCache (benchmarkMatrixOracle benchmarkLang)
   moduleRules
 
   phony "clean" do
     removeFilesAfter "_build" ["agda/*", "lean/*", "idris/*", "rocq/*", "*.html"]
+
+  "_build/index.html" %> \out -> do
+    need [vegaSrc, vegaLiteSrc, vegaEmbedSrc]
+    vegaJs <- liftIO $ T.readFile vegaSrc
+    vegaLiteJs <- liftIO $ T.readFile vegaLiteSrc
+    vegaEmbedJs <- liftIO $ T.readFile vegaEmbedSrc
+    stats <- benchmarkMatrix (BenchmarkMatrix (Set.fromList [Agda, Idris, Lean, Rocq]) [2^n | n <- [(0 :: Int)..10]] "LetExample")
+    writeBinaryFileChanged out
+      $ H.renderHtml
+      $ benchmarkHtml vegaJs vegaLiteJs vegaEmbedJs
+      $ JSON.toJSON stats
+    where
+      vegaSrc = "web/vega@5.10.js"
+      vegaLiteSrc = "web/vega-lite@4.7.0.js"
+      vegaEmbedSrc = "web/vega-embed@6.3.2.js"
