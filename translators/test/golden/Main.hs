@@ -60,7 +60,7 @@ printTestForLang
   -- ^ The thing to print.
   -> TestTree
 printTestForLang langName printer fileExt base syn =
-  goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", ref, new]) snapshotFile stagingFile do
+  goldenVsFileDiff langName (\ref new -> ["diff", "--strip-trailing-cr" ,"-u", "--color=always", ref, new]) snapshotFile stagingFile do
     createDirectoryIfMissing False ("test" </> "staging")
     createFile stagingFile
     -- Data.Ext.IO.Utf8 always writes UTF-8, ignores the locale,
@@ -83,7 +83,7 @@ printModuleTestGroup groupName base syn =
   testGroup groupName
   [ printTestForLang "Agda" Agda.render ".agda" base syn
   , printTestForLang "Idris" Idris.render ".idr" base syn
-  , printTestForLang "Lean" Lean.printModule ".lean" base syn
+  , printTestForLang "Lean" Lean.render ".lean" base syn
   , printTestForLang "Rocq" Rocq.render ".v" base syn
   ]
 

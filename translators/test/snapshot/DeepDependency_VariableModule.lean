@@ -1,5 +1,4 @@
 
-
 def x1L1 : Nat := 1
 def x1L2 : Nat := 2
 def x1L3 : Nat := 3

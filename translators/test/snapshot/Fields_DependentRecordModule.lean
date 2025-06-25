@@ -1,4 +1,3 @@
-
 import Init.Data.Vector
 
 structure Cap_X where
