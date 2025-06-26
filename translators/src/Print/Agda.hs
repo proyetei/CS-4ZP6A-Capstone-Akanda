@@ -59,12 +59,19 @@ printType (DCon name types exprs) = -- For dependent type constructors
 printType (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
 
+printLit :: Literal -> Doc ann
+printLit (Nat n) = pretty n
+printLit (Bool b) = pretty b
+printLit (String str) = dquotes $ pretty str
+printLit (Vec l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printExpr l)
+printLit (List l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printExpr l)
+
 -- Print expressions
 printExpr :: Expr -> Doc ann
 printExpr (Constructor name) = pretty name
 printExpr (Var var) = pretty var
-printExpr (Nat n) = pretty n
-printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let ds expr) = 
@@ -76,11 +83,8 @@ printExpr (Where expr ds) =
   printExpr expr <> line <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (VecE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
-  (space <> lcons <> space) (map printExpr l)
-printExpr (ListE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
-  (space <> lcons <> space) (map printExpr l)
 printExpr (Suc t) = parens $ "suc" <+> printExpr t
+printExpr (Lit l) = printLit l
 
 printOp :: Op -> Doc ann
 printOp Plus = "+"

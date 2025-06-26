@@ -31,11 +31,11 @@ vx :: Natural -> Expr
 vx = v 'x'
 
 vxs :: Natural -> Expr
-vxs n | n == 0    = Nat 1
+vxs n | n == 0    = num 1
       | otherwise = vx n
 
 sum2vars :: Natural -> Expr
-sum2vars n | n == 0    = Nat 1
+sum2vars n | n == 0    = num 1
            | otherwise = Bin Plus (vx n) (vx n)
 
 nary :: Type -> Natural -> Type
@@ -62,21 +62,21 @@ _tests =
             genFunc p = foldr (\a b -> LocDefFun (nm 'f' a) 
                                        (Just $ nary nat a)
                                        (iter a (\i -> Arg (nm 'x' i) nat))
-                                       (foldl (\acc i -> Bin Plus acc (vx i)) (Nat 1) [1..a]) : b)
+                                       (foldl (\acc i -> Bin Plus acc (vx i)) (num 1) [1..a]) : b)
                               []
                               $ reverse [1..p]
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall p = foldr (\a b -> Bin Plus (FunCall (nm 'f' a) (iter a (Nat . (+ 1)))) b)
-                              (FunCall "f1" [Nat 2]) $ reverse [2..p]
+            genCall p = foldr (\a b -> Bin Plus (FunCall (nm 'f' a) (iter a (num . (+ 1)))) b)
+                              (FunCall "f1" [num 2]) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
     , \n -> let --4 A specified number of simple datatype declarations.
       genData m = foldl (\b a -> DefDataType (nm 'X' a) [(nm 'Y' a, Con (nm 'X' a))] Univ : b) [] [1..m]
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
     , \n ->     --5 Variable declaration with an identifier of a specified length.
-           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') (Just nat) $ Nat 0]
+           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') (Just nat) $ num 0]
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
@@ -90,7 +90,7 @@ _tests =
 
         -- Generate example initialization dynamically
         genExample :: Natural -> [(String, Expr)]
-        genExample k = map (\i -> (nm 'f' i, VecE $ replicate (fromIntegral i) (Nat 1))) [1..k]
+        genExample k = map (\i -> (nm 'f' i, vec $ replicate (fromIntegral i) (num 1))) [1..k]
 
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) Univ
@@ -110,7 +110,7 @@ _tests =
 
         -- Generate Example Init
         genExample :: Natural -> Expr
-        genExample p = foldr (\a b -> Paren $ (FunCall ("Const" ++ show a) [b])) (Nat 10) $ reverse [1..p]
+        genExample p = foldr (\a b -> Paren $ (FunCall ("Const" ++ show a) [b])) (num 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("example", genExample $ minusNatural n 1)] -- HACK
         decl = (genRecords n ++ [exampleInit])
@@ -121,7 +121,7 @@ _tests =
     \n -> let
         decl = [recDef, exampleInit]
         -- Helper to build the sum exp 1 + 2 + ... + n
-        buildSum m = foldr (\a b -> Bin Plus b (Nat a)) (Nat 1) $ reverse [2..m]
+        buildSum m = foldr (\a b -> Bin Plus b (num a)) (num 1) $ reverse [2..m]
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
         params = iter n (\i -> Arg (nm 'f' i) nat)
@@ -131,7 +131,7 @@ _tests =
         recDef = DefRecType "X" params "Const" [("sums", Con "Nat")] (Con "Set")
 
         -- Build the record type application as a string: "X 1 2 ... n"
-        recTypeInstance = DCon "X" [] $ iter n Nat
+        recTypeInstance = DCon "X" [] $ iter n num
 
         -- Define the record instance "example" with computed field values:
         exampleInit = DefRec "example" recTypeInstance "Const" [("sums", Paren $ buildSum n)]
@@ -146,13 +146,13 @@ _tests =
         -- Define the record structure
         xDef = DefRecType "Cap_X" [] "Const" (genFields n) Univ
         -- Generate example initialization dynamically
-        genExample p = foldr (\a b -> (nm 'f' a, Nat 1) : b) [] [1..p]
+        genExample p = foldr (\a b -> (nm 'f' a, num 1) : b) [] [1..p]
         -- Define the example initialization
         exampleInit = DefRec "example" (Con "Cap_X") "Const" (genExample n)
     in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n [xDef,exampleInit]
 
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
-        exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", Nat 1)]
+        exampleInit = DefRec "example" (Con $ "Record" ++ show n) ("Const" ++ show n) [("f1", num 1)]
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
         genRecords p = foldl (\b a -> DefRecType ("Record" ++ show a) [] ("Const" ++ show a) [(nm 'f' a, nat)] Univ : b) 
@@ -173,7 +173,7 @@ _tests =
         -- result = x1 + xn
         resultDef = DefTVar "result" (Just nat) $ Bin Plus (Var "x1") (vx n)
 
-        decl = foldl (\b a -> DefTVar (nm 'x' a) (Just nat) (Nat a) : b) [resultDef] $ reverse [1..n]
+        decl = foldl (\b a -> DefTVar (nm 'x' a) (Just nat) (num a) : b) [resultDef] $ reverse [1..n]
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ trivial n decl
     , -- 15 Description: defines lots of dependent variables (10 at each level of dependency) and then use the most nested ones in a declaration
     \n -> let
@@ -185,10 +185,10 @@ _tests =
 
     -- Define expressions for each variable
     genExpr :: Natural -> Natural -> Expr
-    genExpr idx level = if level == 0 then Nat idx else Bin Plus (Var $ varName level idx) (Nat idx)
+    genExpr idx level = if level == 0 then num idx else Bin Plus (Var $ varName level idx) (num idx)
 
     --  sum of all xN_1 .. xN_10 + 100
-    resultDef = DefTVar "result" (Just nat) $ foldl (\acc idx -> Bin Plus acc (Var $ varName n idx)) (Nat 100) [1..varsPerLevel]
+    resultDef = DefTVar "result" (Just nat) $ foldl (\acc idx -> Bin Plus acc (Var $ varName n idx)) (num 100) [1..varsPerLevel]
 
     -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
@@ -204,7 +204,7 @@ _tests =
        in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
 
     , \n -> let -- 17 Description: A file consisting of a single long line (length specified by the user).
-        decl = [DefTVar "A" (Just $ Con "String") $ String $ replicate (fromIntegral n) 'x']
+        decl = [DefTVar "A" (Just $ Con "String") $ string $ replicate (fromIntegral n) 'x']
         in Module "SingleLongLine" [ImportLib StringMod]  $ trivial n decl
 
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
@@ -228,7 +228,7 @@ _tests =
         let
         decl = [DefDataType "D" (iter n (\ i -> (nm 'C' i, Con "D"))) Univ, --create datatype
           OpenName "D",
-          DefPatt "F" [("C", Con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (Con "D")], Nat i))),
+          DefPatt "F" [("C", Con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (Con "D")], num i))),
           DefTVar "N" (Just nat) (genCall n)]
         genCall p = foldr (\a b -> Bin Plus (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
           (reverse [2..p])

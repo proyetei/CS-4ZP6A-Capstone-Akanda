@@ -1,7 +1,7 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
-  , KnownMods (..), Op (..), LocalDefn (..)
+  , KnownMods (..), Op (..), LocalDefn (..), Literal (..)
   , modname
-  , nat) where
+  , nat, num, bool, list, vec, string) where
 
 import Numeric.Natural (Natural)
 
@@ -55,19 +55,33 @@ data Type = Con Name              -- type constructor
 data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
-        | Nat Natural
-        | String String
         | Bin Op Expr Expr       -- only for known, hard-coded binary operations
         | Let [LocalDefn] Expr
         | If Expr Expr Expr
         | Where Expr [LocalDefn]
         | FunCall Name [Expr]    --constructor to call function
-        | VecE [Expr]
-        | ListE [Expr]
         | Paren Expr
         | Constructor Name
         | Suc Expr               -- hard-coded ??! FIXME
+        | Lit Literal
 
+data Literal
+  = Nat Natural
+  -- ^ Natural number literals.
+  -- We will attempt to translate these as literals like @100@
+  -- instead of @succ@ and @zero@ constructors.
+  | Bool Bool
+  -- ^ Boolean literals.
+  | List [Expr]
+  -- ^ List literals.
+  -- We will attempt to translate these as literals like @[x, y, z]@
+  -- as opposed to cons constructors.
+  | Vec [Expr]
+  -- ^ Vector literals.
+  -- We will attempt to translate these as literals like @[x, y, z]@
+  -- as opposed to @cons@ and @nil@ constructors.
+  | String String
+  -- ^ String literals.
 
 data Op = Plus
 
@@ -80,3 +94,18 @@ type Name = String
 
 nat :: Type
 nat = Con "Nat"
+
+num :: Natural -> Expr
+num = Lit . Nat
+
+bool :: Bool -> Expr
+bool = Lit . Bool
+
+list :: [ Expr ] -> Expr
+list = Lit . List
+
+vec :: [ Expr ] -> Expr
+vec = Lit . Vec
+
+string :: String -> Expr
+string = Lit . String

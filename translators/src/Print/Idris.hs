@@ -60,11 +60,16 @@ printType (Index names ty) = braces $ typeAnn (hsep $ punctuate comma $ map pret
 printType (Embed e) = printExpr e
 
 
+printLit :: Literal -> Doc ann
+printLit (Nat n) = pretty n
+printLit (Bool b) = pretty b
+printLit (String str) = dquotes $ pretty str
+printLit (Vec l) =  brackets $ fillSep $ punctuate comma $ map printExpr l
+printLit (List l) = brackets $ fillSep $ punctuate comma $ map printExpr l
+
 printExpr :: Expr -> Doc ann
 printExpr (Constructor name) = pretty name
 printExpr (Var var) = pretty var
-printExpr (Nat n) = pretty n
-printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let ds expr) = 
@@ -76,9 +81,8 @@ printExpr (Where expr ds) =
   printExpr expr <> hardline <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (VecE l) =  brackets $ fillSep $ punctuate comma $ map printExpr l
-printExpr (ListE l) = brackets $ fillSep $ punctuate comma $ map printExpr l
 printExpr (Suc t) = parens $ "S" <+> printExpr t
+printExpr (Lit l) = printLit l
 
 printOp :: Op -> Doc ann
 printOp Plus = "+"

@@ -69,12 +69,17 @@ printReturnType _ = error "show not occur as a return type"
 printArg :: Arg -> Doc ann
 printArg a = teleCell (pretty $ arg a) (printType $ argty a)
 
+printLit :: Literal -> Doc ann
+printLit (Nat n) = pretty n
+printLit (Bool b) = pretty b
+printLit (String str) = dquotes $ pretty str
+printLit (Vec l) = "#" <> brackets (hsep $ punctuate comma (map printExpr l))
+printLit (List l) = brackets $ hsep $ punctuate comma (map printExpr l)
+
 -- Print expressions (unchanged)
 printExpr :: Expr -> Doc ann
 printExpr (Constructor name) = pretty name
 printExpr (Var var) = pretty var
-printExpr (Nat n) = pretty n
-printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
 printExpr (Let [] expr) = printExpr expr
@@ -89,9 +94,8 @@ printExpr (If cond thn els) = "if" <+> printExpr cond <+> "then" <> hardline <>
 printExpr (Where expr ds) = printExpr expr <> hardline <>
   indent 4 ("where" <> hardline <> vsep (map printLocalDefn ds))
 printExpr (FunCall fun args) = pretty fun <+> hsep (map printExpr args)
-printExpr (VecE l) = "#" <> brackets (hsep $ punctuate comma (map printExpr l))
-printExpr (ListE l) = brackets $ hsep $ punctuate comma (map printExpr l)
 printExpr (Suc t) = parens $ "Nat.succ" <+> printExpr t  -- Use `Nat.succ` explicitly
+printExpr (Lit l) = printLit l
 
 printOp :: Op -> Doc ann
 printOp Plus = "+"
