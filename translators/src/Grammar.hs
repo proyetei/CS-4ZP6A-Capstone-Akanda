@@ -26,9 +26,8 @@ data KnownMods = NatMod | ListMod | VecMod | StringMod
 newtype Import = ImportLib KnownMods
 
 data Definition
-  = DefFun Name (Maybe Type) [Arg Name Type] Expr
-  | DefPatt Name [(Name,Type)] Type Name [([Arg Name Type], Expr)]
-    -- ^ Function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
+  = DefPatt Name [(Name,Type)] Type Name [([Arg Name Type], Expr)]
+    -- ^ Function name; name,type is parameters for Rocq; output type; name is input to match with for Rocq, constructors
   | DefTVar Name (Maybe Type) Expr
     -- ^ Define a variable (i.e. 'let') with an optional type annotation
   | DefDataType Name [(Name,Type)] Type
@@ -49,13 +48,13 @@ data LocalDefn
   = LocDefFun Name (Maybe Type) [Arg Name Type] Expr
 
 data Type 
-        = PCon Name [Type]        -- (parameterized) type constructor
-        | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
-        | Arr Type Type           -- function type
-        | TVar Name               -- type variable
-        | Embed Expr              -- Exprs seen as a type (should later merge properly)
-        | Index [Name] Type
-        | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
+  = PCon Name [Type]        -- (parameterized) type constructor
+  | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
+  | Arr Type Type           -- function type
+  | TVar Name               -- type variable
+  | Embed Expr              -- Exprs seen as a type (should later merge properly)
+  | Index [Name] Type
+  | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
 
 data Arg a b = Arg { arg :: a, argty :: b }
 

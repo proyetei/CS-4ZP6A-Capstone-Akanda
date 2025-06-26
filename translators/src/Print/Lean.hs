@@ -115,10 +115,6 @@ printDef :: [Definition] -> Definition -> Doc ann
 printDef _ (DefTVar var Nothing expr) = pretty var <+> assign <+> (printExpr expr)
 printDef _ (DefTVar var (Just t) expr) = "def" <+> typeAnn (pretty var) (printType t) <+>
   assign <+> printExpr expr
-printDef _ (DefFun var Nothing args expr) = pretty var <+> hsep (map (pretty . arg) args) <+> assign <+>
-  (printExpr expr)
-printDef _ (DefFun var (Just t) args expr) = "def" <+> typeAnn (pretty var <+> hsep (map printArg args))
-  (printType t) <+> assign <+> (printExpr expr)
 printDef _ (DefPatt var params ty _ cons) =
     "def" <+> typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> hardline <>
     vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . arg) a) <+> "=>" <+> (printExpr e)) cons)

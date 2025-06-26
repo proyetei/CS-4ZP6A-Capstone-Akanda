@@ -112,10 +112,6 @@ printDef (DefTVar var Nothing expr) = pretty var <+> assign <+> printExpr expr
 printDef (DefTVar var (Just t) expr) = 
   nest 4 ("Definition" <+> typeAnn (pretty var) (printType t) <+> assign <> softline <>
   (printExpr expr <> dot <> hardline))
-printDef (DefFun var Nothing args expr) = pretty var <+> (hsep $ map (pretty . arg) args) <+> assign <+> printExpr expr
-printDef (DefFun var (Just t) args expr) = "Definition" <+> pretty var <+>
-  typeAnn (hsep $ map printArg args) (printType t) <+> assign <> softline' <> printExpr expr <> 
-  "." <> hardline
 printDef (DefPatt var params ty m cons) = "Fixpoint" <+> pretty var <+>
   typeAnn (hsep $ map (\(x, y) -> teleCell (pretty x) (printType y)) params)
           (printType ty) <+> assign <> hardline <>

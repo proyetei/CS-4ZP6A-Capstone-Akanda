@@ -110,7 +110,6 @@ printDef (DefTVar var (Just t) expr) =
   typeAnn (pretty var) (printType t) <> hardline <>
   pretty var <+> assign <+> align (printExpr expr) <> hardline
 
-printDef (DefFun var ty args expr) = printLocalDefn (LocDefFun var ty args expr)
 printDef (DefPatt var params ty _ cons) =
     typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
     vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)
