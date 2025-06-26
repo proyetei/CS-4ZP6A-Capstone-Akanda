@@ -68,7 +68,7 @@ printReturnType (PCon t []) = pretty $ T.toLower t --required for nested functio
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "should not occur as a return type"
 
-printArg :: Arg -> Doc ann
+printArg :: Pretty a => Arg a Type -> Doc ann
 printArg a = parens $ typeAnn (pretty $ arg a) (printType $ argty a)
 
 printLit :: Literal -> Doc ann

@@ -68,7 +68,7 @@ printReturnType (PCon t []) = pretty t
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "show not occur as a return type"
 
-printArg :: Arg -> Doc ann
+printArg :: Pretty a => Arg a Type -> Doc ann
 printArg a = teleCell (pretty $ arg a) (printType $ argty a)
 
 printLit :: Literal -> Doc ann

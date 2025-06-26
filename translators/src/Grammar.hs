@@ -26,8 +26,8 @@ data KnownMods = NatMod | ListMod | VecMod | StringMod
 newtype Import = ImportLib KnownMods
 
 data Definition
-  = DefFun Name (Maybe Type) [Arg] Expr
-  | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)]
+  = DefFun Name (Maybe Type) [Arg Name Type] Expr
+  | DefPatt Name [(Name,Type)] Type Name [([Arg Name Type], Expr)]
     -- ^ Function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
   | DefTVar Name (Maybe Type) Expr
     -- ^ Define a variable (i.e. 'let') with an optional type annotation
@@ -35,7 +35,7 @@ data Definition
     -- ^ Datatype name, constructors, usually type is Set
   | DefPDataType Name [(Name, Type)] [(Name,Type)] Type
     -- ^ Datatype name, parameters, constructors, overall type
-  | DefRecType Name [Arg] Name [(Name,Type)] Type
+  | DefRecType Name [Arg Name Type] Name [(Name,Type)] Type
     -- ^ [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
   | DefRec Name Type Name [(Name, Expr)]
     -- ^ Record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
@@ -46,7 +46,7 @@ data Definition
     -- It is on a line of its own if True, spit out as-is and in-place if false
 
 data LocalDefn
-  = LocDefFun Name (Maybe Type) [Arg] Expr
+  = LocDefFun Name (Maybe Type) [Arg Name Type] Expr
 
 data Type 
         = PCon Name [Type]        -- (parameterized) type constructor
@@ -57,7 +57,7 @@ data Type
         | Index [Name] Type
         | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
 
-data Arg = Arg { arg :: Name, argty :: Type }
+data Arg a b = Arg { arg :: a, argty :: b }
 
 data Expr 
   = Var Name
