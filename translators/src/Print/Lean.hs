@@ -94,7 +94,7 @@ printExpr (If cond thn els) = "if" <+> printExpr cond <+> "then" <> hardline <>
   "else" <+> printExpr els
 printExpr (Where expr ds) = printExpr expr <> hardline <>
   indent 4 ("where" <> hardline <> vsep (map printLocalDefn ds))
-printExpr (FunCall fun args) = pretty fun <+> hsep (map printExpr args)
+printExpr (App fun args) = pretty fun <+> hsep (map printExpr args)
 printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
 printExpr (Lit l) = printLit l
 

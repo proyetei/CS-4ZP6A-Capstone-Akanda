@@ -57,16 +57,18 @@ data Type
 
 data Arg = Arg { arg :: Name, argty :: Type }
 
-data Expr = Var Name
-        | Binary Op2 Expr Expr    -- only for known, hard-coded binary operations
-        | Unary Op1 Expr          -- only for known, hard-coded unary operations
-        | Let [LocalDefn] Expr
-        | If Expr Expr Expr
-        | Where Expr [LocalDefn]
-        | FunCall Name [Expr]    --constructor to call function
-        | Paren Expr
-        | Constructor Name
-        | Lit Literal
+data Expr 
+  = Var Name
+  | Binary Op2 Expr Expr    -- only for known, hard-coded binary operations
+  | Unary Op1 Expr          -- only for known, hard-coded unary operations
+  | Let [LocalDefn] Expr
+  | If Expr Expr Expr
+  | Where Expr [LocalDefn]
+  | App Name [Expr]
+  | Paren Expr
+  | Constructor Name
+  | Lit Literal
+  -- | Lam                  -- we don't as-yet use it?
 
 data Literal
   = Nat Natural

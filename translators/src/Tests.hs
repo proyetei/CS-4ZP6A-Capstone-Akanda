@@ -74,8 +74,8 @@ _tests =
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall p = foldr (\a b -> plus (FunCall (nm 'f' a) (iter a (num . (+ 1)))) b)
-                              (FunCall "f1" [num 2]) $ reverse [2..p]
+            genCall p = foldr (\a b -> plus (App (nm 'f' a) (iter a (num . (+ 1)))) b)
+                              (App "f1" [num 2]) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
     , \n -> let --4 A specified number of simple datatype declarations.
@@ -116,7 +116,7 @@ _tests =
 
         -- Generate Example Init
         genExample :: Natural -> Expr
-        genExample p = foldr (\a b -> Paren $ (FunCall (mkName "Const" a) [b])) (num 10) $ reverse [1..p]
+        genExample p = foldr (\a b -> Paren $ (App (mkName "Const" a) [b])) (num 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (con $ mkName "Record" n) (mkName "Const" n) [("example", genExample $ minusNatural n 1)] -- HACK
         decl = (genRecords n ++ [exampleInit])
@@ -236,7 +236,7 @@ _tests =
           OpenName "D",
           DefPatt "F" [("C", con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (con "D")], num i))),
           DefTVar "N" (Just nat) (genCall n)]
-        genCall p = foldr (\a b -> plus (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
+        genCall p = foldr (\a b -> plus (App "F" [Constructor (nm 'C' a)]) b) (App "F" [Constructor "C1"]) 
           (reverse [2..p])
     in
        Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl
