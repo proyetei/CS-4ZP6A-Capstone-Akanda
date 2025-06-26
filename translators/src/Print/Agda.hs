@@ -7,6 +7,7 @@ module Print.Agda
 
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
+import qualified Data.Text as T
 
 import Grammar
 
@@ -168,5 +169,4 @@ render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ render m
-    where name = modname m
+    writeFile ("out/" ++ (T.unpack $ modname m) ++ ".agda") $ render m

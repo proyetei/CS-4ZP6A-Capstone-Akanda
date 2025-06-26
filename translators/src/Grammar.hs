@@ -1,9 +1,12 @@
+{-# Language OverloadedStrings #-}
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
   , KnownMods (..), Op1 (..), Op2 (..), LocalDefn (..), Literal (..)
+  , Name
   , modname
   , nat, con, num, bool, list, vec, string, suc, plus) where
 
 import Numeric.Natural (Natural)
+import Data.Text (Text)
 
 -- grammar
 
@@ -32,7 +35,7 @@ data Definition
     -- ^ Datatype name, parameters, constructors, overall type
   | DefRecType Name [Arg] Name [(Name,Type)] Type
     -- ^ [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
-  | DefRec Name Type Name [(String, Expr)]
+  | DefRec Name Type Name [(Name, Expr)]
     -- ^ Record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
   | OpenName Name
     -- ^ Just for Lean, to refer to user-defined datatypes directly
@@ -87,7 +90,7 @@ data Op2 = Plus
 data Op1 = Suc
 
 -- aliases for readability purposes
-type Name = String
+type Name = Text
 
 
 --------------------------

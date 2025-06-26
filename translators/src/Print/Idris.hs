@@ -7,6 +7,7 @@ module Print.Idris
 
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
+import qualified Data.Text as T
 
 import Grammar
 import Print.Generic (blanklines)
@@ -166,4 +167,4 @@ render :: Module -> String
 render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runIdris :: Module -> IO()
-runIdris m = writeFile ("out/" ++ modname m ++ ".idr") $ render m
+runIdris m = writeFile ("out/" ++ (T.unpack $ modname m) ++ ".idr") $ render m

@@ -1,8 +1,11 @@
+{-# Language OverloadedStrings #-}
 module Tests (tests) where
 
 import Data.IntMap.Strict as Map ( fromList, IntMap )
+import qualified Data.Text as T
 import Numeric.Natural (Natural)
 import GHC.Natural (minusNatural)
+import Text.Show () -- just the instances
 
 import Grammar
 
@@ -18,10 +21,10 @@ iter :: Natural -> (Natural -> a) -> [a]
 iter n f = map f [1..n]
 
 -- various name and variable generators
-nm :: Char -> Natural -> String
-nm c n = c : show n
+nm :: Char -> Natural -> T.Text
+nm c n = T.cons c $ T.show n
 
-genIndex :: Char -> Natural -> [String]
+genIndex :: Char -> Natural -> [T.Text]
 genIndex c m = iter m (nm c)
 
 v :: Char -> Natural -> Expr
@@ -33,6 +36,9 @@ vx = v 'x'
 vxs :: Natural -> Expr
 vxs n | n == 0    = num 1
       | otherwise = vx n
+
+mkName :: Show a => T.Text -> a -> T.Text
+mkName t s = T.append t $ T.show s
 
 sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = num 1
@@ -76,12 +82,12 @@ _tests =
       genData m = foldl (\b a -> DefDataType (nm 'X' a) [(nm 'Y' a, con (nm 'X' a))] Univ : b) [] [1..m]
         in Module "DataSimpleDeclarations" [ImportLib NatMod]  $ genData n
     , \n ->     --5 Variable declaration with an identifier of a specified length.
-           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (replicate (fromIntegral n) 'x') (Just nat) $ num 0]
+           Module "LongIdentifier" [ImportLib NatMod]  $ trivial n [DefTVar (T.pack $ replicate (fromIntegral n) 'x') (Just nat) $ num 0]
 
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
         -- Generate field definitions dynamically
-        genFields :: Natural -> [(String, Type)]
+        genFields :: Natural -> [(Name, Type)]
         genFields p = ("f1", nat) :
                       (foldr (\a b -> (nm 'f' a, PCon "Vec" [nat, genSize (a-1)]) : b) [] $ [2..p])
 
@@ -89,7 +95,7 @@ _tests =
         genSize p = Embed $ foldr (\_ b -> suc b) (Var "f1") [2..p]
 
         -- Generate example initialization dynamically
-        genExample :: Natural -> [(String, Expr)]
+        genExample :: Natural -> [(Name, Expr)]
         genExample k = map (\i -> (nm 'f' i, vec $ replicate (fromIntegral i) (num 1))) [1..k]
 
         -- Define the record structure
@@ -105,14 +111,14 @@ _tests =
     \n -> let
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
-        genRecords p = foldr (\(i,c) b -> DefRecType ("Record" ++ show i) [] ("Const" ++ show i) 
-          [(nm 'f' i, c)] Univ : b) [] $ ((1, nat) : map (\i -> (i, con ("Record" ++ show (i-1)))) [2..p])
+        genRecords p = foldr (\(i,c) b -> DefRecType (mkName "Record" i) [] (mkName "Const" i) 
+          [(nm 'f' i, c)] Univ : b) [] $ ((1, nat) : map (\i -> (i, con (mkName "Record" (i-1)))) [2..p])
 
         -- Generate Example Init
         genExample :: Natural -> Expr
-        genExample p = foldr (\a b -> Paren $ (FunCall ("Const" ++ show a) [b])) (num 10) $ reverse [1..p]
+        genExample p = foldr (\a b -> Paren $ (FunCall (mkName "Const" a) [b])) (num 10) $ reverse [1..p]
 
-        exampleInit = DefRec "example" (con $ "Record" ++ show n) ("Const" ++ show n) [("example", genExample $ minusNatural n 1)] -- HACK
+        exampleInit = DefRec "example" (con $ mkName "Record" n) (mkName "Const" n) [("example", genExample $ minusNatural n 1)] -- HACK
         decl = (genRecords n ++ [exampleInit])
 
         in Module "ChainDef_DependentRecordModule" [ImportLib NatMod] $ trivial n decl
@@ -152,10 +158,10 @@ _tests =
     in Module "Fields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n [xDef,exampleInit]
 
     , \n -> let -- 11 Description: Generate a very long chain (N) of independent record definitions
-        exampleInit = DefRec "example" (con $ "Record" ++ show n) ("Const" ++ show n) [("f1", num 1)]
+        exampleInit = DefRec "example" (con $ mkName "Record" n) (mkName "Const" n) [("f1", num 1)]
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
-        genRecords p = foldl (\b a -> DefRecType ("Record" ++ show a) [] ("Const" ++ show a) [(nm 'f' a, nat)] Univ : b) 
+        genRecords p = foldl (\b a -> DefRecType (mkName "Record" a) [] (mkName "Const" a) [(nm 'f' a, nat)] Univ : b) 
                              [exampleInit] $ reverse [1..p]
     in Module "ChainDefFields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n (genRecords n)
 
@@ -180,8 +186,8 @@ _tests =
     varsPerLevel = 10  -- Number of variables per level
 
     -- Generate variable names format x$level$ L $index$
-    varName :: Natural -> Natural -> String
-    varName level idx = nm 'x' level ++ nm 'L' idx
+    varName :: Natural -> Natural -> T.Text
+    varName level idx = nm 'x' level `T.append` nm 'L' idx
 
     -- Define expressions for each variable
     genExpr :: Natural -> Natural -> Expr
@@ -199,7 +205,7 @@ _tests =
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
 
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
-        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (con ("D " ++ unwords (genIndex 'x' n))))] 
+        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (con ("D " `T.append` T.unwords (genIndex 'x' n))))] 
                             (Arr (nary nat (n-1)) Univ)]
        in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
 

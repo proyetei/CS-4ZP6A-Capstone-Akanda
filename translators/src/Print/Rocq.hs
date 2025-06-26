@@ -5,8 +5,7 @@ module Print.Rocq
   , runRocq
   ) where
 
-import Data.Char (toLower)
-import Data.List (isPrefixOf)
+import qualified Data.Text as T
 
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
@@ -54,17 +53,17 @@ printType :: Type -> Doc ann
 printType (Univ) = univ
 printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
-printType (PCon t []) = pretty $ if  "Cap_" `isPrefixOf` t || "Record" `isPrefixOf` t
-                             then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
+printType (PCon t []) = pretty $ if  "Cap_" `T.isPrefixOf` t || "Record" `T.isPrefixOf` t
+                             then t else (T.toLower t) -- if starts with keyword Cap_ maintain, else lower case
 printType (PCon "Vec" args) = "Vect" <+> hsep (map printType args)
-printType (PCon name types) = pretty (map toLower name) <+> hsep (map printType types)
+printType (PCon name types) = pretty (T.toLower name) <+> hsep (map printType types)
 printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
 printType (DCon name types exprs) = pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
-printType (Index names ty) = "forall" <+> brackets (typeAnn (pretty $ map toLower (unwords names)) (printType ty))
+printType (Index names ty) = "forall" <+> brackets (typeAnn (pretty $ T.toLower (T.unwords names)) (printType ty))
 printType (Embed e) = printExpr e
 
 printReturnType :: Type -> Doc ann
-printReturnType (PCon t []) = pretty $ map toLower t --required for nested functions
+printReturnType (PCon t []) = pretty $ T.toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "should not occur as a return type"
 
@@ -79,7 +78,7 @@ printLit (Vec l) = encloseSep lbracket rbracket (semi <> space) (map printExpr l
 printLit (List l) = encloseSep lbracket rbracket (comma <> space) (map printExpr l)
 
 printExpr :: Expr -> Doc ann
-printExpr (Constructor name) = pretty $ map toLower name
+printExpr (Constructor name) = pretty $ T.toLower name
 printExpr (Var var) = pretty var
 printExpr (Paren e) = parens $ printExpr e
 printExpr (Binary op e1 e2) = printExpr e1 <+> printOp2 op <+> printExpr e2
@@ -120,25 +119,25 @@ printDef (DefPatt var params ty m cons) = "Fixpoint" <+> pretty var <+>
   typeAnn (hsep $ map (\(x, y) -> teleCell (pretty x) (printType y)) params)
           (printType ty) <+> assign <> hardline <>
   "match" <+> pretty m <+> "with" <> hardline <>
-  vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . map toLower . arg) a) <+> "=>" <+> printExpr e) cons) 
+  vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . T.toLower . arg) a) <+> "=>" <+> printExpr e) cons) 
   <> softline' <> "end" <> dot <> hardline
 printDef (DefDataType name args ty) = let
     printIndices :: Type -> Doc ann
     printIndices (Arr (Index n t) ctype) = printType (Index n t) <> comma <+> printType ctype
     printIndices t = printType t
     in
-        "Inductive" <+> typeAnn (pretty $ map toLower name) (printType ty) <+>
+        "Inductive" <+> typeAnn (pretty $ T.toLower name) (printType ty) <+>
         assign <> hardline <>
-        (vsep (map (\(x, y) -> pipe <+> typeAnn (pretty $ map toLower x) (printIndices y)) args)) <> "."
+        (vsep (map (\(x, y) -> pipe <+> typeAnn (pretty $ T.toLower x) (printIndices y)) args)) <> "."
 printDef (DefPDataType name params args ty) = let
     printIndices :: Type -> Doc ann
     printIndices (Arr (Index n t) ctype) = (printType (Index n t)) <> comma <+> (printType ctype)
     printIndices t = printType t
     in
-        "Inductive" <+> (pretty $ map toLower name) <+>
-         typeAnn (hsep (map (\(x, y) -> teleCell (pretty $ map toLower x) (printType y)) params))
+        "Inductive" <+> (pretty $ T.toLower name) <+>
+         typeAnn (hsep (map (\(x, y) -> teleCell (pretty $ T.toLower x) (printType y)) params))
                  (printType ty) <+> assign <> hardline <>
-         vsep (map (\(x, y) -> pipe <+> typeAnn (pretty $ map toLower x) (printIndices y)) args) <> dot
+         vsep (map (\(x, y) -> pipe <+> typeAnn (pretty $ T.toLower x) (printIndices y)) args) <> dot
 
 --Function for Records
 printDef (DefRecType name params consName fields _) =
@@ -190,4 +189,4 @@ render :: Module -> String
 render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runRocq :: Module -> IO()
-runRocq m = writeFile ("out/" ++ modname m ++ ".v") $ render m
+runRocq m = writeFile (T.unpack $ "out/" `T.append` modname m `T.append` ".v") $ render m

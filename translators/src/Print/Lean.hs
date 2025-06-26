@@ -7,6 +7,7 @@ module Print.Lean
 
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
+import qualified Data.Text as T
 
 import Grammar
 import Print.Generic
@@ -171,4 +172,4 @@ render :: Module -> String
 render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runLean :: Module -> IO()
-runLean m = writeFile ("out/" ++ modname m ++ ".lean") $ render m
+runLean m = writeFile ("out/" ++ (T.unpack $ modname m) ++ ".lean") $ render m
