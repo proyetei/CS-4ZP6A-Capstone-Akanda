@@ -5,8 +5,9 @@ module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), 
   , modname
   , nat, con, num, bool, list, vec, string, suc, plus) where
 
-import Numeric.Natural (Natural)
 import Data.Text (Text)
+import Data.List.NonEmpty (NonEmpty)
+import Numeric.Natural (Natural)
 
 -- grammar
 
@@ -64,7 +65,7 @@ data Expr
   | Let [LocalDefn] Expr
   | If Expr Expr Expr
   | Where Expr [LocalDefn]
-  | App Name [Expr]
+  | App Name (NonEmpty Expr)
   | Paren Expr
   | Constructor Name
   | Lit Literal

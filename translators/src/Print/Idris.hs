@@ -5,9 +5,10 @@ module Print.Idris
   , runIdris
   ) where
 
+import qualified Data.List.NonEmpty as NE
+import qualified Data.Text as T
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
-import qualified Data.Text as T
 
 import Grammar
 import Print.Generic (blanklines)
@@ -81,7 +82,7 @@ printExpr (If cond thn els) =
 printExpr (Where expr ds) =
   printExpr expr <> hardline <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
-printExpr (App fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
+printExpr (App fun args) = pretty fun <+> (fillSep (NE.toList $ NE.map (group . printExpr) args))
 printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
 printExpr (Lit l) = printLit l
 

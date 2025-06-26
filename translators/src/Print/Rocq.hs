@@ -5,6 +5,7 @@ module Print.Rocq
   , runRocq
   ) where
 
+import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 
 import Prettyprinter
@@ -89,7 +90,7 @@ printExpr (If cond thn els) = "if" <+> printExpr cond <+> "then" <+> printExpr t
 printExpr (Where expr ds) = 
   printExpr expr <> hardline <>
   indent 4 ("where " <+> vcat (map printLocalDefn ds))
-printExpr (App fun args) = pretty fun <+> (hsep $ map printExpr args)
+printExpr (App fun args) = pretty fun <+> (hsep $ NE.toList $ NE.map printExpr args)
 printExpr (Unary o e) = parens $ printOp1 o <+> printExpr e
 printExpr (Lit l) = printLit l
 

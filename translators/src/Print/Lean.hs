@@ -5,9 +5,10 @@ module Print.Lean
   , render
   ) where
 
+import qualified Data.List.NonEmpty as NE
+import qualified Data.Text as T
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
-import qualified Data.Text as T
 
 import Grammar
 import Print.Generic
@@ -94,7 +95,7 @@ printExpr (If cond thn els) = "if" <+> printExpr cond <+> "then" <> hardline <>
   "else" <+> printExpr els
 printExpr (Where expr ds) = printExpr expr <> hardline <>
   indent 4 ("where" <> hardline <> vsep (map printLocalDefn ds))
-printExpr (App fun args) = pretty fun <+> hsep (map printExpr args)
+printExpr (App fun args) = pretty fun <+> fillSep (NE.toList $ NE.map (group . printExpr) args)
 printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
 printExpr (Lit l) = printLit l
 
