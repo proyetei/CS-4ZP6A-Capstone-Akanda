@@ -3,10 +3,11 @@ module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), 
   , KnownMods (..), Op1 (..), Op2 (..), LocalDefn (..), Literal (..)
   , Name
   , modname
-  , nat, con, num, bool, list, vec, string, suc, plus) where
+  , nat, con, num, bool, list, vec, string, suc, plus, app1, appnm) where
 
 import Data.Text (Text)
 import Data.List.NonEmpty (NonEmpty)
+import qualified Data.List.NonEmpty as NE
 import Numeric.Natural (Natural)
 
 -- grammar
@@ -65,7 +66,7 @@ data Expr
   | Let [LocalDefn] Expr
   | If Expr Expr Expr
   | Where Expr [LocalDefn]
-  | App Name (NonEmpty Expr)
+  | App Expr (NonEmpty Expr)
   | Paren Expr
   | Constructor Name
   | Lit Literal
@@ -125,3 +126,9 @@ suc = Unary Suc
 
 plus :: Expr -> Expr -> Expr
 plus = Binary Plus
+
+app1 :: Name -> Expr -> Expr
+app1 a b = App (Var a) (NE.singleton b)
+
+appnm :: Name -> NonEmpty Expr -> Expr
+appnm a b = App (Var a) b

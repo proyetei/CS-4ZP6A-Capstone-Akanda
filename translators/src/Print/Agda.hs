@@ -84,7 +84,7 @@ printExpr (If cond thn els) =
 printExpr (Where expr ds) =
   printExpr expr <> line <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
-printExpr (App fun args) = pretty fun <+> (fillSep (NE.toList $ NE.map (group . printExpr) args))
+printExpr (App fun args) = printExpr fun <+> (fillSep (NE.toList $ NE.map (group . printExpr) args))
 printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
 printExpr (Lit l) = printLit l
 

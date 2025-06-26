@@ -2,7 +2,6 @@
 module Tests (tests) where
 
 import Data.IntMap.Strict as Map ( fromList, IntMap )
-import Data.List.NonEmpty (NonEmpty( (:|) ))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import Numeric.Natural (Natural)
@@ -76,8 +75,8 @@ _tests =
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall p = foldr (\a b -> plus (App (nm 'f' a) (NE.map (num . (+ 1)) (NE.fromList [1..a]))) b)
-                              (App "f1" (NE.singleton $ num 2)) $ reverse [2..p]
+            genCall p = foldr (\a b -> plus (appnm (nm 'f' a) (NE.map (num . (+ 1)) (NE.fromList [1..a]))) b)
+                              (app1 "f1" (num 2)) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
     , \n -> let --4 A specified number of simple datatype declarations.
@@ -118,7 +117,7 @@ _tests =
 
         -- Generate Example Init
         genExample :: Natural -> Expr
-        genExample p = foldr (\a b -> Paren $ (App (mkName "Const" a) (NE.singleton b))) (num 10) $ reverse [1..p]
+        genExample p = foldr (\a b -> Paren $ (app1 (mkName "Const" a) b)) (num 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (con $ mkName "Record" n) (mkName "Const" n) [("example", genExample $ minusNatural n 1)] -- HACK
         decl = (genRecords n ++ [exampleInit])
@@ -238,8 +237,8 @@ _tests =
           OpenName "D",
           DefPatt "F" [("C", con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (con "D")], num i))),
           DefTVar "N" (Just nat) (genCall n)]
-        genCall p = foldr (\a b -> plus (App "F" (Constructor (nm 'C' a) :| [])) b) 
-                                        (App "F" (Constructor "C1" :| [])) 
+        genCall p = foldr (\a b -> plus (app1 "F" (Constructor (nm 'C' a))) b) 
+                                        (app1 "F" (Constructor "C1")) 
           (reverse [2..p])
     in
        Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl
