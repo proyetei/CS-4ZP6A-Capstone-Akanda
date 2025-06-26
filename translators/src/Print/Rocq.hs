@@ -52,10 +52,10 @@ printImport (ImportLib ListMod) = emptyDoc
 
 printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = pretty $ if  "Cap_" `isPrefixOf` t || "Record" `isPrefixOf` t
-                             then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
 printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
+printType (PCon t []) = pretty $ if  "Cap_" `isPrefixOf` t || "Record" `isPrefixOf` t
+                             then t else (map toLower t) -- if starts with keyword Cap_ maintain, else lower case
 printType (PCon "Vec" args) = "Vect" <+> hsep (map printType args)
 printType (PCon name types) = pretty (map toLower name) <+> hsep (map printType types)
 printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
@@ -64,7 +64,7 @@ printType (Index names ty) = "forall" <+> brackets (typeAnn (pretty $ map toLowe
 printType (Embed e) = printExpr e
 
 printReturnType :: Type -> Doc ann
-printReturnType (Con t) = pretty $ map toLower t --required for nested functions
+printReturnType (PCon t []) = pretty $ map toLower t --required for nested functions
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "should not occur as a return type"
 
@@ -157,7 +157,7 @@ printDef (DefRec name recType consName fields) =
   where
     hasParams = case recType of
       (DCon _ tys exps) -> Just (tys, exps)
-      (Con _)           -> Nothing
+      (PCon _ _)        -> Nothing
       _                 -> error "invalid type for a record"
     parameters = maybe emptyDoc (\(tys, exps) -> (hsep $ map printType tys) <+> 
                                                  (hsep $ map printExpr exps)) hasParams

@@ -48,10 +48,10 @@ printWithImport (ImportLib ListMod) m = m
 
 printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = pretty t
 printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
-printType (PCon "Vec" [Con baseType, size]) = "Vect" <+> printType size <+> pretty baseType
+printType (PCon t []) = pretty t
+printType (PCon "Vec" [PCon baseType [], size]) = "Vect" <+> printType size <+> pretty baseType
 printType (PCon name types) = pretty name <+> hsep (map printType types)
 printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
 printType (DCon name types exprs) = -- For dependent type constructors

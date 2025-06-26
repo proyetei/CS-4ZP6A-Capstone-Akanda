@@ -51,9 +51,9 @@ printWithImport (ImportLib ListMod) m = m
 -- Print types
 printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = pretty t
 printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
+printType (PCon t []) = pretty t
 printType (PCon "Vec" args) = "Vector" <+> hsep (map printType args)
 printType (PCon name types) = pretty name <+> hsep (map printType types)
 printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
@@ -62,7 +62,7 @@ printType (Index names ty) = braces $ typeAnn (hsep (map pretty names)) (printTy
 printType (Embed e) = printExpr e
 
 printReturnType :: Type -> Doc ann
-printReturnType (Con t) = pretty t
+printReturnType (PCon t []) = pretty t
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "show not occur as a return type"
 

@@ -1,7 +1,7 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
   , KnownMods (..), Op1 (..), Op2 (..), LocalDefn (..), Literal (..)
   , modname
-  , nat, num, bool, list, vec, string, suc, plus) where
+  , nat, con, num, bool, list, vec, string, suc, plus) where
 
 import Numeric.Natural (Natural)
 
@@ -43,8 +43,8 @@ data Definition
 data LocalDefn
   = LocDefFun Name (Maybe Type) [Arg] Expr
 
-data Type = Con Name              -- type constructor
-        | PCon Name [Type]        -- parameterized type constructor
+data Type 
+        = PCon Name [Type]        -- (parameterized) type constructor
         | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
         | Arr Type Type           -- function type
         | TVar Name               -- type variable
@@ -94,7 +94,10 @@ type Name = String
 -- useful short-hands for things that are used often
 
 nat :: Type
-nat = Con "Nat"
+nat = PCon "Nat" []
+
+con :: Name -> Type
+con n = PCon n []
 
 num :: Natural -> Expr
 num = Lit . Nat
