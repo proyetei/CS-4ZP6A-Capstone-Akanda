@@ -73,7 +73,7 @@ printExpr :: Expr -> Doc ann
 printExpr (Constructor name) = pretty name
 printExpr (Var var) = pretty var
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
+printExpr (Binary op e1 e2) = printExpr e1 <+> printOp2 op <+> printExpr e2
 printExpr (Let ds expr) = 
   "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
   printExpr expr
@@ -83,11 +83,14 @@ printExpr (Where expr ds) =
   printExpr expr <> line <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
 printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (Suc t) = parens $ "suc" <+> printExpr t
+printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
 printExpr (Lit l) = printLit l
 
-printOp :: Op -> Doc ann
-printOp Plus = "+"
+printOp1 :: Op1 -> Doc ann
+printOp1 Suc = "suc"
+
+printOp2 :: Op2 -> Doc ann
+printOp2 Plus = "+"
 
 printLocalDefn :: LocalDefn -> Doc ann
 printLocalDefn (LocDefFun var ty args expr) =

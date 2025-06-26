@@ -36,7 +36,7 @@ vxs n | n == 0    = num 1
 
 sum2vars :: Natural -> Expr
 sum2vars n | n == 0    = num 1
-           | otherwise = Bin Plus (vx n) (vx n)
+           | otherwise = plus (vx n) (vx n)
 
 nary :: Type -> Natural -> Type
 nary t n = foldr Arr t (replicate (fromIntegral n) t)
@@ -62,13 +62,13 @@ _tests =
             genFunc p = foldr (\a b -> LocDefFun (nm 'f' a) 
                                        (Just $ nary nat a)
                                        (iter a (\i -> Arg (nm 'x' i) nat))
-                                       (foldl (\acc i -> Bin Plus acc (vx i)) (num 1) [1..a]) : b)
+                                       (foldl (\acc i -> plus acc (vx i)) (num 1) [1..a]) : b)
                               []
                               $ reverse [1..p]
 
             -- Generate function call expressions
             genCall :: Natural -> Expr
-            genCall p = foldr (\a b -> Bin Plus (FunCall (nm 'f' a) (iter a (num . (+ 1)))) b)
+            genCall p = foldr (\a b -> plus (FunCall (nm 'f' a) (iter a (num . (+ 1)))) b)
                               (FunCall "f1" [num 2]) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl
@@ -86,7 +86,7 @@ _tests =
                       (foldr (\a b -> (nm 'f' a, PCon "Vec" [nat, genSize (a-1)]) : b) [] $ [2..p])
 
         -- Helper function to correctly reference `suc` or `S`
-        genSize p = Embed $ foldr (\_ b -> Suc b) (Var "f1") [2..p]
+        genSize p = Embed $ foldr (\_ b -> suc b) (Var "f1") [2..p]
 
         -- Generate example initialization dynamically
         genExample :: Natural -> [(String, Expr)]
@@ -121,7 +121,7 @@ _tests =
     \n -> let
         decl = [recDef, exampleInit]
         -- Helper to build the sum exp 1 + 2 + ... + n
-        buildSum m = foldr (\a b -> Bin Plus b (num a)) (num 1) $ reverse [2..m]
+        buildSum m = foldr (\a b -> plus b (num a)) (num 1) $ reverse [2..m]
 
         -- Create param as a list of Args: f1 : Nat, f2 : Nat, …, fn : Nat
         params = iter n (\i -> Arg (nm 'f' i) nat)
@@ -171,7 +171,7 @@ _tests =
      \n ->
     let
         -- result = x1 + xn
-        resultDef = DefTVar "result" (Just nat) $ Bin Plus (Var "x1") (vx n)
+        resultDef = DefTVar "result" (Just nat) $ plus (Var "x1") (vx n)
 
         decl = foldl (\b a -> DefTVar (nm 'x' a) (Just nat) (num a) : b) [resultDef] $ reverse [1..n]
     in Module "FirstLast_VariableModule" [ImportLib NatMod] $ trivial n decl
@@ -185,10 +185,10 @@ _tests =
 
     -- Define expressions for each variable
     genExpr :: Natural -> Natural -> Expr
-    genExpr idx level = if level == 0 then num idx else Bin Plus (Var $ varName level idx) (num idx)
+    genExpr idx level = if level == 0 then num idx else plus (Var $ varName level idx) (num idx)
 
     --  sum of all xN_1 .. xN_10 + 100
-    resultDef = DefTVar "result" (Just nat) $ foldl (\acc idx -> Bin Plus acc (Var $ varName n idx)) (num 100) [1..varsPerLevel]
+    resultDef = DefTVar "result" (Just nat) $ foldl (\acc idx -> plus acc (Var $ varName n idx)) (num 100) [1..varsPerLevel]
 
     -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
@@ -230,7 +230,7 @@ _tests =
           OpenName "D",
           DefPatt "F" [("C", Con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (Con "D")], num i))),
           DefTVar "N" (Just nat) (genCall n)]
-        genCall p = foldr (\a b -> Bin Plus (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
+        genCall p = foldr (\a b -> plus (FunCall "F" [Constructor (nm 'C' a)]) b) (FunCall "F" [Constructor "C1"]) 
           (reverse [2..p])
     in
        Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl

@@ -1,7 +1,7 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
-  , KnownMods (..), Op (..), LocalDefn (..), Literal (..)
+  , KnownMods (..), Op1 (..), Op2 (..), LocalDefn (..), Literal (..)
   , modname
-  , nat, num, bool, list, vec, string) where
+  , nat, num, bool, list, vec, string, suc, plus) where
 
 import Numeric.Natural (Natural)
 
@@ -55,14 +55,14 @@ data Type = Con Name              -- type constructor
 data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
-        | Bin Op Expr Expr       -- only for known, hard-coded binary operations
+        | Binary Op2 Expr Expr    -- only for known, hard-coded binary operations
+        | Unary Op1 Expr          -- only for known, hard-coded unary operations
         | Let [LocalDefn] Expr
         | If Expr Expr Expr
         | Where Expr [LocalDefn]
         | FunCall Name [Expr]    --constructor to call function
         | Paren Expr
         | Constructor Name
-        | Suc Expr               -- hard-coded ??! FIXME
         | Lit Literal
 
 data Literal
@@ -83,7 +83,8 @@ data Literal
   | String String
   -- ^ String literals.
 
-data Op = Plus
+data Op2 = Plus
+data Op1 = Suc
 
 -- aliases for readability purposes
 type Name = String
@@ -109,3 +110,9 @@ vec = Lit . Vec
 
 string :: String -> Expr
 string = Lit . String
+
+suc :: Expr -> Expr
+suc = Unary Suc
+
+plus :: Expr -> Expr -> Expr
+plus = Binary Plus
