@@ -1,14 +1,13 @@
-{-# Language OverloadedStrings #-}
 module Print.Agda
   ( printModule
   , render
   , runAgda
   ) where
 
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
+import qualified Data.Text.IO as T (writeFile)
 import Prettyprinter
-import Prettyprinter.Render.String (renderString)
+import Prettyprinter.Render.Text (renderStrict)
 
 import Grammar
 
@@ -66,8 +65,7 @@ printTm (If cond thn els) =
 printTm (Where expr ds) =
   printTm expr <> line <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
-printTm (App fun args) = printTm fun <+> softline' <>
-  (sep $ NE.toList $ NE.map printTm args)
+printTm (App fun args) = printTm fun <+> softline' <> (sep $ map printTm args)
 printTm (Unary o t) = parens $ printOp1 o <+> printTm t
 printTm (Lit l) = printLit l
 
@@ -154,9 +152,9 @@ printModule (Module name imports defs) =
 
     in Agda $ headers <> hardline <> hardline <> body
 
-render :: Module -> String
-render = renderString . layoutPretty defaultLayoutOptions . get . printModule
+render :: Module -> T.Text
+render = renderStrict . layoutPretty defaultLayoutOptions . get . printModule
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ (T.unpack $ modname m) ++ ".agda") $ render m
+    T.writeFile ("out/" ++ (T.unpack $ modname m) ++ ".agda") $ render m

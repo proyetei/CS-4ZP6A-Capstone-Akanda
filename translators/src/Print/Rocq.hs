@@ -1,15 +1,13 @@
-{-# Language OverloadedStrings #-}
 module Print.Rocq
   ( printModule
   , render
   , runRocq
   ) where
 
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
-
+import qualified Data.Text.IO as T (writeFile)
 import Prettyprinter
-import Prettyprinter.Render.String (renderString)
+import Prettyprinter.Render.Text (renderStrict)
 
 import Grammar
 import Print.Generic (prettyArgs)
@@ -69,7 +67,7 @@ printTm (If cond thn els) = "if" <+> printTm cond <+> "then" <+> printTm thn <+>
 printTm (Where expr ds) = 
   printTm expr <> hardline <>
   indent 4 ("where " <+> vcat (map printLocalDefn ds))
-printTm (App fun args) = printTm fun <+> (hsep $ NE.toList $ NE.map printTm args)
+printTm (App fun args) = printTm fun <+> (hsep $ map printTm args)
 printTm (Unary o e) = parens $ printOp1 o <+> printTm e
 printTm (Lit l) = printLit l
 
@@ -175,8 +173,8 @@ printModule (Module name imports defs) =
         body = vcat (map printDef defs)
     in Rocq $ headers <> hardline <> body <> hardline <> "End" <+> pretty name <> dot
 
-render :: Module -> String
-render = renderString . layoutPretty defaultLayoutOptions . get . printModule
+render :: Module -> T.Text
+render = renderStrict . layoutPretty defaultLayoutOptions . get . printModule
 
 runRocq :: Module -> IO()
-runRocq m = writeFile (T.unpack $ "out/" `T.append` modname m `T.append` ".v") $ render m
+runRocq m = T.writeFile (T.unpack $ "out/" `T.append` modname m `T.append` ".v") $ render m

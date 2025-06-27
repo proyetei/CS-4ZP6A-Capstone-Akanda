@@ -1,4 +1,3 @@
-{-# Language OverloadedStrings #-}
 module Grammar (Module (..), Import (..), Definition (..), Tm (..), Arg (..)
   , KnownMods (..), Op1 (..), Op2 (..), LocalDefn (..), Literal (..)
   , Name
@@ -6,8 +5,6 @@ module Grammar (Module (..), Import (..), Definition (..), Tm (..), Arg (..)
   , nat, con, num, bool, list, vec, string, suc, plus, app1, appnm) where
 
 import Data.Text (Text)
-import Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NE
 import Numeric.Natural (Natural)
 
 -- grammar
@@ -59,7 +56,7 @@ data Tm
   | Let [LocalDefn] Tm
   | If Tm Tm Tm
   | Where Tm [LocalDefn]
-  | App Tm (NonEmpty Tm)
+  | App Tm [Tm]
   | Paren Tm
   | Lit Literal
   -- | Lam                  -- we don't as-yet use it?
@@ -122,7 +119,7 @@ plus :: Tm -> Tm -> Tm
 plus = Binary Plus
 
 app1 :: Name -> Tm -> Tm
-app1 a b = App (Var a) (NE.singleton b)
+app1 a b = App (Var a) [b]
 
-appnm :: Name -> NonEmpty Tm -> Tm
+appnm :: Name -> [Tm] -> Tm
 appnm a b = App (Var a) b

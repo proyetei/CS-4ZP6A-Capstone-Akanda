@@ -1,8 +1,6 @@
-{-# Language OverloadedStrings #-}
 module Tests (tests) where
 
 import Data.IntMap.Strict as Map ( fromList, IntMap )
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import Numeric.Natural (Natural)
 import GHC.Natural (minusNatural)
@@ -75,7 +73,7 @@ _tests =
 
             -- Generate function call expressions
             genCall :: Natural -> Tm
-            genCall p = foldr (\a b -> plus (appnm (nm 'f' a) (NE.map (num . (+ 1)) (NE.fromList [1..a]))) b)
+            genCall p = foldr (\a b -> plus (appnm (nm 'f' a) (map (num . (+ 1)) [1..a])) b)
                               (app1 "f1" (num 2)) $ reverse [2..p]
 
         in Module "NestedFunction" [ImportLib NatMod] $ trivial n decl

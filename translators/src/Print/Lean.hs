@@ -1,14 +1,13 @@
-{-# Language OverloadedStrings #-}
 module Print.Lean
   ( printModule
   , runLean
   , render
   ) where
 
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
+import qualified Data.Text.IO as T (writeFile)
 import Prettyprinter
-import Prettyprinter.Render.String (renderString)
+import Prettyprinter.Render.Text (renderStrict)
 
 import Grammar
 import Print.Generic
@@ -73,7 +72,7 @@ printTm (If cond thn els) = "if" <+> printTm cond <+> "then" <> hardline <>
   "else" <+> printTm els
 printTm (Where expr ds) = printTm expr <> hardline <>
   indent 4 ("where" <> hardline <> vsep (map printLocalDefn ds))
-printTm (App fun args) = printTm fun <+> fillSep (NE.toList $ NE.map (group . printTm) args)
+printTm (App fun args) = printTm fun <+> fillSep (map (group . printTm) args)
 printTm (Unary o t) = parens $ printOp1 o <+> printTm t
 printTm (Lit l) = printLit l
 
@@ -159,8 +158,8 @@ printModule (Module _ imports defs) =
         body = vcat (map (printDef ctx) defs)
     in Lean $ if null imports then body else headers <> hardline <> body
 
-render :: Module -> String
-render = renderString . layoutPretty defaultLayoutOptions . get . printModule
+render :: Module -> T.Text
+render = renderStrict . layoutPretty defaultLayoutOptions . get . printModule
 
 runLean :: Module -> IO()
-runLean m = writeFile ("out/" ++ (T.unpack $ modname m) ++ ".lean") $ render m
+runLean m = T.writeFile ("out/" ++ (T.unpack $ modname m) ++ ".lean") $ render m
