@@ -1,4 +1,4 @@
-module Fields_DependentRecordModule where 
+module Fields_DependentRecordModule where
 open import Agda.Builtin.Nat
 open import Data.Vec.Base
 
@@ -12,4 +12,8 @@ record Cap_X : Set where
         f5 : Vec Nat (suc (suc (suc f1)))
 
 example : Cap_X
-example = Const ([1]) ([1 7 1]) ([1 7 1 7 1]) ([1 7 1 7 1 7 1]) ([1 7 1 7 1 7 1 7 1])
+example = Const (1 ∷ [])
+    (1 ∷ 1 ∷ [])
+    (1 ∷ 1 ∷ 1 ∷ [])
+    (1 ∷ 1 ∷ 1 ∷ 1 ∷ [])
+    (1 ∷ 1 ∷ 1 ∷ 1 ∷ 1 ∷ [])

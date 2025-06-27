@@ -1,7 +1,5 @@
 module Main
-
 import Data.Vect
-
 
 record Cap_X where
     constructor Const

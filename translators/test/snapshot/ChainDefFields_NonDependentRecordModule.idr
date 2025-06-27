@@ -1,7 +1,5 @@
 module Main
 
-
-
 record Record1 where
     constructor Const1
     f1 : Nat

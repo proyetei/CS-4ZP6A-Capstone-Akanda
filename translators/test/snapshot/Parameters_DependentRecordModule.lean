@@ -1,6 +1,4 @@
 
-
-
 structure X (f1 : Nat) (f2 : Nat) (f3 : Nat) (f4 : Nat) (f5 : Nat) where
     Const ::
     sums : Nat

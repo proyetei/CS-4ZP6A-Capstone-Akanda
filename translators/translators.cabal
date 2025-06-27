@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               translators
-version:            0.2.0.0
+version:            0.2.3.0
 synopsis:           A generic proof-assistant benchmarking framework.
 license:            MIT
 author:             Zainab Abdulsada, Esha Pisharody, Emma Willson, Grace Croome, Marie Hollington, Proyetei Akanda, Jacques Carette, Reed Mullanix
@@ -30,6 +30,8 @@ library
         Tests
     build-depends:
         base >=4.17.2.0,
+        prettyprinter >=1.7.1 && < 2.0,
+        text >= 2.1 && < 3.0,
         containers >= 0.6 && < 0.7
     hs-source-dirs: src
     default-language: Haskell2010
@@ -40,6 +42,8 @@ executable translators
     build-depends:
         translators,
         base >=4.17.2.0,
+        prettyprinter >=1.7.1 && < 2.0,
+        text >= 2.1 && < 3.0,
         containers >= 0.6 && < 0.7
     hs-source-dirs: app
     default-language: Haskell2010
@@ -53,10 +57,12 @@ test-suite translators-golden
         translators,
         base >=4.17.2.0,
         containers >= 0.6 && < 0.7,
+        prettyprinter >=1.7.1 && < 2.0,
+        text >= 2.1 && < 3.0,
         directory >= 1.3,
         filepath >= 1.5,
         tasty >= 1.5,
-        tasty-golden >= 2.3,
+        tasty-golden >= 2.3
     if os(windows)
         build-depends: Win32 >= 2.12
     else

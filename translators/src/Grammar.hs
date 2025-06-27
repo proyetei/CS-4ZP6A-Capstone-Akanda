@@ -1,5 +1,5 @@
 module Grammar (Module (..), Import (..), Definition (..), Type (..), Arg (..), Expr (..)
-  , KnownMods (..)
+  , KnownMods (..), Op (..), LocalDefn (..)
   , modname
   , nat) where
 
@@ -7,12 +7,11 @@ import Numeric.Natural (Natural)
 
 -- grammar
 
-data Module
-  = Module { mname :: Name
-           , mimports :: [Import]
-           , mdefs :: [Definition] } -- is there anything like 'module Main where' FEL?
-  | File { mname :: Name
-         , con :: String } -- this option is for modules with text instead of definitions -- should not generate invalid programs
+data Module = Module 
+  { mname :: Name
+  , mimports :: [Import]
+  , mdefs :: [Definition]
+  }
 
 modname :: Module -> Name
 modname m = mname m
@@ -23,33 +22,33 @@ newtype Import = ImportLib KnownMods
 
 data Definition
   = DefFun Name (Maybe Type) [Arg] Expr
-  | DefNesFun Name (Maybe Type) [Arg] Expr
-     -- ^ Constructor for nested functions
   | DefPatt Name [(Name,Type)] Type Name [([Arg], Expr)]
     -- ^ Function name; name,type is parameters for roq; output type; name is input to match with for coq, constructors
-  | DefTVar Name Type Expr
-    -- ^ Define a variable (i.e. 'let') with a type annotation
-  | DefUVar Name  Expr
-    -- ^ Define a variable (i.e. 'let')
+  | DefTVar Name (Maybe Type) Expr
+    -- ^ Define a variable (i.e. 'let') with an optional type annotation
   | DefDataType Name [(Name,Type)] Type
     -- ^ Datatype name, constructors, usually type is Set
   | DefPDataType Name [(Name, Type)] [(Name,Type)] Type
-    -- ^ Datatype name, parameters, constrcutors, overall type
+    -- ^ Datatype name, parameters, constructors, overall type
   | DefRecType Name [Arg] Name [(Name,Type)] Type
     -- ^ [Arg] for parameters (empty list if no params), (Maybe Name) is the type constructor
   | DefRec Name Type Name [(String, Expr)]
     -- ^ Record name, record type, possible constructor type (this auto fills in, only needed for Chain dependent constructor test)
   | OpenName Name
     -- ^ Just for Lean, to refer to user-defined datatypes directly
-  | DefModule Module
-    -- ^ For nested modules
+  | Separator Char Natural Bool
+    -- ^ To allow a "separator line" in the produced code, of that character repeated n times. 
+    -- It is on a line of its own if True, spit out as-is and in-place if false
+
+data LocalDefn
+  = LocDefFun Name (Maybe Type) [Arg] Expr
 
 data Type = Con Name              -- type constructor
         | PCon Name [Type]        -- parameterized type constructor
         | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
         | Arr Type Type           -- function type
         | TVar Name               -- type variable
-        | Suc Type
+        | Embed Expr              -- Exprs seen as a type (should later merge properly)
         | Index [Name] Type
         | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
 
@@ -57,23 +56,23 @@ data Arg = Arg { arg :: Name, argty :: Type }
 
 data Expr = Var Name
         | Nat Natural
-        | Bool Bool
         | String String
-        | Mon Op Expr
-        | Bin Op Expr Expr
-        | Let [Definition] Expr
+        | Bin Op Expr Expr       -- only for known, hard-coded binary operations
+        | Let [LocalDefn] Expr
         | If Expr Expr Expr
-        | Where Expr [Definition]
+        | Where Expr [LocalDefn]
         | FunCall Name [Expr]    --constructor to call function
         | VecE [Expr]
         | ListE [Expr]
         | Paren Expr
         | Constructor Name
+        | Suc Expr               -- hard-coded ??! FIXME
 
+
+data Op = Plus
 
 -- aliases for readability purposes
 type Name = String
-type Op = String
 
 
 --------------------------

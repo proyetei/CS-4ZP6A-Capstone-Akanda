@@ -1,4 +1,2 @@
 
-
-
 def A : String := "xxxxx"

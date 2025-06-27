@@ -1,4 +1,4 @@
-module DataImplicitIndices where 
+module DataImplicitIndices where
 open import Agda.Builtin.Nat
 
 data D : Nat -> Nat -> Nat -> Nat -> Nat -> Set where

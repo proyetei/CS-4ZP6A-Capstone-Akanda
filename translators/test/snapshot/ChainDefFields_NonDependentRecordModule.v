@@ -1,8 +1,6 @@
 
 
-
 Module ChainDefFields_NonDependentRecordModule.
-
 
 Record Record1 : Type := Const1 {
   f1 : nat;
