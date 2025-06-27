@@ -5,6 +5,8 @@ module Print.Lean
   , render
   ) where
 
+import qualified Data.List.NonEmpty as NE
+import qualified Data.Text as T
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
 
@@ -51,32 +53,36 @@ printWithImport (ImportLib ListMod) m = m
 -- Print types
 printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = pretty t
 printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
+printType (PCon t []) = pretty t
 printType (PCon "Vec" args) = "Vector" <+> hsep (map printType args)
 printType (PCon name types) = pretty name <+> hsep (map printType types)
-printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
-printType (DCon name types exprs) = pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (DCon name types) = pretty name <+> hsep (map printType types)
 printType (Index names ty) = braces $ typeAnn (hsep (map pretty names)) (printType ty)
 printType (Embed e) = printExpr e
 
 printReturnType :: Type -> Doc ann
-printReturnType (Con t) = pretty t
+printReturnType (PCon t []) = pretty t
 printReturnType (Arr _ t) = printReturnType t
 printReturnType _ = error "show not occur as a return type"
 
-printArg :: Arg -> Doc ann
+printArg :: Pretty a => Arg a Type -> Doc ann
 printArg a = teleCell (pretty $ arg a) (printType $ argty a)
+
+printLit :: Literal -> Doc ann
+printLit (Nat n) = pretty n
+printLit (Bool b) = pretty b
+printLit (String str) = dquotes $ pretty str
+printLit (Vec l) = "#" <> brackets (hsep $ punctuate comma (map printExpr l))
+printLit (List l) = brackets $ hsep $ punctuate comma (map printExpr l)
 
 -- Print expressions (unchanged)
 printExpr :: Expr -> Doc ann
 printExpr (Constructor name) = pretty name
 printExpr (Var var) = pretty var
-printExpr (Nat n) = pretty n
-printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
+printExpr (Binary op e1 e2) = printExpr e1 <+> printOp2 op <+> printExpr e2
 printExpr (Let [] expr) = printExpr expr
 printExpr (Let (d:[]) expr) = "let" <+> printLocalDefn d <> hardline <> printExpr expr
 printExpr (Let (d:ds) expr) = 
@@ -88,13 +94,15 @@ printExpr (If cond thn els) = "if" <+> printExpr cond <+> "then" <> hardline <>
   "else" <+> printExpr els
 printExpr (Where expr ds) = printExpr expr <> hardline <>
   indent 4 ("where" <> hardline <> vsep (map printLocalDefn ds))
-printExpr (FunCall fun args) = pretty fun <+> hsep (map printExpr args)
-printExpr (VecE l) = "#" <> brackets (hsep $ punctuate comma (map printExpr l))
-printExpr (ListE l) = brackets $ hsep $ punctuate comma (map printExpr l)
-printExpr (Suc t) = parens $ "Nat.succ" <+> printExpr t  -- Use `Nat.succ` explicitly
+printExpr (App fun args) = printExpr fun <+> fillSep (NE.toList $ NE.map (group . printExpr) args)
+printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
+printExpr (Lit l) = printLit l
 
-printOp :: Op -> Doc ann
-printOp Plus = "+"
+printOp1 :: Op1 -> Doc ann
+printOp1 Suc = "Nat.succ"  -- use `Nat.succ` explicitly
+
+printOp2 :: Op2 -> Doc ann
+printOp2 Plus = "+"
 
 printLocalDefn :: LocalDefn -> Doc ann
 printLocalDefn (LocDefFun var Nothing args expr) =
@@ -106,10 +114,6 @@ printDef :: [Definition] -> Definition -> Doc ann
 printDef _ (DefTVar var Nothing expr) = pretty var <+> assign <+> (printExpr expr)
 printDef _ (DefTVar var (Just t) expr) = "def" <+> typeAnn (pretty var) (printType t) <+>
   assign <+> printExpr expr
-printDef _ (DefFun var Nothing args expr) = pretty var <+> hsep (map (pretty . arg) args) <+> assign <+>
-  (printExpr expr)
-printDef _ (DefFun var (Just t) args expr) = "def" <+> typeAnn (pretty var <+> hsep (map printArg args))
-  (printType t) <+> assign <+> (printExpr expr)
 printDef _ (DefPatt var params ty _ cons) =
     "def" <+> typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> hardline <>
     vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . arg) a) <+> "=>" <+> (printExpr e)) cons)
@@ -164,4 +168,4 @@ render :: Module -> String
 render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runLean :: Module -> IO()
-runLean m = writeFile ("out/" ++ modname m ++ ".lean") $ render m
+runLean m = writeFile ("out/" ++ (T.unpack $ modname m) ++ ".lean") $ render m

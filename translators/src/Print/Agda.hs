@@ -5,6 +5,8 @@ module Print.Agda
   , runAgda
   ) where
 
+import qualified Data.List.NonEmpty as NE
+import qualified Data.Text as T
 import Prettyprinter
 import Prettyprinter.Render.String (renderString)
 
@@ -48,25 +50,29 @@ printImport (ImportLib StringMod) = import_ <+> "Agda.Builtin.String"
 -- Print types
 printType :: Type -> Doc ann
 printType (Univ) = univ
-printType (Con t) = pretty t
 printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
+printType (PCon t []) = pretty t
 printType (PCon name types) = pretty name <+> hsep (map printType types)
-printType (DCon name [] exprs) = -- For dependent type constructors
-    pretty name <+> hsep (map printExpr exprs)
-printType (DCon name types exprs) = -- For dependent type constructors
-    pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (DCon name types) = pretty name <+> hsep (map printType types)
 printType (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
+
+printLit :: Literal -> Doc ann
+printLit (Nat n) = pretty n
+printLit (Bool b) = pretty b
+printLit (String str) = dquotes $ pretty str
+printLit (Vec l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printExpr l)
+printLit (List l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printExpr l)
 
 -- Print expressions
 printExpr :: Expr -> Doc ann
 printExpr (Constructor name) = pretty name
 printExpr (Var var) = pretty var
-printExpr (Nat n) = pretty n
-printExpr (String str) = dquotes $ pretty str
 printExpr (Paren e) = parens $ printExpr e
-printExpr (Bin op e1 e2) = printExpr e1 <+> printOp op <+> printExpr e2
+printExpr (Binary op e1 e2) = printExpr e1 <+> printOp2 op <+> printExpr e2
 printExpr (Let ds expr) = 
   "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
   printExpr expr
@@ -75,15 +81,16 @@ printExpr (If cond thn els) =
 printExpr (Where expr ds) =
   printExpr expr <> line <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
-printExpr (FunCall fun args) = pretty fun <+> (fillSep (map (group . printExpr) args))
-printExpr (VecE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
-  (space <> lcons <> space) (map printExpr l)
-printExpr (ListE l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
-  (space <> lcons <> space) (map printExpr l)
-printExpr (Suc t) = parens $ "suc" <+> printExpr t
+printExpr (App fun args) = printExpr fun <+> softline' <>
+  (sep $ NE.toList $ NE.map printExpr args)
+printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
+printExpr (Lit l) = printLit l
 
-printOp :: Op -> Doc ann
-printOp Plus = "+"
+printOp1 :: Op1 -> Doc ann
+printOp1 Suc = "suc"
+
+printOp2 :: Op2 -> Doc ann
+printOp2 Plus = "+"
 
 printLocalDefn :: LocalDefn -> Doc ann
 printLocalDefn (LocDefFun var ty args expr) =
@@ -103,9 +110,6 @@ printDef (DefTVar var Nothing expr) =
 printDef (DefTVar var (Just t) expr) = 
   typeAnn (pretty var) (printType t) <> hardline <>
   pretty var <+> assign <+> align (printExpr expr) <> hardline
-
--- Function to print function definitions
-printDef (DefFun var ty args expr) = printLocalDefn (LocDefFun var ty args expr)
 
 printDef (DefPatt var params ty _ cons) =
     typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
@@ -161,5 +165,4 @@ render = renderString . layoutPretty defaultLayoutOptions . get . printModule
 
 runAgda :: Module -> IO()
 runAgda m = do
-    writeFile ("out/" ++ name ++ ".agda") $ render m
-    where name = modname m
+    writeFile ("out/" ++ (T.unpack $ modname m) ++ ".agda") $ render m
