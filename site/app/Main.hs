@@ -11,27 +11,19 @@
 {-# LANGUAGE TypeFamilies #-}
 module Main where
 
-import Control.Exception
 import Control.Monad.IO.Class
-import Control.Monad
 
 import Data.Functor
 import Data.List
 import Data.Map.Strict (Map)
-import Data.String
 import Data.Set (Set)
-import Data.Text (Text)
 import Data.Traversable
 
 import Data.Aeson qualified as JSON
-import Data.Aeson.Encoding qualified as JSON
-import Data.ByteString.Lazy qualified as LBS
 import Data.IntMap.Strict qualified as IntMap
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Data.Text.IO qualified as T
-import Data.Text.Lazy.Encoding qualified as LT
-
 
 import Text.Read (readMaybe)
 import Numeric.Natural
@@ -40,17 +32,12 @@ import GHC.Generics
 import Development.Shake
 import Development.Shake.Classes (Hashable, Binary, NFData)
 
-import Graphics.Vega.VegaLite (VegaLite)
-import Graphics.Vega.VegaLite qualified as VL
-
-import System.Directory qualified as Dir
 import System.Directory (findExecutable)
 import System.FilePath
-import System.IO.Error
-import System.IO
 
 import Text.Blaze.Html.Renderer.Utf8 qualified as H
 
+import Panbench.Site.Shake
 import Panbench.Internal
 import Panbench.HTML
 
@@ -61,36 +48,6 @@ import Print.Rocq qualified as Rocq
 
 import Grammar
 import Tests
-
--- * Shake Miscellania
---
--- The following code was adapted from @writeFileChanged@ in @General.Extras@ in @shake-0.19.8@.
--- We need to be able to write binary files, which shake does not support OOTB.
-
-createDirectoryRecursive :: FilePath -> IO ()
-createDirectoryRecursive dir = do
-    x <- try @IOException $ Dir.doesDirectoryExist dir
-    when (x /= Right True) $ Dir.createDirectoryIfMissing True dir
-
-removeFile_ :: FilePath -> IO ()
-removeFile_ x =
-    Dir.removeFile x `catch` \e ->
-        when (isPermissionError e) $ handle @IOException (\_ -> pure ()) $ do
-            perms <- Dir.getPermissions x
-            Dir.setPermissions x perms{Dir.readable = True, Dir.searchable = True, Dir.writable = True}
-            Dir.removeFile x
-
-writeBinaryFileChanged :: (MonadIO m) => FilePath -> LBS.ByteString -> m ()
-writeBinaryFileChanged name x = liftIO $ do
-    createDirectoryRecursive $ takeDirectory name
-    exists <- Dir.doesFileExist name
-    if not exists then LBS.writeFile name x else do
-        changed <- withFile name ReadMode $ \h -> do
-            src <- LBS.hGetContents h
-            pure $! src /= x
-        when changed $ do
-            removeFile_ name -- symlink safety
-            LBS.writeFile name x
 
 -- | The current tests that we have, keyed by their name.
 modules :: Map String (Natural -> Module)

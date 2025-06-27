@@ -14,9 +14,14 @@ common warnings
 executable site
     import:           warnings
     main-is:          Main.hs
+    default-extensions:
+        BlockArguments
+        ImportQualifiedPost
+        TypeApplications
     other-modules:
         Panbench.Internal
         Panbench.HTML
+        Panbench.Site.Shake
         Panbench.Vega
     build-depends:
         base >=4.17.2.1,
