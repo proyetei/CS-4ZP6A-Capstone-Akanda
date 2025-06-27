@@ -54,10 +54,7 @@ printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
 printType (TVar t) = pretty t
 printType (PCon t []) = pretty t
 printType (PCon name types) = pretty name <+> hsep (map printType types)
-printType (DCon name [] exprs) = -- For dependent type constructors
-    pretty name <+> hsep (map printExpr exprs)
-printType (DCon name types exprs) = -- For dependent type constructors
-    pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (DCon name types) = pretty name <+> hsep (map printType types)
 printType (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
 

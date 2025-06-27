@@ -138,7 +138,7 @@ _tests =
         recDef = DefRecType "X" params "Const" [("sums", nat)] (con "Set")
 
         -- Build the record type application as a string: "X 1 2 ... n"
-        recTypeInstance = DCon "X" [] $ iter n num
+        recTypeInstance = DCon "X" $ iter n (Embed . num)
 
         -- Define the record instance "example" with computed field values:
         exampleInit = DefRec "example" recTypeInstance "Const" [("sums", Paren $ buildSum n)]

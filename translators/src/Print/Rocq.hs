@@ -58,8 +58,7 @@ printType (PCon t []) = pretty $ if  "Cap_" `T.isPrefixOf` t || "Record" `T.isPr
                              then t else (T.toLower t) -- if starts with keyword Cap_ maintain, else lower case
 printType (PCon "Vec" args) = "Vect" <+> hsep (map printType args)
 printType (PCon name types) = pretty (T.toLower name) <+> hsep (map printType types)
-printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
-printType (DCon name types exprs) = pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (DCon name types) = pretty name <+> hsep (map printType types)
 printType (Index names ty) = "forall" <+> brackets (typeAnn (pretty $ T.toLower (T.unwords names)) (printType ty))
 printType (Embed e) = printExpr e
 
@@ -152,11 +151,10 @@ printDef (DefRec name recType consName fields) =
   indent 2 constructorCall <> dot <> hardline
   where
     hasParams = case recType of
-      (DCon _ tys exps) -> Just (tys, exps)
-      (PCon _ _)        -> Nothing
-      _                 -> error "invalid type for a record"
-    parameters = maybe emptyDoc (\(tys, exps) -> (hsep $ map printType tys) <+> 
-                                                 (hsep $ map printExpr exps)) hasParams
+      (DCon _ tys) -> Just tys
+      (PCon _ _)   -> Nothing
+      _            -> error "invalid type for a record"
+    parameters = maybe emptyDoc (\tys -> hsep $ map printType tys) hasParams
     -- Use the provided constructor name if available; otherwise, look up the default.
 
     fieldsStr = hsep $ map (printExpr . snd) fields

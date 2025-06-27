@@ -49,7 +49,7 @@ data LocalDefn
 
 data Type 
   = PCon Name [Type]        -- (parameterized) type constructor
-  | DCon Name [Type] [Expr] -- dependent type constructor (note that a dependent type is also parameterized)
+  | DCon Name [Type]        -- dependent type constructor (note that a dependent type is also parameterized)
   | Arr Type Type           -- function type
   | TVar Name               -- type variable
   | Embed Expr              -- Exprs seen as a type (should later merge properly)

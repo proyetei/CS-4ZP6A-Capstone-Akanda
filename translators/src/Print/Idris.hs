@@ -55,9 +55,7 @@ printType (TVar t) = pretty t
 printType (PCon t []) = pretty t
 printType (PCon "Vec" [PCon baseType [], size]) = "Vect" <+> printType size <+> pretty baseType
 printType (PCon name types) = pretty name <+> hsep (map printType types)
-printType (DCon name [] exprs) = pretty name <+> hsep (map printExpr exprs)
-printType (DCon name types exprs) = -- For dependent type constructors
-    pretty name <+> hsep (map printType types) <+> hsep (map printExpr exprs)
+printType (DCon name types) = pretty name <+> hsep (map printType types)
 printType (Index names ty) = braces $ typeAnn (hsep $ punctuate comma $ map pretty names) (printType ty)
 printType (Embed e) = printExpr e
 
