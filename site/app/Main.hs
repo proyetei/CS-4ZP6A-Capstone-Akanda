@@ -182,10 +182,10 @@ findLangBin lang =
 
 -- | Print a module for a given @Lang@.
 printLangModule :: Lang -> Module -> String
-printLangModule Agda = Agda.printModule
-printLangModule Idris = Idris.printModule
-printLangModule Lean = Lean.printModule
-printLangModule Rocq = Rocq.printModule
+printLangModule Agda = Agda.render
+printLangModule Idris = Idris.render
+printLangModule Lean = Lean.render
+printLangModule Rocq = Rocq.render
 
 -- | Get a the language from a module path.
 parseModulePathLang :: FilePath -> Action Lang
