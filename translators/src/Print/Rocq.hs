@@ -59,7 +59,6 @@ printTm (PCon "Vec" args) = "Vect" <+> hsep (map printTm args)
 printTm (PCon name types) = pretty (T.toLower name) <+> hsep (map printTm types)
 printTm (DCon name types) = pretty name <+> hsep (map printTm types)
 printTm (Index names ty) = "forall" <+> braces (typeAnn (pretty $ T.toLower (T.unwords names)) (printTm ty))
-printTm (Constructor name) = pretty $ T.toLower name
 printTm (Var var) = pretty var
 printTm (Paren e) = parens $ printTm e
 printTm (Binary op e1 e2) = printTm e1 <+> printOp2 op <+> printTm e2

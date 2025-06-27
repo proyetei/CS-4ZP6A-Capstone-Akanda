@@ -55,7 +55,6 @@ printTm (PCon t []) = pretty t
 printTm (PCon name types) = pretty name <+> hsep (map printTm types)
 printTm (DCon name types) = pretty name <+> hsep (map printTm types)
 printTm (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printTm ty)
-printTm (Constructor name) = pretty name
 printTm (Var var) = pretty var
 printTm (Paren e) = parens $ printTm e
 printTm (Binary op e1 e2) = printTm e1 <+> printOp2 op <+> printTm e2

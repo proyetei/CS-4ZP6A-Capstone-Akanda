@@ -237,8 +237,8 @@ _tests =
           OpenName "D",
           DefPatt "F" [("C", con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (con "D")], num i))),
           DefTVar "N" (Just nat) (genCall n)]
-        genCall p = foldr (\a b -> plus (app1 "F" (Constructor (nm 'C' a))) b) 
-                                        (app1 "F" (Constructor "C1")) 
+        genCall p = foldr (\a b -> plus (app1 "F" (con (nm 'C' a))) b) 
+                                        (app1 "F" (con "C1")) 
           (reverse [2..p])
     in
        Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl

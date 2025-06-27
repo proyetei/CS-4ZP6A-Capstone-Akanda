@@ -61,7 +61,6 @@ data Tm
   | Where Tm [LocalDefn]
   | App Tm (NonEmpty Tm)
   | Paren Tm
-  | Constructor Name
   | Lit Literal
   -- | Lam                  -- we don't as-yet use it?
 
