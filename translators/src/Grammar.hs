@@ -29,7 +29,7 @@ data Definition
   = DefPatt Name [(Name,Type)] Type Name [([Arg Name Type], Expr)]
     -- ^ Function name; name,type is parameters for Rocq; output type; name is input to match with for Rocq, constructors
   | DefTVar Name (Maybe Type) Expr
-    -- ^ Define a variable (i.e. 'let') with an optional type annotation
+    -- ^ Define a (top-level) variable with an optional type annotation
   | DefDataType Name [(Name,Type)] Type
     -- ^ Datatype name, constructors, usually type is Set
   | DefPDataType Name [(Name, Type)] [(Name,Type)] Type
