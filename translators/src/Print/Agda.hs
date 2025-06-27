@@ -47,44 +47,30 @@ printImport (ImportLib VecMod) = import_ <+> "Data.Vec.Base"
 printImport (ImportLib ListMod) = import_ <+> "Agda.Builtin.List"
 printImport (ImportLib StringMod) = import_ <+> "Agda.Builtin.String"
 
--- Print types
-printType :: Type -> Doc ann
-printType (Univ) = univ
-printType (Arr t1 t2) = printType t1 <+> arr <+> printType t2
-printType (TVar t) = pretty t
-printType (PCon t []) = pretty t
-printType (PCon name types) = pretty name <+> hsep (map printType types)
-printType (DCon name types) = pretty name <+> hsep (map printType types)
-printType (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printType ty)
-printType (Embed e) = printExpr e
-
-printLit :: Literal -> Doc ann
-printLit (Nat n) = pretty n
-printLit (Bool b) = pretty b
-printLit (String str) = dquotes $ pretty str
-printLit (Vec l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
-  (space <> lcons <> space) (map printExpr l)
-printLit (List l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
-  (space <> lcons <> space) (map printExpr l)
-
--- Print expressions
-printExpr :: Expr -> Doc ann
-printExpr (Constructor name) = pretty name
-printExpr (Var var) = pretty var
-printExpr (Paren e) = parens $ printExpr e
-printExpr (Binary op e1 e2) = printExpr e1 <+> printOp2 op <+> printExpr e2
-printExpr (Let ds expr) = 
+-- Print Terms
+printTm :: Tm -> Doc ann
+printTm (Univ) = univ
+printTm (Arr t1 t2) = printTm t1 <+> arr <+> printTm t2
+printTm (PCon t []) = pretty t
+printTm (PCon name types) = pretty name <+> hsep (map printTm types)
+printTm (DCon name types) = pretty name <+> hsep (map printTm types)
+printTm (Index names ty) = braces $ typeAnn (hsep $ map pretty names) (printTm ty)
+printTm (Constructor name) = pretty name
+printTm (Var var) = pretty var
+printTm (Paren e) = parens $ printTm e
+printTm (Binary op e1 e2) = printTm e1 <+> printOp2 op <+> printTm e2
+printTm (Let ds expr) = 
   "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
-  printExpr expr
-printExpr (If cond thn els) =
-  "if" <+> printExpr cond <+> "then" <+> printExpr thn <+> "else" <+> printExpr els
-printExpr (Where expr ds) =
-  printExpr expr <> line <>
+  printTm expr
+printTm (If cond thn els) =
+  "if" <+> printTm cond <+> "then" <+> printTm thn <+> "else" <+> printTm els
+printTm (Where expr ds) =
+  printTm expr <> line <>
   indent 4 ("where" <> vcat (map printLocalDefn ds))
-printExpr (App fun args) = printExpr fun <+> softline' <>
-  (sep $ NE.toList $ NE.map printExpr args)
-printExpr (Unary o t) = parens $ printOp1 o <+> printExpr t
-printExpr (Lit l) = printLit l
+printTm (App fun args) = printTm fun <+> softline' <>
+  (sep $ NE.toList $ NE.map printTm args)
+printTm (Unary o t) = parens $ printOp1 o <+> printTm t
+printTm (Lit l) = printLit l
 
 printOp1 :: Op1 -> Doc ann
 printOp1 Suc = "suc"
@@ -92,12 +78,21 @@ printOp1 Suc = "suc"
 printOp2 :: Op2 -> Doc ann
 printOp2 Plus = "+"
 
+printLit :: Literal -> Doc ann
+printLit (Nat n) = pretty n
+printLit (Bool b) = pretty b
+printLit (String str) = dquotes $ pretty str
+printLit (Vec l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printTm l)
+printLit (List l) = parens $ encloseSep emptyDoc (space <> lcons <+> lbracket <> rbracket)
+  (space <> lcons <> space) (map printTm l)
+
 printLocalDefn :: LocalDefn -> Doc ann
 printLocalDefn (LocDefFun var ty args expr) =
-   typeSig <> tvar <+> assign <+> align (printExpr expr)
+   typeSig <> tvar <+> assign <+> align (printTm expr)
     where
         typeSig = case ty of
-            Just t -> typeAnn (pretty var) (printType t) <> line
+            Just t -> typeAnn (pretty var) (printTm t) <> line
             Nothing -> mempty
         tvar = case args of
             [] -> pretty var
@@ -106,41 +101,41 @@ printLocalDefn (LocDefFun var ty args expr) =
 -- Function to print variable definitions
 printDef :: Definition -> Doc ann
 printDef (DefTVar var Nothing expr) = 
-  pretty var <+> assign <+> align (printExpr expr) <> softline'
+  pretty var <+> assign <+> align (printTm expr) <> softline'
 printDef (DefTVar var (Just t) expr) = 
-  typeAnn (pretty var) (printType t) <> hardline <>
-  pretty var <+> assign <+> align (printExpr expr) <> hardline
+  typeAnn (pretty var) (printTm t) <> hardline <>
+  pretty var <+> assign <+> align (printTm expr) <> hardline
 
 printDef (DefPatt var params ty _ cons) =
-    typeAnn (pretty var) (printType (foldr Arr ty (map snd params))) <> line <>
-    vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printExpr e) cons)
+    typeAnn (pretty var) (printTm (foldr Arr ty (map snd params))) <> line <>
+    vsep (map (\(a, e) -> (pretty var) <+> hsep (map (pretty . arg) a) <+> assign <+> printTm e) cons)
 -- Function to print datatype definitions
 printDef (DefDataType name cons ty) =
-  data_ <+> typeAnn (pretty name) (printType ty) <+> "where" <> hardline <>
-  indent 1 (vsep (map (\(n, t) -> typeAnn (pretty n) (printType t)) cons)) <>
+  data_ <+> typeAnn (pretty name) (printTm ty) <+> "where" <> hardline <>
+  indent 1 (vsep (map (\(n, t) -> typeAnn (pretty n) (printTm t)) cons)) <>
    line
 printDef (DefPDataType name params cons ty) =
   data_ <+> 
-    typeAnn (pretty name <+> hsep (map (\(x, y) -> teleCell (pretty x) (printType y)) params))
-              (printType ty) <+> 
+    typeAnn (pretty name <+> hsep (map (\(x, y) -> teleCell (pretty x) (printTm y)) params))
+              (printTm ty) <+> 
     "where" <> hardline <>
-    indent 1 (vsep (map (\(n,t) -> typeAnn (pretty n) (printType t)) cons)) <>
+    indent 1 (vsep (map (\(n,t) -> typeAnn (pretty n) (printTm t)) cons)) <>
     hardline
 
 -- Function for records
 printDef (DefRecType name params consName fields _) =
     rec <+> typeAnn pp_params univ <+> "where" <> line <>
     indent 4 (vsep $ "constructor" <+> pretty consName : "field" : 
-       (indent 4 $ vsep $ map (\(fname, ftype) -> typeAnn (pretty fname) (printType ftype)) fields)
+       (indent 4 $ vsep $ map (\(fname, ftype) -> typeAnn (pretty fname) (printTm ftype)) fields)
        : []) <>
     hardline
     where
-      ll = map (\(Arg n t) -> teleCell (pretty n) (printType t)) params
+      ll = map (\(Arg n t) -> teleCell (pretty n) (printTm t)) params
       pp_params = if null params then pretty name else pretty name <+> hsep ll
 
-printDef (DefRec name recType consName fields) =
-    typeAnn (pretty name) (printType recType) <> hardline <> 
-    pretty name <+> assign <+> pretty consName <+> nest 4 (sep (map (printExpr . snd) fields))
+printDef (DefRec name recTm consName fields) =
+    typeAnn (pretty name) (printTm recTm) <> hardline <> 
+    pretty name <+> assign <+> pretty consName <+> nest 4 (sep (map (printTm . snd) fields))
 
 printDef (OpenName _) = mempty
 printDef (Separator '\n' n _) = vcat $ replicate (fromIntegral n) emptyDoc

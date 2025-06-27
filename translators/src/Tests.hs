@@ -28,24 +28,24 @@ nm c n = T.cons c $ T.show n
 genIndex :: Char -> Natural -> [T.Text]
 genIndex c m = iter m (nm c)
 
-v :: Char -> Natural -> Expr
+v :: Char -> Natural -> Tm
 v c n = Var $ nm c n
 
-vx :: Natural -> Expr
+vx :: Natural -> Tm
 vx = v 'x'
 
-vxs :: Natural -> Expr
+vxs :: Natural -> Tm
 vxs n | n == 0    = num 1
       | otherwise = vx n
 
 mkName :: Show a => T.Text -> a -> T.Text
 mkName t s = T.append t $ T.show s
 
-sum2vars :: Natural -> Expr
+sum2vars :: Natural -> Tm
 sum2vars n | n == 0    = num 1
            | otherwise = plus (vx n) (vx n)
 
-nary :: Type -> Natural -> Type
+nary :: Tm -> Natural -> Tm
 nary t n = foldr Arr t (replicate (fromIntegral n) t)
 
 -- this is our list of expandable tests. each test should take a Natural as an
@@ -74,7 +74,7 @@ _tests =
                               $ reverse [1..p]
 
             -- Generate function call expressions
-            genCall :: Natural -> Expr
+            genCall :: Natural -> Tm
             genCall p = foldr (\a b -> plus (appnm (nm 'f' a) (NE.map (num . (+ 1)) (NE.fromList [1..a]))) b)
                               (app1 "f1" (num 2)) $ reverse [2..p]
 
@@ -88,15 +88,15 @@ _tests =
     -- 6 Description: A record declaration with N dependent fields
     ,\n -> let --6
         -- Generate field definitions dynamically
-        genFields :: Natural -> [(Name, Type)]
+        genFields :: Natural -> [(Name, Tm)]
         genFields p = ("f1", nat) :
                       (foldr (\a b -> (nm 'f' a, PCon "Vec" [nat, genSize (a-1)]) : b) [] $ [2..p])
 
         -- Helper function to correctly reference `suc` or `S`
-        genSize p = Embed $ foldr (\_ b -> suc b) (Var "f1") [2..p]
+        genSize p = foldr (\_ b -> suc b) (Var "f1") [2..p]
 
         -- Generate example initialization dynamically
-        genExample :: Natural -> [(Name, Expr)]
+        genExample :: Natural -> [(Name, Tm)]
         genExample k = map (\i -> (nm 'f' i, vec $ replicate (fromIntegral i) (num 1))) [1..k]
 
         -- Define the record structure
@@ -116,7 +116,7 @@ _tests =
           [(nm 'f' i, c)] Univ : b) [] $ ((1, nat) : map (\i -> (i, con (mkName "Record" (i-1)))) [2..p])
 
         -- Generate Example Init
-        genExample :: Natural -> Expr
+        genExample :: Natural -> Tm
         genExample p = foldr (\a b -> Paren $ (app1 (mkName "Const" a) b)) (num 10) $ reverse [1..p]
 
         exampleInit = DefRec "example" (con $ mkName "Record" n) (mkName "Const" n) [("example", genExample $ minusNatural n 1)] -- HACK
@@ -138,7 +138,7 @@ _tests =
         recDef = DefRecType "X" params "Const" [("sums", nat)] (con "Set")
 
         -- Build the record type application as a string: "X 1 2 ... n"
-        recTypeInstance = DCon "X" $ iter n (Embed . num)
+        recTypeInstance = DCon "X" $ iter n num
 
         -- Define the record instance "example" with computed field values:
         exampleInit = DefRec "example" recTypeInstance "Const" [("sums", Paren $ buildSum n)]
@@ -191,8 +191,8 @@ _tests =
     varName level idx = nm 'x' level `T.append` nm 'L' idx
 
     -- Define expressions for each variable
-    genExpr :: Natural -> Natural -> Expr
-    genExpr idx level = if level == 0 then num idx else plus (Var $ varName level idx) (num idx)
+    genTm :: Natural -> Natural -> Tm
+    genTm idx level = if level == 0 then num idx else plus (Var $ varName level idx) (num idx)
 
     --  sum of all xN_1 .. xN_10 + 100
     resultDef = DefTVar "result" (Just nat) $ foldl (\acc idx -> plus acc (Var $ varName n idx)) (num 100) [1..varsPerLevel]
@@ -200,7 +200,7 @@ _tests =
     -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
     genLevelDefs level = 
-        foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) (Just nat) (genExpr idx (a-1))) ++ b) [resultDef]
+        foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) (Just nat) (genTm idx (a-1))) ++ b) [resultDef]
         $ reverse [1..level]
 
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
