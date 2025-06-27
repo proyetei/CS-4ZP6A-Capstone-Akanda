@@ -1,10 +1,4 @@
-{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE CApiFFI #-}
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TypeFamilies #-}
 module Panbench.Internal
   (
   -- $shake

@@ -16,8 +16,16 @@ executable site
     main-is:          Main.hs
     default-extensions:
         BlockArguments
+        DeriveAnyClass
+        DeriveGeneric
+        DerivingStrategies
         ImportQualifiedPost
+        LambdaCase
+        OverloadedStrings
+        RecordWildCards
+        TupleSections
         TypeApplications
+        TypeFamilies
     other-modules:
         Panbench.Internal
         Panbench.HTML

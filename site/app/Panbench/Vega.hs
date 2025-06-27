@@ -1,6 +1,3 @@
-{-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | Benchmark plotting via @vega-lite@.
 --
 -- This module provides some @vega-lite@ layers
