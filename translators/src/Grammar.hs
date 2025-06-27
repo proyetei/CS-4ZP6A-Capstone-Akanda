@@ -50,11 +50,11 @@ data LocalDefn
 data Tm
   = PCon Name [Tm]        -- (parameterized) type constructor
   | DCon Name [Tm]        -- dependent type constructor (note that a dependent type is also parameterized)
-  | Arr Tm Tm           -- function type
+  | Arr Tm Tm             -- function type
   | Index [Name] Tm
-  | Univ                    -- a Universe, aka "Type" itself, called "Set" in Agda
+  | Univ                  -- a Universe, aka "Type" itself, called "Set" in Agda
   | Var Name
-  | Binary Op2 Tm Tm    -- only for known, hard-coded binary operations
+  | Binary Op2 Tm Tm      -- only for known, hard-coded binary operations
   | Unary Op1 Tm          -- only for known, hard-coded unary operations
   | Let [LocalDefn] Tm
   | If Tm Tm Tm
