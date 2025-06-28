@@ -5,7 +5,7 @@ synopsis:           A generic proof-assistant benchmarking framework.
 license:            MIT
 author:             Zainab Abdulsada, Esha Pisharody, Emma Willson, Grace Croome, Marie Hollington, Proyetei Akanda, Jacques Carette, Reed Mullanix
 
-maintainer:         82549386+Z-Obaid@users.noreply.github.com
+maintainer:         carette@mcmaster.ca
 category:           Testing
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
@@ -16,6 +16,7 @@ common warnings
 common extensions
      default-extensions:
        BlockArguments,
+       OverloadedStrings,
        ImportQualifiedPost
 
 library
