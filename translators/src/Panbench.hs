@@ -5,6 +5,7 @@ module Panbench
   , renderLang
     -- $generators
   , panbenchMain
+  , module Grammar
   ) where
 
 import Numeric.Natural
