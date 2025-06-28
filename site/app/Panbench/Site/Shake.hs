@@ -4,6 +4,7 @@ module Panbench.Site.Shake
     createDirectoryRecursive
   , removeFile_
   , writeBinaryFileChanged
+  , writeTextFileChanged
   ) where
 
 import Control.Exception
@@ -11,6 +12,8 @@ import Control.Monad
 import Control.Monad.IO.Class
 
 import Data.ByteString.Lazy qualified as LBS
+import Data.Text qualified as T
+import Data.Text.IO qualified as T
 
 import System.Directory qualified as Dir
 import System.FilePath
@@ -39,16 +42,36 @@ removeFile_ x =
             Dir.setPermissions x perms{Dir.readable = True, Dir.searchable = True, Dir.writable = True}
             Dir.removeFile x
 
--- | Write the contents of a lazy @ByteString@ to a file if the contents of
--- the file would change.
-writeBinaryFileChanged :: (MonadIO m) => FilePath -> LBS.ByteString -> m ()
-writeBinaryFileChanged name x = liftIO $ do
+-- | Write to a file if its contents would change, using
+-- the provided reading/writing functions.
+--
+-- This function is not intended to be called directly: see
+-- @'writeBinaryFileChanged'@ and related functions.
+writeFileChangedWith
+  :: (MonadIO m, Eq a)
+  => (Handle -> IO a)
+  -> (FilePath -> a -> IO ())
+  -> FilePath
+  -> a
+  -> m ()
+writeFileChangedWith readH writeF name x = liftIO $ do
     createDirectoryRecursive $ takeDirectory name
     exists <- Dir.doesFileExist name
-    if not exists then LBS.writeFile name x else do
+    if not exists then writeF name x else do
         changed <- withFile name ReadMode $ \h -> do
-            src <- LBS.hGetContents h
+            src <- readH h
             pure $! src /= x
         when changed $ do
             removeFile_ name -- symlink safety
-            LBS.writeFile name x
+            writeF name x
+{-# INLINE writeFileChangedWith #-}
+
+-- | Write the contents of a lazy @ByteString@ to a file if the contents of
+-- the file would change.
+writeBinaryFileChanged :: (MonadIO m) => FilePath -> LBS.ByteString -> m ()
+writeBinaryFileChanged = writeFileChangedWith LBS.hGetContents LBS.writeFile
+
+-- | Write the contents of a strict @Text@ to a file if the contents of
+-- the file would change.
+writeTextFileChanged :: (MonadIO m) => FilePath -> T.Text -> m ()
+writeTextFileChanged = writeFileChangedWith T.hGetContents T.writeFile

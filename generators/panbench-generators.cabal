@@ -13,12 +13,14 @@ common generator
     ghc-options: -Wall
     build-depends:
         base >=4.17.2.1,
+        text >= 2.1,
         translators
     hs-source-dirs:   app
     default-language: Haskell2010
     default-extensions:
         BlockArguments
         ImportQualifiedPost
+        OverloadedStrings
 
 executable let-example
     import:           generator

@@ -12,6 +12,7 @@ module Panbench.Bwd
 import Prelude
   ( Foldable(..)
   , Functor(..)
+  , Applicative(..)
   , error
   )
 
@@ -30,6 +31,13 @@ instance Foldable Bwd where
   foldr _ b Nil = b
   foldr f b (xs :> x) = f x (foldr f b xs)
 
+-- | The @'Applicative'@ instance for backwards lists is the same as @'ZipList'@.
+instance Applicative Bwd where
+  pure = repeat
+  Nil <*> _ = Nil
+  _ <*> Nil = Nil
+  (fs :> f) <*> (xs :> x) = (fs <*> xs) :> (f x)
+
 -- | $O(1)$. Get the last element of a nonempty backwards list.
 --
 -- This function is partial: only use when you know the list is
@@ -44,3 +52,6 @@ scoped f g xs cont = go Nil xs
   where
     go bound [] = cont bound
     go bound (x:xs) = f x (go (bound :> g x) xs)
+
+repeat :: a -> Bwd a
+repeat a = repeat a :> a

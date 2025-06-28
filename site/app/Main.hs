@@ -6,6 +6,7 @@ import Data.Functor
 import Data.List
 import Data.Map.Strict (Map)
 import Data.Set (Set)
+import Data.Text (Text)
 import Data.Traversable
 
 import Data.Aeson qualified as JSON
@@ -127,7 +128,7 @@ findLangBin lang =
       ]
 
 -- | Print a module for a given @Lang@.
-printLangModule :: Lang -> Module -> String
+printLangModule :: Lang -> Module -> Text
 printLangModule Agda = Agda.render
 printLangModule Idris = Idris.render
 printLangModule Lean = Lean.render
@@ -186,7 +187,7 @@ moduleRules =
     (lang, n, base) <- parseModulePath out
     case Map.lookup base modules of
       Just module_ ->
-        writeFileChanged out (printLangModule lang $ module_ n)
+        writeTextFileChanged out (printLangModule lang $ module_ n)
       Nothing ->
         putError $ unlines $
         [ "No benchmark available for " <> base

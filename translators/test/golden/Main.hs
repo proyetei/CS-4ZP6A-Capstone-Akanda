@@ -50,7 +50,7 @@ stagingPath fname = "test" </> "staging" </> fname
 printTestForLang
   :: String
   -- ^ The name of the language.
-  -> (a -> String)
+  -> (a -> Text)
   -- ^ The printer to use for this thing.
   -> String
   -- ^ The extension to use for the saved snapshot and staging files.
@@ -65,7 +65,7 @@ printTestForLang langName printer fileExt base syn =
     createFile stagingFile
     -- Data.Ext.IO.Utf8 always writes UTF-8, ignores the locale,
     -- and does not do line ending conversion.
-    Utf8.writeFile stagingFile $ T.pack $ printer syn
+    Utf8.writeFile stagingFile $ printer syn
   where
     stagingFile = stagingPath (base <.> fileExt)
     snapshotFile = snapshotPath (base <.> fileExt)

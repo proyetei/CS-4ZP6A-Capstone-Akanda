@@ -8,7 +8,11 @@ module Panbench
   , module Grammar
   ) where
 
+import Data.Text (Text)
+import Data.Text.IO qualified as T
+
 import Numeric.Natural
+
 import Text.ParserCombinators.ReadP qualified as P
 import Text.Read
 
@@ -37,7 +41,7 @@ instance Read Lang where
     ]
 
 -- | Render a @'Module'@ into a language.
-renderLang :: Lang -> Module -> String
+renderLang :: Lang -> Module -> Text
 renderLang Agda = Agda.render
 renderLang Idris = Idris.render
 renderLang Lean = Lean.render
@@ -80,4 +84,4 @@ panbenchMain name gen = do
       , header ("panbench generator for " <> name)
       ]
   let module_ = gen (optSize opts)
-  putStr (renderLang (optLang opts) module_)
+  T.putStr (renderLang (optLang opts) module_)
