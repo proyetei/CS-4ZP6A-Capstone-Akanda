@@ -6,6 +6,7 @@ module Print.Rocq
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T (writeFile)
+
 import Prettyprinter
 import Prettyprinter.Render.Text (renderStrict)
 
@@ -64,7 +65,7 @@ printTm (Let ds expr) =
   "let" <+> align (vcat (map printLocalDefn ds) <+> "in") <> line <>
   printTm expr
 printTm (If cond thn els) = "if" <+> printTm cond <+> "then" <+> printTm thn <+> "else" <+> printTm els
-printTm (Where expr ds) = 
+printTm (Where expr ds) =
   printTm expr <> hardline <>
   indent 4 ("where " <+> vcat (map printLocalDefn ds))
 printTm (App fun args) = printTm fun <+> (hsep $ map printTm args)
@@ -93,7 +94,7 @@ printOp2 :: Op2 -> Doc ann
 printOp2 Plus = "+"
 
 printLocalDefn :: LocalDefn -> Doc ann
-printLocalDefn (LocDefFun var Nothing args expr) = 
+printLocalDefn (LocDefFun var Nothing args expr) =
   prettyArgs var printArg args <+> assign <+> printTm expr
 printLocalDefn (LocDefFun var (Just t) args expr) = typeAnn targs (printReturnType t) <+> assign <+>
   printTm expr
@@ -101,14 +102,14 @@ printLocalDefn (LocDefFun var (Just t) args expr) = typeAnn targs (printReturnTy
 
 printDef :: Definition -> Doc ann
 printDef (DefTVar var Nothing expr) = pretty var <+> assign <+> printTm expr
-printDef (DefTVar var (Just t) expr) = 
+printDef (DefTVar var (Just t) expr) =
   nest 4 ("Definition" <+> typeAnn (pretty var) (printTm t) <+> assign <> softline <>
   (printTm expr <> dot <> hardline))
 printDef (DefPatt var params ty m cons) = "Fixpoint" <+> pretty var <+>
   typeAnn (hsep $ map (\(x, y) -> teleCell (pretty x) (printTm y)) params)
           (printTm ty) <+> assign <> hardline <>
   "match" <+> pretty m <+> "with" <> hardline <>
-  vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . T.toLower . arg) a) <+> "=>" <+> printTm e) cons) 
+  vsep (map (\(a, e) -> pipe <+> (hsep $ map (pretty . T.toLower . arg) a) <+> "=>" <+> printTm e) cons)
   <> softline' <> "end" <> dot <> hardline
 printDef (DefDataType name args ty) = let
     printIndices :: Tm -> Doc ann
@@ -153,7 +154,7 @@ printDef (DefRec name recType consName fields) =
     fieldsStr = hsep $ map (printTm . snd) fields
 
     -- If there are parameters, insert them between the constructor name and the field values.
-    constructorCall = 
+    constructorCall =
       case hasParams of
         Nothing -> pretty consName <+> fieldsStr
         Just _  -> pretty consName <+> parameters <+> fieldsStr

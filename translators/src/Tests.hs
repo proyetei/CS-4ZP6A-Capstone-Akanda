@@ -1,3 +1,4 @@
+{-# Language OverloadedStrings #-}
 module Tests (tests) where
 
 import Data.IntMap.Strict as Map ( fromList, IntMap )
@@ -64,7 +65,7 @@ _tests =
             decl = [ DefTVar "n" (Just nat) (Let (reverse $ genFunc n) (genCall n)) ]
             -- Generate function definitions dynamically based on (1 to n)
             genFunc :: Natural -> [LocalDefn]
-            genFunc p = foldr (\a b -> LocDefFun (nm 'f' a) 
+            genFunc p = foldr (\a b -> LocDefFun (nm 'f' a)
                                        (Just $ nary nat a)
                                        (iter a (\i -> Arg (nm 'x' i) nat))
                                        (foldl (\acc i -> plus acc (vx i)) (num 1) [1..a]) : b)
@@ -110,7 +111,7 @@ _tests =
     \n -> let
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
-        genRecords p = foldr (\(i,c) b -> DefRecType (mkName "Record" i) [] (mkName "Const" i) 
+        genRecords p = foldr (\(i,c) b -> DefRecType (mkName "Record" i) [] (mkName "Const" i)
           [(nm 'f' i, c)] Univ : b) [] $ ((1, nat) : map (\i -> (i, con (mkName "Record" (i-1)))) [2..p])
 
         -- Generate Example Init
@@ -160,7 +161,7 @@ _tests =
         exampleInit = DefRec "example" (con $ mkName "Record" n) (mkName "Const" n) [("f1", num 1)]
         -- Generate Record Definitions
         genRecords :: Natural -> [Definition]
-        genRecords p = foldl (\b a -> DefRecType (mkName "Record" a) [] (mkName "Const" a) [(nm 'f' a, nat)] Univ : b) 
+        genRecords p = foldl (\b a -> DefRecType (mkName "Record" a) [] (mkName "Const" a) [(nm 'f' a, nat)] Univ : b)
                              [exampleInit] $ reverse [1..p]
     in Module "ChainDefFields_NonDependentRecordModule" [ImportLib NatMod] $ trivial n (genRecords n)
 
@@ -197,14 +198,14 @@ _tests =
 
     -- Generate DefTVar for each level
     genLevelDefs :: Natural -> [Definition]
-    genLevelDefs level = 
+    genLevelDefs level =
         foldl (\b a -> iter varsPerLevel (\idx -> DefTVar (varName a idx) (Just nat) (genTm idx (a-1))) ++ b) [resultDef]
         $ reverse [1..level]
 
     in Module "DeepDependency_VariableModule" [ImportLib NatMod] $ trivial n (genLevelDefs n)
 
     , \n -> let -- 16 Description: Simple datatype declaration with a specified number of indices, defined implicitly.
-        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (con ("D " `T.append` T.unwords (genIndex 'x' n))))] 
+        decl = [DefDataType "D" [("C1", Arr (Index (genIndex 'x' n) nat) (con ("D " `T.append` T.unwords (genIndex 'x' n))))]
                             (Arr (nary nat (n-1)) Univ)]
        in Module "DataImplicitIndices" [ImportLib NatMod] $ trivial n decl
 
@@ -214,7 +215,7 @@ _tests =
 
     , \n ->  --18 Description: A single datatype where 'n' represents the number of 'Type' parameters, all needed for 'n' constructors
         let
-            decl =  [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ))) 
+            decl =  [DefPDataType "D" (iter n (\i -> (nm 'p' i, Univ)))
                                  (iter n (\ i -> (nm 'C' i,  PCon "D" (iter n (\j -> con (nm 'p' j) )))) ) Univ]
         in Module "ConstructorsParameters_Datatypes" [] $ trivial n decl
 
@@ -235,8 +236,8 @@ _tests =
           OpenName "D",
           DefPatt "F" [("C", con "D")] nat "C" (iter n (\i -> ([Arg (nm 'C' i) (con "D")], num i))),
           DefTVar "N" (Just nat) (genCall n)]
-        genCall p = foldr (\a b -> plus (app1 "F" (con (nm 'C' a))) b) 
-                                        (app1 "F" (con "C1")) 
+        genCall p = foldr (\a b -> plus (app1 "F" (con (nm 'C' a))) b)
+                                        (app1 "F" (con "C1"))
           (reverse [2..p])
     in
        Module "Pattern_Matching_Datatypes" [ImportLib NatMod] $ trivial n decl

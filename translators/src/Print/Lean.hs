@@ -63,12 +63,12 @@ printTm (Paren e) = parens $ printTm e
 printTm (Binary op e1 e2) = printTm e1 <+> printOp2 op <+> printTm e2
 printTm (Let [] expr) = printTm expr
 printTm (Let (d:[]) expr) = "let" <+> printLocalDefn d <> hardline <> printTm expr
-printTm (Let (d:ds) expr) = 
+printTm (Let (d:ds) expr) =
   -- "let" <+> intercalate "\nlet " (map printLocalDefn (d:ds)) ++ "\n" ++ printTm expr
   vcat (map (\x -> "let" <+> printLocalDefn x) (d:ds)) <> line <>
   printTm expr
-printTm (If cond thn els) = "if" <+> printTm cond <+> "then" <> hardline <> 
-  indent 4 (printTm thn) <> hardline <> 
+printTm (If cond thn els) = "if" <+> printTm cond <+> "then" <> hardline <>
+  indent 4 (printTm thn) <> hardline <>
   "else" <+> printTm els
 printTm (Where expr ds) = printTm expr <> hardline <>
   indent 4 ("where" <> hardline <> vsep (map printLocalDefn ds))
