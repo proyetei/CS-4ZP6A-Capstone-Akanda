@@ -1,51 +1,21 @@
 -- | Panbench utilities.
 module Panbench
-  ( -- $languages
-    Lang(..)
-  , renderLang
-    -- $generators
-  , panbenchMain
+  ( -- $generators
+    panbenchMain
+  -- * Re-exports
+  , Lang(..)
   , module Grammar
   ) where
 
-import Data.Text (Text)
 import Data.Text.IO qualified as T
 
 import Numeric.Natural
 
-import Text.ParserCombinators.ReadP qualified as P
-import Text.Read
-
 import Options.Applicative
 
-import Print.Agda qualified as Agda
-import Print.Idris qualified as Idris
-import Print.Lean qualified as Lean
-import Print.Rocq qualified as Rocq
+import Panbench.Lang (Lang)
+import Panbench.Lang qualified as Lang
 import Grammar
-
--- * Languages
---
--- $languages
-
--- | Possible languages to generate.
-data Lang = Agda | Idris | Lean | Rocq
-  deriving (Eq, Ord, Show)
-
-instance Read Lang where
-  readPrec = lift $ P.choice
-    [ Agda <$ P.string "agda"
-    , Idris <$ P.string "idris2"
-    , Lean <$ P.string "lean"
-    , Rocq <$ P.string "rocq"
-    ]
-
--- | Render a @'Module'@ into a language.
-renderLang :: Lang -> Module -> Text
-renderLang Agda = Agda.render
-renderLang Idris = Idris.render
-renderLang Lean = Lean.render
-renderLang Rocq = Rocq.render
 
 -- * Generators
 --
@@ -84,4 +54,4 @@ panbenchMain name gen = do
       , header ("panbench generator for " <> name)
       ]
   let module_ = gen (optSize opts)
-  T.putStr (renderLang (optLang opts) module_)
+  T.putStr (Lang.render (optLang opts) module_)
