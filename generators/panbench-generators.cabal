@@ -12,8 +12,8 @@ extra-doc-files:    CHANGELOG.md
 common generator
     ghc-options: -Wall
     build-depends:
-        base >=4.17.2.1,
-        text >= 2.1,
+        base >=4.17.2.0,
+        text >= 2.1 && <3.0,
         translators
     hs-source-dirs:   app
     default-language: Haskell2010
