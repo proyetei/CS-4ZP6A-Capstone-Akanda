@@ -20,7 +20,7 @@ import Numeric.Natural
 import System.Directory (findExecutable)
 import System.FilePath
 
-import Panbench.Site.Shake
+import Panbench.Shake.File
 import Panbench
 
 import Panbench.Lang qualified as Lang

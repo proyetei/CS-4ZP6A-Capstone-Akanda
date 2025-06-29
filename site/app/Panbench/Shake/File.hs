@@ -1,5 +1,5 @@
 -- | Shake utilities for @panbench-site@.
-module Panbench.Site.Shake
+module Panbench.Shake.File
   ( -- $shakefileutil
     createDirectoryRecursive
   , writeBinaryFileChanged

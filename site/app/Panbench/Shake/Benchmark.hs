@@ -1,5 +1,5 @@
 {-# LANGUAGE CApiFFI #-}
-module Panbench.Internal
+module Panbench.Shake.Benchmark
   (
   -- $shake
     BenchmarkExec(..)
@@ -89,7 +89,7 @@ benchmark path args env = do
     withArray0 nullPtr cenv \cenvp ->
       c_benchmark cpath cargv cenvp p
   if r == -1 then do
-    throwErrno "Panbench.Internal.benchmark"
+    throwErrno "Panbench.Shake.Benchmark.benchmark"
   else
     peek p
 {-# NOINLINE benchmark #-}

@@ -22,11 +22,11 @@ import Numeric.Natural
 
 import System.FilePath
 
-import Panbench.Internal
+import Panbench.Shake.Benchmark
 import Panbench.Lang (Lang)
 import Panbench.Lang qualified as Lang
 import Panbench.Shake.Lang
-import Panbench.Site.Shake
+import Panbench.Shake.File
 
 -- * Benchmarking matrices.
 --

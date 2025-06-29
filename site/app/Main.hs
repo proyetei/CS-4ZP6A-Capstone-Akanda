@@ -8,8 +8,8 @@ import Development.Shake
 
 import Text.Blaze.Html.Renderer.Utf8 qualified as H
 
-import Panbench.Site.Shake
-import Panbench.Internal
+import Panbench.Shake.File
+import Panbench.Shake.Benchmark
 import Panbench.HTML
 import Panbench
 
