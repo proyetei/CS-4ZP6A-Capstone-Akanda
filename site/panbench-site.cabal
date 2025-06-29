@@ -15,25 +15,32 @@ executable site
     import:           warnings
     main-is:          Main.hs
     default-extensions:
+        BangPatterns
         BlockArguments
         DeriveAnyClass
         DeriveGeneric
         DerivingStrategies
         ImportQualifiedPost
+        GeneralizedNewtypeDeriving
         LambdaCase
         OverloadedStrings
         RecordWildCards
+        ScopedTypeVariables
         TupleSections
         TypeApplications
         TypeFamilies
+        TypeOperators
     other-modules:
         Panbench.Internal
         Panbench.HTML
+        Panbench.Shake.Lang
+        Panbench.Shake.Matrix
         Panbench.Site.Shake
         Panbench.Vega
     build-depends:
         base >=4.17.2.1,
         aeson >= 2.2,
+        binary >= 0.8,
         blaze-html >= 0.9,
         bytestring >= 0.12,
         containers >= 0.6,
@@ -42,6 +49,7 @@ executable site
         hvega >= 0.12,
         shake >= 0.19,
         text >= 2.1,
+        time >= 1.12,
         translators
     hs-source-dirs:
         app

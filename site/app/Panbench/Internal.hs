@@ -4,10 +4,12 @@ module Panbench.Internal
   -- $shake
     BenchmarkExec(..)
   , BenchmarkExecStats(..)
-  , benchmarkExecOracle
+  , benchmarkRules
+  , needBenchmark
   ) where
 
 import Data.Aeson
+import Data.Functor
 import Data.Int
 
 import Development.Shake.Classes (Hashable, Binary, NFData)
@@ -109,8 +111,12 @@ data BenchmarkExec = BenchmarkExec
 type instance RuleResult BenchmarkExec = BenchmarkExecStats
 
 -- | Executable benchmarking oracle.
-benchmarkExecOracle :: BenchmarkExec -> Action BenchmarkExecStats
-benchmarkExecOracle BenchmarkExec{..} =
-  traced "benchmark" $
-  withCurrentDirectory benchWorkingDir $
-  benchmark benchExec benchArgs benchEnv
+benchmarkRules :: Rules ()
+benchmarkRules =
+  void $ addOracle \BenchmarkExec{..} ->
+    traced "benchmark" $
+    withCurrentDirectory benchWorkingDir $
+    benchmark benchExec benchArgs benchEnv
+
+needBenchmark :: BenchmarkExec -> Action BenchmarkExecStats
+needBenchmark = askOracle

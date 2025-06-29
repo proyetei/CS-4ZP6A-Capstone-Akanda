@@ -22,6 +22,6 @@ common generator
         ImportQualifiedPost
         OverloadedStrings
 
-executable let-example
+executable LetExample
     import:           generator
     main-is:          LetExample.hs

@@ -7,8 +7,8 @@ module Panbench.Lang
   , render
   , name
   , fileExt
-  , defaultFlags
-  , defaultBinary
+  , defaultArgs
+  , defaultExecutable
   , buildArtifacts
   , allLangs
   ) where
@@ -54,9 +54,17 @@ instance Read Lang where
 
 instance JSON.ToJSON Lang where
   toJSON Agda = JSON.String "agda"
-  toJSON Idris = JSON.String "idris"
+  toJSON Idris = JSON.String "idris2"
   toJSON Lean = JSON.String "lean"
   toJSON Rocq = JSON.String "rocq"
+
+instance JSON.FromJSON Lang where
+  parseJSON = JSON.withText "Lang" \case
+    "agda" -> pure Agda
+    "idris2" -> pure Idris
+    "lean" -> pure Lean
+    "rocq" -> pure Rocq
+    _ -> fail "Expected one of agda, idris2, lean, rocq."
 
 -- | Render a @'Module'@ as a given language.
 render :: Lang -> Module -> Text
@@ -68,7 +76,7 @@ render Rocq = Rocq.render
 -- | Get the name of a language.
 name :: Lang -> String
 name Agda = "agda"
-name Idris = "idris"
+name Idris = "idris2"
 name Lean = "lean"
 name Rocq = "rocq"
 
@@ -81,23 +89,23 @@ fileExt Rocq = ".v"
 
 -- | Get the default flags to use for a @'Lang'@ when
 -- trying to typecheck a file.
-defaultFlags
+defaultArgs
   :: Lang
   -- ^ The language.
   -> FilePath
   -- ^ The file we are trying to typecheck.
   -> [String]
-defaultFlags Agda file = ["+RTS", "-M3.0G", "-RTS", file]
-defaultFlags Idris file = ["--check", file]
-defaultFlags Lean file = ["-D", "maxRecDepth=2000", "-D", "maxHeartbeats=0", file]
-defaultFlags Rocq file = [file]
+defaultArgs Agda file = ["+RTS", "-M3.0G", "-RTS", file]
+defaultArgs Idris file = ["--check", file]
+defaultArgs Lean file = ["-D", "maxRecDepth=2000", "-D", "maxHeartbeats=0", file]
+defaultArgs Rocq file = [file]
 
 -- | Get the name of the binary for a language.
-defaultBinary :: Lang -> String
-defaultBinary Agda = "agda"
-defaultBinary Idris = "idris2"
-defaultBinary Lean = "lean"
-defaultBinary Rocq = "coqc"
+defaultExecutable :: Lang -> String
+defaultExecutable Agda = "agda"
+defaultExecutable Idris = "idris2"
+defaultExecutable Lean = "lean"
+defaultExecutable Rocq = "coqc"
 
 -- | Build artifacts produced by a given @'Lang'@.
 buildArtifacts :: Lang -> [FilePath]
