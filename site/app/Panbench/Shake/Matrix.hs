@@ -1,8 +1,10 @@
 module Panbench.Shake.Matrix
   ( -- $shakeMatrix
     BenchmarkMatrix(..)
+  , BenchmarkMatrixStats(..)
   , benchmarkMatrixRules
   , needBenchmarkMatrix
+  , needBenchmarkMatrices
   ) where
 
 import Data.Aeson ((.:))
@@ -34,12 +36,12 @@ import Panbench.Shake.File
 
 -- | Benchmarking matrix query.
 data BenchmarkMatrix = BenchmarkMatrix
-  { benchMatrixLangs :: Set Lang
+  { benchMatrixName :: String
+  -- ^ Module to benchmark.
+  , benchMatrixLangs :: Set Lang
   -- ^ What languages should we include in the matrix?
   , benchMatrixSizes :: [Natural]
   -- ^ Parameters to sample at.
-  , benchMatrixName :: String
-  -- ^ Module to benchmark.
   }
   deriving stock (Show, Eq, Ord, Generic)
   deriving anyclass (Hashable, Binary, NFData)
@@ -102,10 +104,14 @@ benchmarkMatrixRules =
           cleanBuildArtifacts generatorLang dir
           bin <- findDefaultExecutable generatorLang
           let args = Lang.defaultArgs generatorLang file
-          stat <- needBenchmark (BenchmarkExec bin args [] dir)
+          stat <- liftIO $ benchmark bin args [] dir
           pure (generatorLang, generatorSize, stat)
     pure (stats, JSON.encode stats)
 
 needBenchmarkMatrix :: BenchmarkMatrix -> Action BenchmarkMatrixStats
 needBenchmarkMatrix matrix =
   snd <$> askFileCacheOracle matrix
+
+needBenchmarkMatrices :: [BenchmarkMatrix] -> Action [BenchmarkMatrixStats]
+needBenchmarkMatrices matrices =
+  fmap snd <$> asksFileCacheOracle matrices

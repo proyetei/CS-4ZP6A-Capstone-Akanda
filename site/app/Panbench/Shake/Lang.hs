@@ -101,5 +101,6 @@ generatorRules :: Rules ()
 generatorRules = do
   addFileCacheOracle generatorOutputDir (\_ -> pure ()) \GenerateModule{..} -> do
     need ["generators" </> "app" </> generatorName <.> "hs"]
+    -- -- [FIXME: Reed M, 29/06/2025] Call @cabal@ here directly.
     Stdout out <- command [] "cabal" ["run", generatorName, "--", "--size", show generatorSize, "--language", Lang.name generatorLang]
     pure ((), out)

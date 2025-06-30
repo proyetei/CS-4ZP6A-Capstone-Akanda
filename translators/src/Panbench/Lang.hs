@@ -15,14 +15,13 @@ module Panbench.Lang
 
 import Control.DeepSeq
 
+import Data.Aeson qualified as JSON
 import Data.Binary
-import Data.Functor
 import Data.Hashable
-import Data.Map (Map)
+import Data.Set (Set)
+import Data.Set qualified as Set
 import Data.Text (Text)
 
-import Data.Aeson qualified as JSON
-import Data.Map.Strict qualified as Map
 
 import GHC.Generics
 
@@ -114,9 +113,7 @@ buildArtifacts Idris = ["build/*"]
 buildArtifacts Lean = []
 buildArtifacts Rocq = ["*.vo", "*.vok", "*.vos", "*.glob"]
 
--- | A @'Map'@ containing all currently supported languages, keyed by
--- the language name.
-allLangs :: Map String Lang
+-- | A @'Set'@ containing all currently supported languages.
+allLangs :: Set Lang
 allLangs =
-  Map.fromList $ [minBound..maxBound] <&> \lang ->
-    (name lang, lang)
+  Set.fromList [minBound..maxBound]
