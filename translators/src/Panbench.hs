@@ -26,7 +26,7 @@ data PanbenchOpts = PanbenchOpts
   { optSize :: Natural
   -- ^ The size of the output to generate.
   , optLang :: Lang
-  -- ^ The langauge to generate for.
+  -- ^ The language to generate for.
   }
   deriving (Show)
 
