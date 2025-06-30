@@ -2,7 +2,7 @@
 --
 -- This module provides some @vega-lite@ layers
 -- for user time, system time, and max
-module Panbench.Vega
+module Panbench.Shake.Vega
   ( userTimeLayer
   , systemTimeLayer
   , maxRssLayer
@@ -24,6 +24,7 @@ userTimeLayer
 userTimeLayer dataSource width height =
   VL.asSpec
   [ VL.dataFromSource dataSource []
+  , VL.title "User Time" []
   , VL.width width
   , VL.height height
   , VL.mark VL.Line [VL.MPoint $ VL.PMMarker []]
@@ -42,6 +43,7 @@ userTimeLayer dataSource width height =
       $ []
   , VL.transform
     $ nanosecondTransform "user"
+    $ langFilter
     $ []
   , VL.selection
     $ langSelection
@@ -60,6 +62,7 @@ systemTimeLayer
 systemTimeLayer dataSource width height =
   VL.asSpec
   [ VL.dataFromSource dataSource []
+  , VL.title "System Time" []
   , VL.width width
   , VL.height height
   , VL.mark VL.Line [VL.MPoint $ VL.PMMarker []]
@@ -78,6 +81,7 @@ systemTimeLayer dataSource width height =
       $ []
   , VL.transform
     $ nanosecondTransform "system"
+    $ langFilter
     $ []
   , VL.selection
     $ langSelection
@@ -96,6 +100,7 @@ maxRssLayer
 maxRssLayer dataSource width height =
   VL.asSpec
   [ VL.dataFromSource dataSource []
+  , VL.title "Max Resident Set Size" []
   , VL.width width
   , VL.height height
   , VL.mark VL.Line [VL.MPoint $ VL.PMMarker []]
@@ -113,6 +118,7 @@ maxRssLayer dataSource width height =
         ]
       $ []
   , VL.transform
+    $ langFilter
     $ []
   , VL.selection
     $ langSelection
@@ -134,19 +140,20 @@ langColor =
   VL.color
   [ VL.MName "lang"
   , VL.MmType VL.Nominal
+  , VL.MLegend [VL.LTitle "Language"]
   ]
-
--- langTransform :: [VL.TransformSpec] -> [VL.TransformSpec]
--- langTransform =
---   VL.foldAs [""] "lang" "stats"
---   . VL.flatten ["lang"]
 
 -- | Transform a data row from nanoseconds to seconds.
 nanosecondTransform :: VL.FieldName -> [VL.TransformSpec] -> [VL.TransformSpec]
 nanosecondTransform name =
   VL.calculateAs ("datum." <> name <> " / 1000000000") name
 
+langFilter :: [VL.TransformSpec] -> [VL.TransformSpec]
+langFilter = VL.filter (VL.FSelection "legend")
+
 -- | Specification for the language selection side panel.
 langSelection :: [VL.SelectSpec] -> [VL.SelectSpec]
 langSelection =
-  VL.select "Language" VL.Multi [VL.BindLegend (VL.BLField "lang")]
+  VL.select "legend" VL.Multi
+  [ VL.BindLegend (VL.BLField "lang")
+  ]

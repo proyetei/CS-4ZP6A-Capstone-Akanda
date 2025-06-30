@@ -31,12 +31,12 @@ executable site
         TypeFamilies
         TypeOperators
     other-modules:
-        Panbench.HTML
         Panbench.Shake.Benchmark
         Panbench.Shake.File
+        Panbench.Shake.HTML
         Panbench.Shake.Lang
         Panbench.Shake.Matrix
-        Panbench.Vega
+        Panbench.Shake.Vega
     build-depends:
         base >=4.17.2.0,
         aeson >= 2.2,

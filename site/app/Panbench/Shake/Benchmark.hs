@@ -1,21 +1,14 @@
 {-# LANGUAGE CApiFFI #-}
 module Panbench.Shake.Benchmark
-  (
-  -- $shake
-    BenchmarkExec(..)
+  ( -- $ bench
+    benchmark
   , BenchmarkExecStats(..)
-  , benchmarkRules
-  , needBenchmark
   ) where
 
 import Data.Aeson
-import Data.Functor
 import Data.Int
 
 import Development.Shake.Classes (Hashable, Binary, NFData)
-import Development.Shake
-
-import GHC.Generics
 
 import Foreign.C
 import Foreign.Marshal.Alloc
@@ -23,6 +16,8 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+
+import GHC.Generics
 
 import System.Directory
 
@@ -78,45 +73,19 @@ foreign import capi "benchmark.h c_benchmark" c_benchmark :: CString -> Ptr CStr
 -- an @IOError@ is thrown.
 --
 -- For documentation on benchmarking statistics gathered, see @BenchmarkExecStats@.
-benchmark :: FilePath -> [String] -> [String] -> IO BenchmarkExecStats
-benchmark path args env = do
-  p <- malloc
-  r <-
-    withCString path \cpath ->
-    withMany withCString args \cargs ->
-    withMany withCString env \cenv ->
-    withArray0 nullPtr (cpath:cargs) \cargv ->
-    withArray0 nullPtr cenv \cenvp ->
-      c_benchmark cpath cargv cenvp p
-  if r == -1 then do
-    throwErrno "Panbench.Shake.Benchmark.benchmark"
-  else
-    peek p
+benchmark :: FilePath -> [String] -> [String] -> FilePath -> IO BenchmarkExecStats
+benchmark path args env workingDir =
+  withCurrentDirectory workingDir do
+    p <- malloc
+    r <-
+      withCString path \cpath ->
+      withMany withCString args \cargs ->
+      withMany withCString env \cenv ->
+      withArray0 nullPtr (cpath:cargs) \cargv ->
+      withArray0 nullPtr cenv \cenvp ->
+        c_benchmark cpath cargv cenvp p
+    if r == -1 then do
+      throwErrno "Panbench.Shake.Benchmark.benchmark"
+    else
+      peek p
 {-# NOINLINE benchmark #-}
-
--- * Shake Oracles
---
--- $shake
-
--- | Generic benchmarking query.
-data BenchmarkExec = BenchmarkExec
-  { benchExec :: FilePath
-  , benchArgs :: [FilePath]
-  , benchEnv :: [FilePath]
-  , benchWorkingDir :: FilePath
-  }
-  deriving stock (Generic, Show, Eq)
-  deriving anyclass (Hashable, Binary, NFData)
-
-type instance RuleResult BenchmarkExec = BenchmarkExecStats
-
--- | Executable benchmarking oracle.
-benchmarkRules :: Rules ()
-benchmarkRules =
-  void $ addOracle \BenchmarkExec{..} ->
-    traced "benchmark" $
-    withCurrentDirectory benchWorkingDir $
-    benchmark benchExec benchArgs benchEnv
-
-needBenchmark :: BenchmarkExec -> Action BenchmarkExecStats
-needBenchmark = askOracle
