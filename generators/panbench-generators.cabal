@@ -25,3 +25,7 @@ common generator
 executable LetExample
     import:           generator
     main-is:          LetExample.hs
+
+executable LetAddExample
+    import:           generator
+    main-is:          LetAddExample.hs
