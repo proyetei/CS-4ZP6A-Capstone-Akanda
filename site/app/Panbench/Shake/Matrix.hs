@@ -46,6 +46,9 @@ data BenchmarkMatrix = BenchmarkMatrix
   deriving stock (Show, Eq, Ord, Generic)
   deriving anyclass (Hashable, Binary, NFData)
 
+-- | Benchmarking statistics for a @'BenchmarkMatrix'@.
+--
+-- This is stored in a format that can easily be consumed by @vega-lite@.
 newtype BenchmarkMatrixStats = BenchmarkMatrixStats [(Lang, Natural, BenchmarkExecStats)]
   deriving stock (Show, Eq, Generic)
   deriving anyclass (Hashable, NFData)
@@ -88,6 +91,14 @@ benchmarkMatrixModules BenchmarkMatrix{..} = do
   generatorSize <- benchMatrixSizes
   pure $ GenerateModule {..}
 
+-- | Output path for the JSON results of a benchmarking matrix.
+--
+-- Currently, we use the convention
+--
+-- > _build/bench/{hash}.json
+--
+-- Where {hash} is the hash of the matrix. This is subject to
+-- change, and user code should not rely on this.
 benchmarkMatrixOutputPath :: BenchmarkMatrix -> FilePath
 benchmarkMatrixOutputPath matrix =
   "_build" </> "bench" </> show (hash matrix) <.> "json"
@@ -108,10 +119,19 @@ benchmarkMatrixRules =
           pure (generatorLang, generatorSize, stat)
     pure (stats, JSON.encode stats)
 
+-- | Get benchmarking statistics for a single benchmarking matrix.
+--
+-- This query is subject to caching.
 needBenchmarkMatrix :: BenchmarkMatrix -> Action BenchmarkMatrixStats
 needBenchmarkMatrix matrix =
   snd <$> askFileCacheOracle matrix
 
+-- | Get benchmarking statistics for multiple benchmarking matrices.
+--
+-- This query lets us generate the output files in parallel, though
+-- the actual benchmarks are still run sequentially.
+--
+-- This query is subject to caching.
 needBenchmarkMatrices :: [BenchmarkMatrix] -> Action [BenchmarkMatrixStats]
 needBenchmarkMatrices matrices =
   fmap snd <$> asksFileCacheOracle matrices

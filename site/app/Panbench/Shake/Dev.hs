@@ -24,11 +24,12 @@ import Development.Shake
 -- This rule uses @ghc-pkg@ to find the relevant paths, and generates a @.clangd@ file
 -- automatically.
 generateCBitsClangd :: Rules ()
-generateCBitsClangd = do
-  "site/cbits/.clangd" %> \out -> do
-    Stdout dirs <- command [] "ghc-pkg" ["field", "rts", "include-dirs", "--simple-output"]
-    let includes = intercalate ", " $ ("-I" <>) <$> words dirs
-    writeFileChanged out $ unlines
-      [ "CompileFlags:"
-      , "      Add: [" <> includes <> "]"
-      ]
+generateCBitsClangd =
+  withTargetDocs "Generate a .clangd file for working with benchmark.c" do
+    "site/cbits/.clangd" %> \out -> do
+      Stdout dirs <- command [] "ghc-pkg" ["field", "rts", "include-dirs", "--simple-output"]
+      let includes = intercalate ", " $ ("-I" <>) <$> words dirs
+      writeFileChanged out $ unlines
+        [ "CompileFlags:"
+        , "      Add: [" <> includes <> "]"
+        ]

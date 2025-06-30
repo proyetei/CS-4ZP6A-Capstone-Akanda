@@ -1,7 +1,7 @@
 -- | Benchmark plotting via @vega-lite@.
 --
 -- This module provides some @vega-lite@ layers
--- for user time, system time, and max
+-- for user time, system time, and max resident set size.
 module Panbench.Shake.Vega
   ( userTimeLayer
   , systemTimeLayer
@@ -127,6 +127,7 @@ maxRssLayer dataSource width height =
 
 -- * Vega helpers
 
+-- | Place the benchmark size along the X axis.
 sizeXPosition :: [VL.EncodingSpec] -> [VL.EncodingSpec]
 sizeXPosition =
   VL.position VL.X
@@ -135,6 +136,7 @@ sizeXPosition =
   , VL.PAxis [VL.AxTitle "Input size"]
   ]
 
+-- | Color the data by the language field.
 langColor :: [VL.EncodingSpec] -> [VL.EncodingSpec]
 langColor =
   VL.color
@@ -148,6 +150,7 @@ nanosecondTransform :: VL.FieldName -> [VL.TransformSpec] -> [VL.TransformSpec]
 nanosecondTransform name =
   VL.calculateAs ("datum." <> name <> " / 1000000000") name
 
+-- | Filter the data by the legend selection.
 langFilter :: [VL.TransformSpec] -> [VL.TransformSpec]
 langFilter = VL.filter (VL.FSelection "legend")
 

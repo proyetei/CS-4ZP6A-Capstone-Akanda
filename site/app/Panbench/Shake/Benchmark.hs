@@ -1,6 +1,6 @@
 {-# LANGUAGE CApiFFI #-}
 module Panbench.Shake.Benchmark
-  ( -- $ bench
+  ( -- $ shakeBench
     benchmark
   , BenchmarkExecStats(..)
   ) where
@@ -23,7 +23,7 @@ import System.Directory
 
 -- * Benchmarking tools
 --
--- $bench
+-- $shakeBench
 
 -- | Benchmarking statistics gathered by @benchmark@.
 data BenchmarkExecStats = BenchmarkExecStats

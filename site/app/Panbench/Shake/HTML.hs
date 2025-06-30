@@ -47,40 +47,36 @@ jsSourceHeader JsSources{..} = do
   H.script H.! A.type_ "text/javascript" $ H.preEscapedToHtml vegaLiteJs
   H.script H.! A.type_ "text/javascript" $ H.preEscapedToHtml vegaEmbedJs
 
-
--- | Create a @'HTML'@ div containing a @vega-lite@ chart.
-benchmarkChart
-  :: Text
-  -- ^ Chart ID.
-  -> VegaLite
-  -- ^ @vega-lite@ spec for the chart.
-  -> Html
-benchmarkChart chartId vega = do
-  H.div H.! A.id (H.toValue chartId) H.! A.class_ "chart" $ ""
-  H.script H.! A.type_ "text/javascript" $ H.preEscapedToHtml $
-    T.unlines
-    [ "var spec" <> chartId <> " =" <> encodeJsonUtf8 (VL.fromVL vega) <> ";"
-    , "vegaEmbed('#" <> chartId <> "', spec" <> chartId <> ")"
-    , ".then((res) => {"
-    , "});"
-    ]
-
--- | Create a report for a single benchmarking matrix.
+-- | Create @div@ for a single benchmarking matrix chart.
 benchmarkMatrixHtml
   :: BenchmarkMatrix
   -> BenchmarkMatrixStats
   -> Html
 benchmarkMatrixHtml BenchmarkMatrix{..} stats = do
-  -- [FIXME: Reed M, 24/06/2025] We are duplicating the data 3 times.
-  let jsonData = J.toJSON stats
-  benchmarkChart (T.pack benchMatrixName <> "Chart") $ VL.toVegaLite
-    [ VL.datasets [("data", VL.dataFromJson jsonData [])]
-    , VL.vConcat
-      [ userTimeLayer "data" 600 600
-      , systemTimeLayer "data" 600 600
-      , maxRssLayer "data" 600 600
-      ]
+  H.div H.! A.id (H.toValue chartId) H.! A.class_ "chart" $ ""
+  -- Create a containing <script> tag that embeds our data as a JSON blob,
+  -- and call vegaEmbed on the above div.
+  H.script H.! A.type_ "text/javascript" $ H.preEscapedToHtml $
+    T.unlines
+    [ "var spec" <> chartId <> " =" <> encodeJsonUtf8 (VL.fromVL chart) <> ";"
+    , "vegaEmbed('#" <> chartId <> "', spec" <> chartId <> ")"
+    , ".then((res) => {"
+    , "});"
     ]
+  where
+    chartId :: Text
+    chartId = T.pack benchMatrixName <> "Chart"
+
+    chart :: VegaLite
+    chart =
+      VL.toVegaLite
+      [ VL.datasets [("data", VL.dataFromJson (J.toJSON stats) [])]
+      , VL.vConcat
+        [ userTimeLayer "data" 600 600
+        , systemTimeLayer "data" 600 600
+        , maxRssLayer "data" 600 600
+        ]
+      ]
 
 -- | Construct a benchmarking report from a JSON encoded data blob.
 reportHtml

@@ -51,6 +51,9 @@ cleanBuildArtifacts lang dir =
 
 -- * Shake rules for compiling generators
 
+-- | Shake query for compiling a @panbench@ generator by name.
+--
+-- The generator name should be listed in @generators/panbench-generators.cabal@.
 newtype GeneratorQ = GeneratorQ String
   deriving newtype (Eq, Ord, Show, Hashable, Binary, NFData)
 
@@ -104,11 +107,17 @@ generatorOutputDir GenerateModule{..} =
   "_build" </> Lang.name generatorLang </> generatorName </> show generatorSize
   </> generatorName <.> Lang.fileExt generatorLang
 
+-- | Request that a single module be generated.
+--
+-- This query is subject to caching.
 needModule :: GenerateModule -> Action (FilePath, FilePath)
 needModule gen = do
   (path, _) <- askFileCacheOracle gen
   return (splitFileName path)
 
+-- | Request that a list of modules be generated in parallel.
+--
+-- This query is subject to caching.
 needModules :: [GenerateModule] -> Action [(FilePath, FilePath)]
 needModules gens = do
   paths <- fmap fst <$> asksFileCacheOracle gens

@@ -15,14 +15,17 @@ main = shakeArgs (shakeOptions {shakeFiles="_build"}) do
   benchmarkMatrixRules
   siteRules
 
-  phony "clean-site" do
-    removeFilesAfter "_build" ["site/*"]
+  withTargetDocs "Remove all generated html files." $
+    phony "clean-site" do
+      removeFilesAfter "_build" ["site/*"]
 
-  phony "clean" do
-    removeFilesAfter "_build" ["agda/*", "lean/*", "idris2/*", "rocq/*", "*.html"]
+  withTargetDocs "Remove all generated outputs and html files." $
+    phony "clean" do
+      removeFilesAfter "_build" ["agda/*", "lean/*", "idris2/*", "rocq/*", "*.html"]
 
-  phony "clean-everything" do
-    liftIO $ removeDirectoryRecursive "_build"
+  withTargetDocs "Delete the entire _build directory, including the shake database." $
+    phony "clean-everything" do
+      liftIO $ removeDirectoryRecursive "_build"
 
   -- Development rules
   generateCBitsClangd
