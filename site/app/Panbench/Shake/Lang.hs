@@ -10,6 +10,8 @@ module Panbench.Shake.Lang
   , generatorRules
   ) where
 
+import Data.Char
+
 import Development.Shake
 import Development.Shake.Classes
 
@@ -46,6 +48,22 @@ findDefaultExecutable lang =
 cleanBuildArtifacts :: Lang -> FilePath -> Action ()
 cleanBuildArtifacts lang dir =
   removeFilesAfter dir (Lang.buildArtifacts lang)
+
+-- * Shake rules for compiling generators
+
+newtype GeneratorQ = GeneratorQ String
+  deriving newtype (Eq, Ord, Show, Hashable, Binary, NFData)
+
+type instance RuleResult GeneratorQ = FilePath
+
+-- | Compile a generator, and return the absolute path of
+-- the resulting binary.
+compileGenerator :: GeneratorQ -> Action FilePath
+compileGenerator (GeneratorQ gen) = do
+  need ["generators" </> "app" </> gen <.> "hs"]
+  command_ [] "cabal" ["build", gen]
+  Stdout out <- command [] "cabal" ["list-bin", gen]
+  pure (takeWhile (not . isSpace) out)
 
 -- * Shake rules for generating per-language modules
 --
@@ -99,8 +117,8 @@ needModules gens = do
 -- | Rules for module generation.
 generatorRules :: Rules ()
 generatorRules = do
+  needGenerator <- newCache compileGenerator
   addFileCacheOracle generatorOutputDir (\_ -> pure ()) \GenerateModule{..} -> do
-    need ["generators" </> "app" </> generatorName <.> "hs"]
-    -- -- [FIXME: Reed M, 29/06/2025] Call @cabal@ here directly.
-    Stdout out <- command [] "cabal" ["run", generatorName, "--", "--size", show generatorSize, "--language", Lang.name generatorLang]
+    generatorBin <- needGenerator (GeneratorQ generatorName)
+    Stdout out <- command [] generatorBin ["--size", show generatorSize, "--language", Lang.name generatorLang]
     pure ((), out)
