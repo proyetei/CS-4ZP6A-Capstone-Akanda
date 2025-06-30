@@ -27,17 +27,69 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+      os: ubuntu-latest
+      ghc-version: '9.4.8'
+      cabal-version: '3.12.1.0'
+    runs-on: ${{ env.os }}
     steps:
-      - name: Checkout
+      - name: Checkout ⬇️
         uses: actions/checkout@v4
-      - name: Setup Pages
+
+      - name: Setup Pages 📖
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+
+      - name: Setup Linux environment 🐧
+        run: |
+          echo "ghcup=/usr/local/.ghcup" >> $GITHUB_ENV
+          echo "cabal-store=/home/runner/.cabal/store" >> $GITHUB_ENV
+          # tar doesn't get run with the right permissions when unpacking the
+          # cache on linux, so we just chown the ghcup directory.
+          sudo chown -R $(whoami):$(id -ng) ~/.ghcup/
+
+      - name: Restore ghcup cache ♻️
+        uses: actions/cache/restore@v4
+        id: ghcup-cache
+        env:
+          key: ${{ env.os }}-ghc-${{ env.ghc-version }}-cabal-${{ env.cabal-version }}
+        with:
+          path: ${{ env.ghcup }}
+          key: ${{ env.os }}-ghc-${{ env.ghc-version }}-cabal-${{ env.cabal-version }}
+          restore-keys: ${{ env.key }}-
+
+      - name: Install GHC ${{ env.ghc-version }} and Cabal ${{ env.cabal-version }} 🐬
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ env.ghc-version }}
+          cabal-version: ${{ env.cabal-version }}
+
+      - name: Cabal configure 🧙
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build all --dry-run
+
+      - name: Restore dependency cache ♻️
+        uses: actions/cache/restore@v4
+        id: cabal-cache
+        env:
+          key: ${{ env.os }}-ghc-${{ env.ghc-version }}-cabal-${{ env.cabal-version }}
+        with:
+          path: ${{ env.cabal-store }}
+          key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ env.key }}-
+
+      - name: Install dependencies ⬇️
+        if: steps.cabal-cache.outputs.cache-hit != 'true'
+        run: cabal build all --only-dependencies
+
+      - name: Build 🛠️
+        run: cabal run panbench-site -- _build/site/index.html
+
+      - name: Upload artifact ⬆️
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
+          path: '_build/site'
+
+      - name: Deploy to GitHub Pages 📖
         id: deployment
         uses: actions/deploy-pages@v4
