@@ -87,7 +87,9 @@ int c_benchmark(const char *path, char *const argv[], char *const envp[], Benchm
       // On failure, it will set `errno`, which we then ship over
       // to the parent process.
       int child_errno = errno;
-      write(fork_fds[1], &child_errno, sizeof(int));
+      // If this write fails then there's literally nothing we can do.
+      // The `if` here lets us locally ignore -Wunused-result.
+      if(write(fork_fds[1], &child_errno, sizeof(int))){};
       // Don't bother with the usual exit cleanup: we've got no buffers to flush.
       _exit(127);
     }
