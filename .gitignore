@@ -6,3 +6,4 @@
 **/dist-newstyle
 translators/test/staging/*
 _build
+**/.clangd

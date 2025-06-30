@@ -32,6 +32,7 @@ executable site
         TypeOperators
     other-modules:
         Panbench.Shake.Benchmark
+        Panbench.Shake.Dev
         Panbench.Shake.File
         Panbench.Shake.HTML
         Panbench.Shake.Lang

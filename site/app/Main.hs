@@ -4,6 +4,7 @@ import Development.Shake
 
 import System.Directory
 
+import Panbench.Shake.Dev
 import Panbench.Shake.HTML
 import Panbench.Shake.Matrix
 import Panbench.Shake.Lang
@@ -22,3 +23,6 @@ main = shakeArgs (shakeOptions {shakeFiles="_build"}) do
 
   phony "clean-everything" do
     liftIO $ removeDirectoryRecursive "_build"
+
+  -- Development rules
+  generateCBitsClangd
