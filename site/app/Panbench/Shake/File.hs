@@ -126,12 +126,8 @@ addFileCacheOracle
 addFileCacheOracle getPath decodeAnswer act = do
   addBuiltinRule noLint identify run
     where
-      -- [FIXME: Reed M, 29/06/2025] This could be done more efficiently:
-      -- we are just trying to write a machine word: we don't need to go through
-      -- a lazy byte string.
       identify :: FileCacheOracleQ q -> FileCacheOracleA a -> Maybe BS.ByteString
       identify _ (FileCacheOracleA (_, ans)) = Just $ packStorable $ hash ans
-        -- LBS.toStrict $ runPut $ put (hash ans)
 
       run :: FileCacheOracleQ q -> Maybe BS.ByteString -> RunMode -> Action (RunResult (FileCacheOracleA a))
       run (FileCacheOracleQ q) oldTime mode = do
@@ -153,6 +149,7 @@ addFileCacheOracle getPath decodeAnswer act = do
             writeTime <- fromMaybe (error "The file disappeared just after we wrote it.") <$> getModificationTime path
             pure $ RunResult ChangedRecomputeDiff writeTime (FileCacheOracleA (path, ans))
 
+-- | Query a file cache oracle.
 askFileCacheOracle
   :: (RuleResult q ~ a, ShakeValue q, Typeable a)
   => q
@@ -160,6 +157,7 @@ askFileCacheOracle
 askFileCacheOracle =
   fmap coerce . apply1 . FileCacheOracleQ
 
+-- | Perform multiple queries to a file cache oracle in parallel.
 asksFileCacheOracle
   :: (RuleResult q ~ a, ShakeValue q, Typeable a)
   => [q]
@@ -180,7 +178,7 @@ getModificationTime path = liftIO do
     else
       throwIO e
   where
-    -- [HACK: Potential innefficieny from @time@]
+    -- [HACK: Potential inefficiency from @time@]
     -- As usual, @time@ is an extremely annoying library.
     -- Unfortunately, @directory@ reports modification times
     -- back using @UTCTime@, so avoiding @time@ would be even
