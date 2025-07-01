@@ -95,9 +95,7 @@ printLocalDefn (LocDefFun var ty args expr) =
             (_:_) -> pretty var <+> (hsep $ map (pretty . arg) args)
 
 printDef :: Definition -> Doc ann
-printDef (DefTVar var Nothing expr) = 
-  pretty var <+> assign <+> align (printTm expr) <> softline'
-printDef (DefTVar var (Just t) expr) = 
+printDef (DefTVar var t expr) = 
   typeAnn (pretty var) (printTm t) <> hardline <>
   pretty var <+> assign <+> align (printTm expr) <> hardline
 

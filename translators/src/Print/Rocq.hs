@@ -101,8 +101,7 @@ printLocalDefn (LocDefFun var (Just t) args expr) = typeAnn targs (printReturnTy
   where targs = prettyArgs var printArg args
 
 printDef :: Definition -> Doc ann
-printDef (DefTVar var Nothing expr) = pretty var <+> assign <+> printTm expr
-printDef (DefTVar var (Just t) expr) =
+printDef (DefTVar var t expr) =
   nest 4 ("Definition" <+> typeAnn (pretty var) (printTm t) <+> assign <> softline <>
   (printTm expr <> dot <> hardline))
 printDef (DefPatt var params ty m cons) = "Fixpoint" <+> pretty var <+>
