@@ -24,8 +24,7 @@ lets_ :: [(Text, Tm)] -> (Bwd Tm -> Tm) -> Tm
 lets_ = Bwd.scoped (\(x, e) -> Let [LocDefFun x Nothing [] e]) (\(x, _) -> Var x)
 
 main :: IO ()
-main = panbenchMain "LetAddExample" \n ->
-  Module "LetAddExample" [ImportLib NatMod] $
+main = panbenchMain "LetAddExample" [ImportLib NatMod] \n ->
   [ DefTVar "n" (Just nat) $
     lets_ (zip (names "x" [1..n]) (num 1:[plus (var "x" i) (var "x" i) | i <- [1..n-1] ])) \es ->
       Bwd.last es

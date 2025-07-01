@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 -- | Panbench utilities.
 module Panbench
   ( -- $generators
@@ -7,6 +8,8 @@ module Panbench
   , module Grammar
   ) where
 
+import Data.Text (Text)
+import Data.Text qualified as T
 import Data.Text.IO qualified as T
 
 import Numeric.Natural
@@ -22,19 +25,27 @@ import Grammar
 -- $generators
 
 -- | Options to pass to a generator.
-data PanbenchOpts = PanbenchOpts
-  { optSize :: Natural
-  -- ^ The size of the output to generate.
-  , optLang :: Lang
-  -- ^ The language to generate for.
-  }
+data PanbenchCmd
+  = GenerateCmd Lang Natural
+  | BaselineCmd Lang
   deriving (Show)
 
--- | Option parser for @PanbenchOpts@.
-panbenchOptParser :: Parser PanbenchOpts
-panbenchOptParser = PanbenchOpts
+generateCmdParser :: Parser PanbenchCmd
+generateCmdParser = GenerateCmd
   <$> option auto (long "size" <> metavar "SIZE" <> help "The size of the module to generate.")
   <*> option auto (long "language" <> metavar "LANG" <> help "The language to generate for.")
+
+baselineCmdParser :: Parser PanbenchCmd
+baselineCmdParser = BaselineCmd
+  <$> option auto (long "language" <> metavar "LANG" <> help "The language to generate for.")
+
+panbenchCmdParse :: Parser PanbenchCmd
+panbenchCmdParse =
+  subparser $ mconcat
+    [ command "generate" $ info generateCmdParser (progDesc "Generate a module of a given size.")
+    , command "baseline" $ info baselineCmdParser (progDesc "Generate a \"baseline\" module containing just imports.")
+    ]
+
 
 -- | Construct a @panbench@ generator binary.
 --
@@ -42,16 +53,21 @@ panbenchOptParser = PanbenchOpts
 -- of a @panbench@ generator, and will read in a size and language
 -- as @--size@ and @--language@ arguments.
 panbenchMain
-  :: String
+  :: Text
   -- ^ The name of the generator.
-  -> (Natural -> Module)
+  -> [Import]
+  -- ^ Imports.
+  -> (Natural -> [Definition])
   -- ^ Generate a module of a given size.
   -> IO ()
-panbenchMain name gen = do
-  opts <- execParser $
-    info (panbenchOptParser <**> helper) $ mconcat
+panbenchMain name imports gen = do
+  cmd <- customExecParser (prefs showHelpOnEmpty) $
+    info (panbenchCmdParse <**> helper) $ mconcat
       [ fullDesc
-      , header ("panbench generator for " <> name)
+      , header ("panbench generator for " <> T.unpack name)
       ]
-  let module_ = gen (optSize opts)
-  T.putStr (Lang.render (optLang opts) module_)
+  case cmd of
+    GenerateCmd lang size ->
+      T.putStr (Lang.render lang $ Module name imports (gen size))
+    BaselineCmd lang ->
+      T.putStr (Lang.render lang $ Module name imports [])

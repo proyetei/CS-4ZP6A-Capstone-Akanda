@@ -129,5 +129,5 @@ generatorRules = do
   needGenerator <- newCache compileGenerator
   addFileCacheOracle generatorOutputDir (\_ -> pure ()) \GenerateModule{..} -> do
     generatorBin <- needGenerator (GeneratorQ generatorName)
-    Stdout out <- command [] generatorBin ["--size", show generatorSize, "--language", Lang.name generatorLang]
+    Stdout out <- command [] generatorBin ["generate", "--size", show generatorSize, "--language", Lang.name generatorLang]
     pure ((), out)
