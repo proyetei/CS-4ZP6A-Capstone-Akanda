@@ -27,8 +27,8 @@ library
     import: warnings, extensions
     exposed-modules:  
         Grammar,
+        Panbench.Data.List.Bwd,
         Panbench.Lang,
-        Panbench.Bwd,
         Panbench,
         Print.Generic,
         Print.Agda, 

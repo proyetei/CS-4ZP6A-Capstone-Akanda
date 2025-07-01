@@ -1,12 +1,13 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE DeriveFunctor #-}
--- | Snoc-lists.
+-- | Backwards lists.
 --
 -- This module is meant to be imported qualified.
-module Panbench.Bwd
+module Panbench.Data.List.Bwd
   ( Bwd(..)
   , last
   , scoped
+  , repeat
   ) where
 
 import Prelude

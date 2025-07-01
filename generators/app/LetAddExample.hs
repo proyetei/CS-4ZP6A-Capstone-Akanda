@@ -3,8 +3,8 @@ import Data.Text qualified as T
 
 import Numeric.Natural
 
-import Panbench.Bwd (Bwd)
-import Panbench.Bwd qualified as Bwd
+import Panbench.Data.List.Bwd (Bwd)
+import Panbench.Data.List.Bwd qualified as Bwd
 import Panbench
 
 -- [TODO: Reed M, 28/06/2025] Experimenting with a DSL a bit.
