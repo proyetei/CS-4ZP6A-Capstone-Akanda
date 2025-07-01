@@ -1,4 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeApplications #-}
 -- | Panbench utilities.
 module Panbench
   ( -- $generators
@@ -8,6 +9,7 @@ module Panbench
   , module Grammar
   ) where
 
+import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
@@ -30,14 +32,28 @@ data PanbenchCmd
   | BaselineCmd Lang
   deriving (Show)
 
+langOptParser :: Parser Lang
+langOptParser =
+  option @Lang auto $ mconcat
+  [ long "language"
+  , metavar "LANG"
+  , help "The language to generate for."
+  , completeWith (Lang.name <$> Set.toList Lang.allLangs)
+  ]
+
+sizeOptParser :: Parser Natural
+sizeOptParser =
+  option @Natural auto $ mconcat
+  [ long "size"
+  , metavar "SIZE"
+  , help "The size of the module to generate."
+  ]
+
 generateCmdParser :: Parser PanbenchCmd
-generateCmdParser = GenerateCmd
-  <$> option auto (long "size" <> metavar "SIZE" <> help "The size of the module to generate.")
-  <*> option auto (long "language" <> metavar "LANG" <> help "The language to generate for.")
+generateCmdParser = GenerateCmd <$> langOptParser <*> sizeOptParser
 
 baselineCmdParser :: Parser PanbenchCmd
-baselineCmdParser = BaselineCmd
-  <$> option auto (long "language" <> metavar "LANG" <> help "The language to generate for.")
+baselineCmdParser = BaselineCmd <$> langOptParser
 
 panbenchCmdParse :: Parser PanbenchCmd
 panbenchCmdParse =
