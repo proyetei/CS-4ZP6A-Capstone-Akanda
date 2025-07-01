@@ -21,15 +21,17 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  os: ubuntu-latest
+  ghc-version: '9.4.8'
+  cabal-version: '3.12.1.0'
+
 jobs:
   # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-      os: ubuntu-latest
-      ghc-version: '9.4.8'
-      cabal-version: '3.12.1.0'
     runs-on: ${{ env.os }}
     steps:
       - name: Checkout ⬇️
