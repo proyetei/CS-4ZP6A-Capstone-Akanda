@@ -105,8 +105,7 @@ printLocalDefn (LocDefFun var (Just t) args expr) =
   typeAnn (prettyArgs var printArg args) (printReturnType t) <+> assign <+> printTm expr
 
 printDef :: [Definition] -> Definition -> Doc ann
-printDef _ (DefTVar var Nothing expr) = pretty var <+> assign <+> (printTm expr)
-printDef _ (DefTVar var (Just t) expr) = "def" <+> typeAnn (pretty var) (printTm t) <+>
+printDef _ (DefTVar var t expr) = "def" <+> typeAnn (pretty var) (printTm t) <+>
   assign <+> printTm expr
 printDef _ (DefPatt var params ty _ cons) =
     "def" <+> typeAnn (pretty var) (printTm (foldr Arr ty (map snd params))) <> hardline <>

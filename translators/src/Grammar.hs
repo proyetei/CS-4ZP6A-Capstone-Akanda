@@ -25,8 +25,8 @@ newtype Import = ImportLib KnownMods
 data Definition
   = DefPatt Name [(Name,Tm)] Tm Name [([Arg Name Tm], Tm)]
     -- ^ Function name; name,type is parameters for Rocq; output type; name is input to match with for Rocq, constructors
-  | DefTVar Name (Maybe Tm) Tm
-    -- ^ Define a (top-level) variable with an optional type annotation
+  | DefTVar Name Tm Tm
+    -- ^ Define a (top-level) variable with a type annotation, and a definiens
   | DefDataType Name [(Name,Tm)] Tm
     -- ^ Datatype name, constructors, usually type is Set
   | DefPDataType Name [(Name, Tm)] [(Name,Tm)] Tm
